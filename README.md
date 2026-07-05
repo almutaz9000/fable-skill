@@ -13,13 +13,20 @@ Install it once with `npx`, natively, into whichever agent you use:
 |---|---|---|---|
 | Claude Code | Cursor | GitHub Copilot | OpenAI Codex |
 | Gemini CLI / Antigravity | Windsurf | Cline | Roo Code |
-| Amp | OpenClaw / ClawBot | any AGENTS.md agent | claude.ai (zip) |
+| Amp | OpenClaw / ClawBot | Aider | Continue.dev |
+| Zed | JetBrains Junie | Kiro (AWS) | Trae |
+| Qwen Code | OpenCode | Goose | Warp |
+| Kilo Code | Augment | OpenHands | Replit Agent |
+| any AGENTS.md agent | claude.ai (zip) | | |
 
 ## Quick start
 
 ```bash
 # Claude Code, available in every project
 npx github:almutaz9000/fable-skill claude --global
+
+# OpenAI Codex, available in every project (~/.codex/AGENTS.md)
+npx github:almutaz9000/fable-skill codex --global
 
 # Cursor rules for the current repo
 npx github:almutaz9000/fable-skill cursor
@@ -68,6 +75,20 @@ with a single rules file get everything merged into one document in their native
 | Gemini CLI / Antigravity | `gemini --global` / `gemini` | `~/.gemini/GEMINI.md` or `./GEMINI.md` (managed block) |
 | Amp | `amp` | `./AGENTS.md` (managed block) |
 | OpenClaw / ClawBot | `openclaw --global` / `openclaw` | `~/.openclaw/skills/fable-skill/` or `./skills/fable-skill/` |
+| Aider | `aider` | `./CONVENTIONS.md` (managed block; load with `--read CONVENTIONS.md`) |
+| Continue.dev | `continue --global` / `continue` | `~/.continue/rules/` or `.continue/rules/` |
+| Zed | `zed` | `./.rules` (managed block) |
+| JetBrains Junie | `junie` | `.junie/guidelines.md` (managed block) |
+| Kiro (AWS) | `kiro` | `.kiro/steering/fable-skill.md` |
+| Trae | `trae` | `.trae/rules/fable-skill.md` |
+| Qwen Code | `qwen --global` / `qwen` | `~/.qwen/QWEN.md` or `./QWEN.md` (managed block) |
+| OpenCode | `opencode --global` / `opencode` | `~/.config/opencode/AGENTS.md` or `./AGENTS.md` (managed block) |
+| Goose (Block) | `goose` | `./.goosehints` (managed block) |
+| Warp | `warp` | `./WARP.md` (managed block) |
+| Kilo Code | `kilo` | `.kilocode/rules/fable-skill.md` |
+| Augment Code | `augment` | `.augment/rules/fable-skill.md` |
+| OpenHands | `openhands` | `.openhands/microagents/repo.md` (managed block) |
+| Replit Agent | `replit` | `./replit.md` (managed block) |
 | AGENTS.md standard | `agents` | `./AGENTS.md` (managed block) |
 
 **claude.ai:** zip the [`skill/`](skill/) folder (it must contain `SKILL.md` at its root) and

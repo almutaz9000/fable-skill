@@ -153,6 +153,79 @@ const TARGETS = {
     global: () => path.join(HOME, ".openclaw", "skills", "fable-skill"),
     project: (cwd) => path.join(cwd, "skills", "fable-skill"),
   },
+  aider: {
+    label: "Aider",
+    kind: "managed",
+    project: (cwd) => path.join(cwd, "CONVENTIONS.md"),
+  },
+  continue: {
+    label: "Continue.dev",
+    kind: "file",
+    global: () => path.join(HOME, ".continue", "rules", "fable-skill.md"),
+    project: (cwd) => path.join(cwd, ".continue", "rules", "fable-skill.md"),
+  },
+  zed: {
+    label: "Zed",
+    kind: "managed",
+    project: (cwd) => path.join(cwd, ".rules"),
+  },
+  junie: {
+    label: "JetBrains Junie",
+    kind: "managed",
+    project: (cwd) => path.join(cwd, ".junie", "guidelines.md"),
+  },
+  kiro: {
+    label: "Kiro (AWS)",
+    kind: "file",
+    project: (cwd) => path.join(cwd, ".kiro", "steering", "fable-skill.md"),
+  },
+  trae: {
+    label: "Trae",
+    kind: "file",
+    project: (cwd) => path.join(cwd, ".trae", "rules", "fable-skill.md"),
+  },
+  qwen: {
+    label: "Qwen Code",
+    kind: "managed",
+    global: () => path.join(HOME, ".qwen", "QWEN.md"),
+    project: (cwd) => path.join(cwd, "QWEN.md"),
+  },
+  opencode: {
+    label: "OpenCode",
+    kind: "managed",
+    global: () => path.join(HOME, ".config", "opencode", "AGENTS.md"),
+    project: (cwd) => path.join(cwd, "AGENTS.md"),
+  },
+  goose: {
+    label: "Goose (Block)",
+    kind: "managed",
+    project: (cwd) => path.join(cwd, ".goosehints"),
+  },
+  warp: {
+    label: "Warp",
+    kind: "managed",
+    project: (cwd) => path.join(cwd, "WARP.md"),
+  },
+  kilo: {
+    label: "Kilo Code",
+    kind: "file",
+    project: (cwd) => path.join(cwd, ".kilocode", "rules", "fable-skill.md"),
+  },
+  augment: {
+    label: "Augment Code",
+    kind: "file",
+    project: (cwd) => path.join(cwd, ".augment", "rules", "fable-skill.md"),
+  },
+  openhands: {
+    label: "OpenHands",
+    kind: "managed",
+    project: (cwd) => path.join(cwd, ".openhands", "microagents", "repo.md"),
+  },
+  replit: {
+    label: "Replit Agent",
+    kind: "managed",
+    project: (cwd) => path.join(cwd, "replit.md"),
+  },
   agents: {
     label: "AGENTS.md standard (Codex, Amp, Jules, Zed, Factory, and others)",
     kind: "managed",
