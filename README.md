@@ -1,6 +1,6 @@
 # fable-skill
 
-**Fable-class operating discipline for any AI coding agent.**
+**Fable-model operating discipline for any AI coding agent.**
 
 One skill that upgrades how your agent *works* — not what it knows. It enforces the working
 discipline that separates top-tier agentic models from ordinary runs: explore before planning,
