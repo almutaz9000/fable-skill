@@ -1,0 +1,44 @@
+{
+  "name": "fable-skill",
+  "version": "1.0.0",
+  "description": "Fable-class agentic operating discipline for any AI coding agent — Claude Code, Cursor, Copilot, Codex, Gemini, Windsurf, Cline, Amp, and more. One skill, installed natively everywhere.",
+  "bin": {
+    "fable-skill": "bin/cli.js"
+  },
+  "files": [
+    "bin/",
+    "skill/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "skill",
+    "claude",
+    "claude-code",
+    "cursor",
+    "copilot",
+    "codex",
+    "gemini",
+    "windsurf",
+    "cline",
+    "agents-md",
+    "rules",
+    "prompt-engineering",
+    "agentic"
+  ],
+  "author": "almutaz9000",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/almutaz9000/fable-skill.git"
+  },
+  "homepage": "https://github.com/almutaz9000/fable-skill#readme",
+  "bugs": {
+    "url": "https://github.com/almutaz9000/fable-skill/issues"
+  }
+}
