@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/cover.svg" alt="fable-skill — Fable-model operating discipline for any AI coding agent" width="960"/>
+</p>
+
 # fable-skill
 
 **Fable-model operating discipline for any AI coding agent.**
@@ -25,7 +29,7 @@ Install it once with `npx`, natively, into whichever agent you use:
 # Claude Code, available in every project
 npx github:almutaz9000/fable-skill claude --global
 
-# OpenAI Codex, available in every project (~/.codex/AGENTS.md)
+# OpenAI Codex, available in every project (~/.agents/skills/fable-skill/)
 npx github:almutaz9000/fable-skill codex --global
 
 # Cursor rules for the current repo
@@ -48,7 +52,7 @@ content is never touched.
 ## What's in the skill
 
 The skill is plain markdown — a core protocol plus six focused modules. Agents with native
-skill support (Claude Code, OpenClaw) get the folder as-is and load modules on demand; agents
+skill support (Claude Code, OpenAI Codex, OpenClaw) get the folder as-is and load modules on demand; agents
 with a single rules file get everything merged into one document in their native format.
 
 | Module | What it enforces |
@@ -71,7 +75,7 @@ with a single rules file get everything merged into one document in their native
 | Windsurf | `windsurf` | `.windsurf/rules/fable-skill.md` (always-on) |
 | Cline | `cline --global` / `cline` | `~/Documents/Cline/Rules/` or `.clinerules/` |
 | Roo Code | `roo` | `.roo/rules/fable-skill.md` |
-| OpenAI Codex | `codex --global` / `codex` | `~/.codex/AGENTS.md` or `./AGENTS.md` (managed block) |
+| OpenAI Codex | `codex --global` / `codex` | `~/.agents/skills/fable-skill/` or `.agents/skills/fable-skill/` |
 | Gemini CLI / Antigravity | `gemini --global` / `gemini` | `~/.gemini/GEMINI.md` or `./GEMINI.md` (managed block) |
 | Amp | `amp` | `./AGENTS.md` (managed block) |
 | OpenClaw / ClawBot | `openclaw --global` / `openclaw` | `~/.openclaw/skills/fable-skill/` or `./skills/fable-skill/` |

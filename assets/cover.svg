@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 280" width="960" height="280">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#58a6ff"/>
+      <stop offset="100%" style="stop-color:#bc8cff"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="960" height="280" fill="url(#bg)" rx="12"/>
+
+  <!-- Subtle grid lines -->
+  <g opacity="0.04" stroke="#58a6ff" stroke-width="1">
+    <line x1="0" y1="70" x2="960" y2="70"/>
+    <line x1="0" y1="140" x2="960" y2="140"/>
+    <line x1="0" y1="210" x2="960" y2="210"/>
+    <line x1="240" y1="0" x2="240" y2="280"/>
+    <line x1="480" y1="0" x2="480" y2="280"/>
+    <line x1="720" y1="0" x2="720" y2="280"/>
+  </g>
+
+  <!-- Accent bar top -->
+  <rect x="0" y="0" width="960" height="3" fill="url(#accent)" rx="1.5"/>
+
+  <!-- Loop graphic (left side) -->
+  <g transform="translate(80, 140)" filter="url(#glow)">
+    <!-- Fable Loop circle -->
+    <circle cx="0" cy="0" r="60" fill="none" stroke="url(#accent)" stroke-width="2" stroke-dasharray="8 4" opacity="0.6"/>
+    <circle cx="0" cy="-60" r="6" fill="#58a6ff"/>
+    <circle cx="52" cy="-30" r="5" fill="#79c0ff" opacity="0.8"/>
+    <circle cx="52" cy="30" r="5" fill="#bc8cff" opacity="0.8"/>
+    <circle cx="0" cy="60" r="5" fill="#d2a8ff" opacity="0.7"/>
+    <circle cx="-52" cy="30" r="5" fill="#bc8cff" opacity="0.8"/>
+    <circle cx="-52" cy="-30" r="5" fill="#79c0ff" opacity="0.8"/>
+    <!-- Arrows suggesting loop rotation -->
+    <path d="M 35 -50 Q 60 -30 52 0" fill="none" stroke="#58a6ff" stroke-width="1.5" opacity="0.5" marker-end="url(#arr)"/>
+    <!-- Center icon -->
+    <text x="0" y="6" text-anchor="middle" font-family="monospace" font-size="18" fill="#58a6ff" opacity="0.9">⟳</text>
+  </g>
+
+  <!-- Main title -->
+  <text x="200" y="110" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="52" font-weight="700" fill="url(#accent)" letter-spacing="-1">fable-skill</text>
+
+  <!-- Tagline -->
+  <text x="201" y="150" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="18" fill="#8b949e" letter-spacing="0.5">Fable-model operating discipline for any AI coding agent</text>
+
+  <!-- The loop steps as chips -->
+  <g transform="translate(201, 175)">
+    <!-- explore -->
+    <rect x="0" y="0" width="72" height="24" rx="12" fill="#21262d" stroke="#30363d" stroke-width="1"/>
+    <text x="36" y="16.5" text-anchor="middle" font-family="monospace" font-size="11" fill="#58a6ff">explore</text>
+    <!-- plan -->
+    <rect x="80" y="0" width="52" height="24" rx="12" fill="#21262d" stroke="#30363d" stroke-width="1"/>
+    <text x="106" y="16.5" text-anchor="middle" font-family="monospace" font-size="11" fill="#79c0ff">plan</text>
+    <!-- act -->
+    <rect x="140" y="0" width="42" height="24" rx="12" fill="#21262d" stroke="#30363d" stroke-width="1"/>
+    <text x="161" y="16.5" text-anchor="middle" font-family="monospace" font-size="11" fill="#bc8cff">act</text>
+    <!-- verify -->
+    <rect x="190" y="0" width="62" height="24" rx="12" fill="#21262d" stroke="#30363d" stroke-width="1"/>
+    <text x="221" y="16.5" text-anchor="middle" font-family="monospace" font-size="11" fill="#d2a8ff">verify</text>
+    <!-- iterate -->
+    <rect x="260" y="0" width="62" height="24" rx="12" fill="#21262d" stroke="#30363d" stroke-width="1"/>
+    <text x="291" y="16.5" text-anchor="middle" font-family="monospace" font-size="11" fill="#ffa657">iterate</text>
+    <!-- review -->
+    <rect x="330" y="0" width="62" height="24" rx="12" fill="#21262d" stroke="#30363d" stroke-width="1"/>
+    <text x="361" y="16.5" text-anchor="middle" font-family="monospace" font-size="11" fill="#3fb950">review</text>
+  </g>
+
+  <!-- Agent targets label -->
+  <text x="201" y="240" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="13" fill="#484f58">Claude Code · Cursor · Copilot · Codex · Gemini · Windsurf · Cline · and 25+ more</text>
+
+  <!-- Install command -->
+  <rect x="660" y="95" width="270" height="40" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <text x="675" y="121" font-family="monospace" font-size="13" fill="#3fb950">$</text>
+  <text x="689" y="121" font-family="monospace" font-size="13" fill="#c9d1d9">npx fable-skill all</text>
+
+  <!-- Version badge -->
+  <rect x="660" y="155" width="60" height="22" rx="4" fill="#1f6feb" opacity="0.8"/>
+  <text x="690" y="170.5" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="11" font-weight="600" fill="#ffffff">v1.1.0</text>
+
+  <!-- MIT badge -->
+  <rect x="728" y="155" width="46" height="22" rx="4" fill="#238636" opacity="0.8"/>
+  <text x="751" y="170.5" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="11" font-weight="600" fill="#ffffff">MIT</text>
+
+  <!-- Node badge -->
+  <rect x="782" y="155" width="72" height="22" rx="4" fill="#21262d" stroke="#30363d"/>
+  <text x="818" y="170.5" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="11" fill="#8b949e">Node ≥ 16</text>
+
+  <!-- Bottom accent bar -->
+  <rect x="0" y="277" width="960" height="3" fill="url(#accent)" rx="1.5" opacity="0.5"/>
+</svg>

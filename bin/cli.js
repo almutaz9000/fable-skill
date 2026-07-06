@@ -132,9 +132,9 @@ const TARGETS = {
   },
   codex: {
     label: "OpenAI Codex CLI",
-    kind: "managed",
-    global: () => path.join(HOME, ".codex", "AGENTS.md"),
-    project: (cwd) => path.join(cwd, "AGENTS.md"),
+    kind: "folder",
+    global: () => path.join(HOME, ".agents", "skills", "fable-skill"),
+    project: (cwd) => path.join(cwd, ".agents", "skills", "fable-skill"),
   },
   gemini: {
     label: "Gemini CLI / Antigravity",
