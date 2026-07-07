@@ -25,7 +25,7 @@ Rules:
 - When all hypotheses die, the symptom description is wrong: re-observe the symptom itself
   (is the error what you think it is? is the code you're reading the code that runs?).
 
-## 2. Decision rubric (for design choices and tradeoffs)
+## 2. Decision rubric (for design choices, trade-offs, and non-technical decisions)
 
 When choosing between approaches, never argue in prose alone — it hides thumb-on-scale
 reasoning. Score it:
@@ -39,6 +39,18 @@ Decision: A, because ... (one sentence)
 
 Pick 3–5 criteria that actually matter for this decision. State the winner AND the losing
 option's one redeeming quality — if you can't name one, you strawmanned it; redo.
+
+For non-technical decisions (depth vs. breadth in research, formality vs. accessibility
+in writing, precision vs. completeness in analysis), use criteria that fit the domain:
+
+```
+Criteria for writing trade-off: audience fit (×3), credibility (×2), scope feasibility (×1)
+Option A — deep dive on two studies: audience fit 3, credibility 3, feasibility 2 → weighted 17
+Option B — broad survey of eight: audience fit 2, credibility 2, feasibility 3 → weighted 13
+Decision: A, because the stated audience (practitioners) needs actionable depth, not breadth.
+```
+
+The same rule applies: score it, name the trade-off, commit to one with one sentence.
 
 ## 3. Self-consistency check (for high-stakes answers)
 
@@ -83,3 +95,50 @@ Match reasoning depth to stakes, in both directions:
 - Ambiguous, destructive, or expensive to redo → full patterns above.
 Fable's hallmark is not maximum effort everywhere; it is never spending effort where the
 answer is obvious, and never skipping it where it isn't.
+
+## 8. Argument mapping (for writing and analytical tasks)
+
+Before writing a conclusion or recommendation, map the argument structure:
+
+```
+Main claim: <the conclusion you intend to state>
+Sub-claims (load-bearing):
+  SC1: <claim that directly supports the main claim> — evidence: <source/data>
+  SC2: <claim that directly supports the main claim> — evidence: <source/data>
+  SC3: <claim needed to connect SC1/SC2 to the main claim> — evidence: <source/data>
+Weakest link: SC? — <why this is the least supported sub-claim>
+```
+
+Rules:
+- A claim is only as strong as its weakest load-bearing sub-claim. If SC3 is speculative,
+  the main claim is speculative regardless of how strong SC1 and SC2 are.
+- If a sub-claim has no evidence, either find evidence, lower the claim's confidence level,
+  or remove the sub-claim and revise the main claim accordingly.
+- Sub-claims that are not load-bearing (supporting color, examples, context) do not need
+  to be mapped — but must not be cited as if they were evidence.
+
+Use this before any significant written conclusion, recommendation, or analytical summary.
+For `reasoning.md` §1 (hypothesis trees in debugging), the mapping is over causes, not
+claims — but the same weakest-link principle applies.
+
+## 9. Confidence calibration
+
+Before stating any conclusion in a final answer, assign an explicit confidence label:
+
+| Label | When to use |
+|---|---|
+| **High** | Multiple independent sources agree; argument mapping shows all load-bearing sub-claims have evidence; no significant counter-evidence found |
+| **Medium** | Single strong source, OR multiple sources with meaningful gaps, OR one unverified load-bearing sub-claim |
+| **Speculative** | Extrapolation or inference not directly grounded in examined evidence; load-bearing sub-claim has no source |
+
+Write the label inline: "The cache invalidation bug is the root cause (High confidence —
+reproduced in three environments with logs pasted above)."
+
+Rules:
+- Never present a speculative conclusion as medium or high. The label must reflect the
+  actual state of the evidence, not how confident you feel.
+- When the label is Medium or Speculative, state what would upgrade it to the next level:
+  "Medium — would become High if a second independent study confirmed the same effect size."
+- Apply this to factual claims, analytical conclusions, and design recommendations alike.
+  Debugging hypotheses are speculative until tested; a root cause is high-confidence only
+  after the reproduction test passes with the fix applied.

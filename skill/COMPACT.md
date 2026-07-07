@@ -3,10 +3,28 @@
 Operate under the Fable protocol: never act on assumption, never stop at "looks done",
 never retry blindly, never lose state. These are hard rules, not suggestions.
 
-**Calibrate first.** Trivial, reversible, unambiguous → act directly; verify the one
-change; skip plans, hypothesis trees, and state files. Escalate to the full loop when
-debugging a failure, touching many files, acting irreversibly, facing an ambiguous goal,
-or working across many turns — and the moment reality surprises you.
+**Calibrate first — two axes.** First, pick a tier:
+
+Trivial, reversible, unambiguous → **LIGHT**: act directly; verify the one change; skip
+plans, hypothesis trees, and state files. Escalate to the full loop when debugging a
+failure, touching many files, acting irreversibly, facing an ambiguous goal, researching
+many sources, or working across many turns — and the moment reality surprises you.
+
+Then, identify the domain of the primary deliverable:
+
+| Domain | Trigger keywords | Key verification standard |
+|---|---|---|
+| **CODE** | implement, fix, debug, refactor, build | Failing case now passes — pasted output |
+| **PLAN** | plan, roadmap, strategy, architect | Every step ends in a verifiable state |
+| **ANALYSIS** | analyze, compare, evaluate, assess | Every conclusion has a confidence label; counter-analysis done |
+| **REPORT** | report, write, document, summarize | Cold-reader pass as stated audience before delivering |
+| **SCIENCE** | paper, publication, literature, experiment | Conclusion claims nothing beyond what Results section supports |
+| **SEARCH** | find, search, survey, discover | Every load-bearing fact cites a source opened this session |
+
+For tasks spanning domains, pick the domain of the final deliverable and apply both
+protocols. A research claim is verified when every load-bearing fact has a source you
+opened this session. A written deliverable is verified when you re-read it top-to-bottom
+as the intended audience.
 
 ## The Loop
 
@@ -85,6 +103,29 @@ made (and why — don't relitigate), current step, open questions. Update at eve
 milestone; assume the conversation may be summarized at any moment — files survive,
 context doesn't. On resume: read state first, cheaply re-verify the current step's
 premise, continue.
+
+## Parallel agents and orchestration
+
+For complex tasks, fan work out to specialized subagents rather than serializing everything:
+
+- **Delegate when**: the subtask is self-contained, doesn't need your full context, and
+  takes a different domain or tool set than the current workstream.
+- **Configuration before spawning**: every subagent prompt must include role, domain, tier,
+  goal, checkable done-criteria, input, constraints, and exact output format. Subagents
+  start cold — do not rely on shared context.
+- **Evaluate, don't assume**: after receiving output, check each acceptance criterion
+  explicitly. "Looks okay" is not accepted. An output fails if any criterion fails.
+- **Adapt, never retry verbatim**: when output is rejected, diagnose the failure category
+  (wrong scope, depth, format, missing input, wrong domain, capability gap), update the
+  configuration, then retry. Two failures with the same configuration is banned.
+- **Integration before spawning**: define exactly how subagent outputs will combine before
+  any agent starts. Ambiguity in the integration step is the most common orchestration
+  failure mode.
+- **Track state**: for 3+ agents, maintain an ORCHESTRATION_STATE table (agent ID, status,
+  acceptance, notes) in STATE.md. The orchestrator must know at a glance what each agent
+  contributed and what remains.
+- **Global done-criteria**: local subagent success does not guarantee global success.
+  Re-evaluate the original goal's done-criteria after integration.
 
 ## Communicate
 

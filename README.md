@@ -66,11 +66,37 @@ Once installed, the skill activates two ways:
   `/skills`). Rules-file agents (Cursor, Copilot, AGENTS.md, …) have it always on, so
   there is nothing to invoke.
 - **Automatically** — skill-native agents match your prompt against the skill description
-  and load it when the task fits: debugging, multi-file changes, refactors, migrations,
-  ambiguous goals, long-running work.
+  and load it when the task fits: debugging, multi-file changes, refactors, research,
+  analysis, writing, scientific work, search, and long-running or multi-agent tasks.
 
 You don't need special prompt phrasing — the skill adapts to the task. But the examples
 below show what it changes in each case.
+
+### Two-axis calibration
+
+Every task is calibrated on two axes before any work begins:
+
+**Tier** (how much process overhead):
+
+| Tier | When | What it means |
+|---|---|---|
+| **LIGHT** | Single-step, reversible, unambiguous | Act directly; verify the one change; no plan, no state file |
+| **STANDARD** | Clear scope, low blast radius | The loop without written artifacts; targeted verification at the end |
+| **FULL** | Complex, irreversible, ambiguous, long, multi-agent | Written plan, explicit reasoning, state persistence, full verification |
+
+**Domain** (which protocol to apply):
+
+| Domain | Trigger | Core discipline |
+|---|---|---|
+| **CODE** | implement, fix, debug, refactor | Explore → plan → act → verify with real output |
+| **PLAN** | plan, roadmap, strategy | Checkable done-criteria, riskiest-assumption-first decomposition |
+| **ANALYSIS** | analyze, compare, evaluate | Analytical loop, confidence labels, counter-analysis |
+| **REPORT** | report, write, document | Audience-first structure, citation standard, cold-reader pass |
+| **SCIENCE** | paper, experiment, literature | Full paper protocol, reproducibility standard, mandatory limitations |
+| **SEARCH** | find, search, survey | Source evaluation rubric, provenance rule, conflict surfacing |
+| **ORCHESTRATE** | parallel agents, delegate, coordinate | Subagent configuration, acceptance criteria, adaptive reconfiguration |
+
+The tier and domain are independent. A FULL × SCIENCE task uses the full paper protocol with explicit written plans. A LIGHT × SEARCH task is a quick lookup with a citation.
 
 ### Example: debugging a failure
 
@@ -116,6 +142,70 @@ This is the LIGHT tier: no plan file, no hypothesis tree, no ceremony. The agent
 edit, verifies that one change, and reports plainly. The calibration gate exists precisely
 so small tasks stay fast.
 
+### Example: research and literature search
+
+> Survey the current state of retrieval-augmented generation — what approaches exist,
+> how do they compare, and what are the open problems?
+
+Domain: SEARCH, Tier: FULL. The agent generates at least three distinct query angles in
+one batch (not one query at a time), evaluates each source against a credibility/recency
+rubric, builds a claim map tracing each key finding to its source, surfaces any conflicts
+between sources with both sides quoted, and labels confidence levels throughout. Every
+load-bearing claim in the output cites a source actually opened in the session — training
+recall is not a citation.
+
+### Example: data analysis
+
+> Our checkout funnel conversion dropped 12% last week. Find out why.
+
+Domain: ANALYSIS, Tier: FULL. The agent runs data integrity checks first (row counts, null
+rates, before/after comparison using the same measurement definition), generates at least
+three hypotheses before testing any, builds an assumption audit marking which are verified
+and which are carried, runs the counter-analysis (argues the strongest case against the
+primary conclusion), and labels every conclusion with a confidence level. "The data shows
+X" is used only for directly observed facts; "this suggests Y" for inferences; "one
+possible explanation" for speculation.
+
+### Example: writing a technical report
+
+> Write an executive briefing on whether we should migrate our auth service to OAuth 2.1.
+
+Domain: REPORT, Tier: FULL. The agent declares the audience (executive, non-technical)
+and the key question before writing a single word, drafts the supporting body first, writes
+the executive summary last (answer upfront, conclusion stated directly), runs a full
+consistency pass (numbers match across all sections), then re-reads the complete document
+as an executive encountering it cold and resolves any confusion before delivering. The
+deliverable is a document artifact, not prose in the chat window.
+
+### Example: scientific writing
+
+> Write the methodology and results sections for our LLM evaluation paper.
+
+Domain: SCIENCE, Tier: FULL. The agent writes the methodology to the reproducibility
+standard (enough detail for an independent researcher to replicate), reports results with
+uncertainty ranges and distinguishes results from interpretations, writes a limitations
+section with at least three named limitations, and ensures the conclusion section claims
+nothing beyond what the results support. Every number traces to a specific experiment or
+dataset. "Future work" is not a substitute for a limitation.
+
+### Example: complex parallel task with multiple agents
+
+> Benchmark five alternative database schemas for our new analytics service: gather
+> performance literature, implement a prototype of the two best candidates, run load
+> tests, and produce a recommendation report.
+
+Domain: ORCHESTRATE, Tier: FULL. The agent writes an integration protocol before spawning
+any subagents (exactly how outputs will combine), then fans out in parallel: a SEARCH
+agent surveys performance literature, a CODE agent implements both candidates once the
+survey is done, and an ANALYSIS agent interprets load test results. Each subagent receives
+a self-sufficient prompt with role, domain, tier, done-criteria, input, constraints, and
+the exact output format the integration step requires. Every output is evaluated against
+explicit acceptance criteria — partial passes are rejections. If an agent's output is
+rejected, the failure category is diagnosed (wrong scope, depth, format, domain, or
+capability gap), the configuration is updated, and the agent is re-run differently. The
+orchestrating agent does not write the final report until every subagent's output has been
+accepted and the integrated result satisfies the original goal's done-criteria.
+
 ### When to use it — and when not to
 
 **Reach for fable-skill when the cost of a wrong or sloppy run is high:**
@@ -146,20 +236,24 @@ production incident, the full protocol pays for itself.
 
 ## What's in the skill
 
-The skill is plain markdown — a core protocol plus six focused modules. Agents with native
+The skill is plain markdown — a core protocol plus nine focused modules. Agents with native
 skill support (Claude Code, OpenClaw) get the folder as-is and load modules on demand; agents
 with a single rules file get everything merged into one document in their native format.
 
 | Module | What it enforces |
 |---|---|
-| [`SKILL.md`](skill/SKILL.md) | The Fable Loop: understand → explore → plan → act → verify → iterate → review, plus the non-negotiable rules |
+| [`SKILL.md`](skill/SKILL.md) | The Fable Loop: understand → explore → plan → act → verify → iterate → review, plus the two-axis calibration gate (Tier × Domain) and non-negotiable rules |
 | [`COMPACT.md`](skill/COMPACT.md) | The whole discipline distilled to roughly 2k tokens — what single-file rules targets install by default |
-| [`reasoning.md`](skill/references/reasoning.md) | Hypothesis trees for debugging, decision rubrics, self-consistency checks, assumption ledgers, altitude control when stuck |
-| [`planning.md`](skill/references/planning.md) | Checkable done-criteria, plan templates, decomposition heuristics (riskiest assumption first, vertical slices), replanning rules |
+| [`reasoning.md`](skill/references/reasoning.md) | Hypothesis trees, decision rubrics, self-consistency checks, assumption ledgers, argument mapping, confidence calibration, altitude control |
+| [`planning.md`](skill/references/planning.md) | Checkable done-criteria, domain-specific plan templates (CODE, RESEARCH, ANALYSIS, REPORT, SCIENCE, ORCHESTRATION), decomposition heuristics, replanning rules |
 | [`execution.md`](skill/references/execution.md) | Parallel tool batching, wide-fan exploration, subagent delegation, minimal-diff editing discipline |
-| [`verification.md`](skill/references/verification.md) | The evidence standard ("it should work" is banned), a five-rung verification ladder, root-cause debugging protocol |
+| [`verification.md`](skill/references/verification.md) | The evidence standard ("it should work" is banned), a five-rung code verification ladder, full verification ladders for RESEARCH, WRITING, and ANALYSIS |
 | [`context.md`](skill/references/context.md) | STATE.md pattern so long tasks survive context compaction and session breaks |
-| [`communication.md`](skill/references/communication.md) | Outcome-first reporting, honesty rules, readability over compression |
+| [`communication.md`](skill/references/communication.md) | Outcome-first reporting, output format by domain, honesty rules, readability over compression |
+| [`research.md`](skill/references/research.md) | Source evaluation rubric, multi-source synthesis, query strategy, provenance rule, conflict surfacing |
+| [`analysis.md`](skill/references/analysis.md) | Analytical loop, uncertainty accounting with confidence labels, assumption audit, data integrity checks, counter-analysis |
+| [`writing.md`](skill/references/writing.md) | Report and scientific paper protocols, citation standard, tone calibration, consistency pass, writing verification ladder |
+| [`orchestration.md`](skill/references/orchestration.md) | Multi-agent spawning, delegation templates, output acceptance criteria, adaptive reconfiguration protocol, orchestration patterns (fan-out, pipeline, tournament) |
 
 ## Per-agent install locations
 
@@ -224,14 +318,19 @@ multi-step automation.
 ```
 fable-skill/
 ├── skill/                 # the skill itself (canonical source, plain markdown)
-│   ├── SKILL.md
+│   ├── SKILL.md           # the Fable Loop + two-axis calibration gate
+│   ├── COMPACT.md         # ~2k-token compact edition for single-file rules targets
 │   └── references/
-│       ├── reasoning.md
-│       ├── planning.md
-│       ├── execution.md
-│       ├── verification.md
-│       ├── context.md
-│       └── communication.md
+│       ├── reasoning.md      # hypothesis trees, argument mapping, confidence calibration
+│       ├── planning.md       # plan templates for all 7 domains
+│       ├── execution.md      # parallel tool use, subagent delegation
+│       ├── verification.md   # evidence standard + verification ladders for all domains
+│       ├── context.md        # STATE.md pattern for long tasks
+│       ├── communication.md  # outcome-first reporting, output format by domain
+│       ├── research.md       # source evaluation, provenance rule, synthesis protocol
+│       ├── analysis.md       # analytical loop, confidence labels, counter-analysis
+│       ├── writing.md        # report + science paper protocols, consistency pass
+│       └── orchestration.md  # multi-agent spawning, acceptance criteria, adaptive reconfiguration
 ├── bin/cli.js             # zero-dependency npx installer
 └── package.json
 ```
