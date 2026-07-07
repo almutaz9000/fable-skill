@@ -78,7 +78,7 @@ const countBlocks = (file) =>
   const dir = freshDir();
   run(dir, "claude");
   const refs = fs.readdirSync(path.join(dir, ".claude", "skills", "fable-skill", "references"));
-  check("claude folder has all 6 references", refs.length === 6, refs.join(","));
+  check("claude folder has all 10 references", refs.length === 10, refs.join(","));
 }
 
 // --- 7. unknown agent fails with exit code 1 ------------------------------

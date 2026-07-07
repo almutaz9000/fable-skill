@@ -44,6 +44,7 @@ Identify the domain from the task's primary output, then load the corresponding 
 | **REPORT** | report, write, document, summarize, brief | `writing.md`, `research.md` |
 | **SCIENCE** | paper, publication, literature, research, experiment, hypothesis | `writing.md`, `research.md`, `reasoning.md` |
 | **SEARCH** | find, search, survey, discover, gather, look up | `research.md`, `verification.md` |
+| **ORCHESTRATE** | parallel agents, delegate, subagents, coordinate, multi-agent, fan-out | `orchestration.md`, `planning.md`, `execution.md` |
 
 When a task spans domains (e.g., analyze data then write a report), pick the domain of
 the final deliverable and load modules for both. A task that is ambiguous defaults to
@@ -51,11 +52,11 @@ CODE; escalate to the correct domain the moment the real output type is clear.
 
 **Tier × Domain quick reference:**
 
-| | CODE | PLAN | ANALYSIS | REPORT | SCIENCE | SEARCH |
-|---|---|---|---|---|---|---|
-| **LIGHT** | Edit + verify one change | One-sentence plan in mind | One-paragraph assessment | Short answer in prose | Not applicable | Quick lookup with citation |
-| **STANDARD** | Loop without artifacts | Mental plan, reasoning only | Analytical loop, no written artifacts | Draft + cold-reader pass | Literature check + write | Fan queries + synthesize |
-| **FULL** | Written plan + full verification | Written plan with checkable criteria | Written analysis + assumption audit | Full report protocol | Full paper protocol | Multi-source research protocol |
+| | CODE | PLAN | ANALYSIS | REPORT | SCIENCE | SEARCH | ORCHESTRATE |
+|---|---|---|---|---|---|---|---|
+| **LIGHT** | Edit + verify one change | One-sentence plan in mind | One-paragraph assessment | Short answer in prose | Not applicable | Quick lookup with citation | Not applicable |
+| **STANDARD** | Loop without artifacts | Mental plan, reasoning only | Analytical loop, no written artifacts | Draft + cold-reader pass | Literature check + write | Fan queries + synthesize | 2–3 agents, simple fan-out |
+| **FULL** | Written plan + full verification | Written plan with checkable criteria | Written analysis + assumption audit | Full report protocol | Full paper protocol | Multi-source research protocol | Orchestration plan + adaptive reconfiguration |
 
 ## The Fable Loop
 
@@ -161,7 +162,7 @@ Style guide: `references/communication.md`.
 | File | Domain | Read when |
 |---|---|---|
 | `references/reasoning.md` | ALL | Ambiguous problems, design decisions, debugging mysteries, tradeoff analysis, argument mapping, confidence calibration |
-| `references/planning.md` | ALL | Multi-step tasks, refactors, migrations, research plans, writing outlines, anything > 3 steps |
+| `references/planning.md` | ALL | Multi-step tasks, refactors, migrations, research plans, writing outlines, orchestration plans, anything > 3 steps |
 | `references/execution.md` | CODE | Heavy exploration, multi-file changes, orchestrating subagents |
 | `references/verification.md` | CODE, ANALYSIS, SEARCH | After any change; whenever something fails; before declaring done |
 | `references/context.md` | ALL | Long-running tasks, resuming work, anything spanning sessions |
@@ -169,18 +170,20 @@ Style guide: `references/communication.md`.
 | `references/research.md` | SEARCH, SCIENCE, REPORT | Any task requiring source gathering, literature review, or evidence synthesis |
 | `references/analysis.md` | ANALYSIS | Data analysis, evaluation, comparison, measurement, diagnosis |
 | `references/writing.md` | REPORT, SCIENCE | Formal reports, scientific papers, white papers, structured documents |
+| `references/orchestration.md` | ALL (complex tasks) | Any task requiring multiple concurrent subagents, delegation, adaptive reconfiguration, or multi-agent coordination |
 
 ## Quick-start checklist (paste mentally at task start)
 
 - [ ] Tier picked (LIGHT / STANDARD / FULL) — escalate on first surprise
-- [ ] Domain picked (CODE / PLAN / ANALYSIS / REPORT / SCIENCE / SEARCH)
+- [ ] Domain picked (CODE / PLAN / ANALYSIS / REPORT / SCIENCE / SEARCH / ORCHESTRATE)
 - [ ] Relevant modules identified for Tier × Domain combination
 - [ ] Goal restated; done-criteria listed (checkable, not vibes)
 - [ ] Ground truth gathered before planning
-- [ ] Plan written down (FULL tier) and tracked
-- [ ] Independent tool calls batched in parallel
+- [ ] Plan written down (FULL tier) and tracked; orchestration plan if multi-agent
+- [ ] Independent tool calls and subagents batched in parallel
+- [ ] Subagent outputs evaluated against explicit acceptance criteria (if orchestrating)
 - [ ] Every change or claim verified with real output or real source
-- [ ] Failures diagnosed at root cause, retries always differ
-- [ ] STATE file maintained (if long task)
+- [ ] Failures diagnosed at root cause; retries always differ (agents reconfigured, not resubmitted unchanged)
+- [ ] STATE file maintained (if long task); ORCHESTRATION_STATE table if multi-agent
 - [ ] Hostile self-review passed
 - [ ] Final message leads with outcome, evidence included

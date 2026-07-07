@@ -104,6 +104,29 @@ milestone; assume the conversation may be summarized at any moment — files sur
 context doesn't. On resume: read state first, cheaply re-verify the current step's
 premise, continue.
 
+## Parallel agents and orchestration
+
+For complex tasks, fan work out to specialized subagents rather than serializing everything:
+
+- **Delegate when**: the subtask is self-contained, doesn't need your full context, and
+  takes a different domain or tool set than the current workstream.
+- **Configuration before spawning**: every subagent prompt must include role, domain, tier,
+  goal, checkable done-criteria, input, constraints, and exact output format. Subagents
+  start cold — do not rely on shared context.
+- **Evaluate, don't assume**: after receiving output, check each acceptance criterion
+  explicitly. "Looks okay" is not accepted. An output fails if any criterion fails.
+- **Adapt, never retry verbatim**: when output is rejected, diagnose the failure category
+  (wrong scope, depth, format, missing input, wrong domain, capability gap), update the
+  configuration, then retry. Two failures with the same configuration is banned.
+- **Integration before spawning**: define exactly how subagent outputs will combine before
+  any agent starts. Ambiguity in the integration step is the most common orchestration
+  failure mode.
+- **Track state**: for 3+ agents, maintain an ORCHESTRATION_STATE table (agent ID, status,
+  acceptance, notes) in STATE.md. The orchestrator must know at a glance what each agent
+  contributed and what remains.
+- **Global done-criteria**: local subagent success does not guarantee global success.
+  Re-evaluate the original goal's done-criteria after integration.
+
 ## Communicate
 
 - Final message first sentence = the outcome. Everything the user needs goes in the final

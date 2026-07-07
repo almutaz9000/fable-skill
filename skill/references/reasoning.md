@@ -25,7 +25,7 @@ Rules:
 - When all hypotheses die, the symptom description is wrong: re-observe the symptom itself
   (is the error what you think it is? is the code you're reading the code that runs?).
 
-## 2. Decision rubric (for design choices, tradeoffs, and non-technical decisions)
+## 2. Decision rubric (for design choices, trade-offs, and non-technical decisions)
 
 When choosing between approaches, never argue in prose alone — it hides thumb-on-scale
 reasoning. Score it:
@@ -44,7 +44,7 @@ For non-technical decisions (depth vs. breadth in research, formality vs. access
 in writing, precision vs. completeness in analysis), use criteria that fit the domain:
 
 ```
-Criteria for writing tradeoff: audience fit (×3), credibility (×2), scope feasibility (×1)
+Criteria for writing trade-off: audience fit (×3), credibility (×2), scope feasibility (×1)
 Option A — deep dive on two studies: audience fit 3, credibility 3, feasibility 2 → weighted 17
 Option B — broad survey of eight: audience fit 2, credibility 2, feasibility 3 → weighted 13
 Decision: A, because the stated audience (practitioners) needs actionable depth, not breadth.
