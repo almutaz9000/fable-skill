@@ -58,6 +58,92 @@ cost. If you want the full version (roughly 7k tokens) in a rules file anyway, o
 npx github:almutaz9000/fable-skill agents --full
 ```
 
+## How to use it
+
+Once installed, the skill activates two ways:
+
+- **Explicitly** — type `/fable-skill` in Claude Code, `$fable-skill` in Codex (or browse
+  `/skills`). Rules-file agents (Cursor, Copilot, AGENTS.md, …) have it always on, so
+  there is nothing to invoke.
+- **Automatically** — skill-native agents match your prompt against the skill description
+  and load it when the task fits: debugging, multi-file changes, refactors, migrations,
+  ambiguous goals, long-running work.
+
+You don't need special prompt phrasing — the skill adapts to the task. But the examples
+below show what it changes in each case.
+
+### Example: debugging a failure
+
+> Users report the login endpoint started returning 500 after yesterday's deploy.
+> Find the root cause and fix it.
+
+Without the skill, a typical agent grabs the first plausible cause and patches it. With it,
+the agent must capture the exact error, reproduce it on demand, rank **at least three
+hypotheses** before testing any, bisect to where good state turns bad, fix the cause (not
+the symptom), and re-run the original failing case to prove the symptom is gone. Symptom
+patches like swallowing the exception are explicitly banned.
+
+### Example: multi-file refactor or migration
+
+> Migrate our config loading from JSON files to environment variables across the app.
+
+This hits the FULL tier: the agent writes a plan with checkable done-criteria before
+touching code, fronts the riskiest assumption (is there a consumer that can't take env
+vars?), works in vertical slices so the app builds after each step, and runs the broad
+test gate once at the end — pasting real output, not "should work now".
+
+### Example: long or multi-session task
+
+> Build out the reporting module — we'll work on this over the next few days.
+
+The agent maintains a `STATE.md` (goal, plan with progress, key discoveries, decisions
+made and why) so the work survives context compaction and session breaks. Resuming later,
+it reads the state file first instead of re-deriving everything.
+
+### Example: ambiguous request
+
+> Something feels slow about the dashboard, can you improve it?
+
+Instead of guessing, the agent turns "slow" into a checkable criterion (measure first,
+then a target), lists its assumptions visibly, verifies the cheap ones immediately, and
+carries the rest flagged into the final answer — no silent load-bearing guesses.
+
+### Example: trivial task (the skill stays out of the way)
+
+> Fix the typo in the welcome banner.
+
+This is the LIGHT tier: no plan file, no hypothesis tree, no ceremony. The agent makes the
+edit, verifies that one change, and reports plainly. The calibration gate exists precisely
+so small tasks stay fast.
+
+### When to use it — and when not to
+
+**Reach for fable-skill when the cost of a wrong or sloppy run is high:**
+
+| Situation | Why it helps |
+|---|---|
+| Debugging anything non-obvious | Forces hypothesis ranking and bisection instead of guess-and-patch |
+| Changes spanning several files | Written plan, vertical slices, one real verification gate |
+| Refactors and migrations | Riskiest-assumption-first ordering; scope creep gets surfaced, not absorbed |
+| Irreversible actions (deletes, deploys, force-pushes) | Inspect-target-first rule and explicit confirmation gates |
+| Work spanning many turns or sessions | STATE.md survives context loss |
+| Vague or underspecified goals | Assumption ledger + checkable done-criteria before code |
+| Smaller/faster models doing agentic work | The discipline compensates for weaker default process — this is where gains are largest |
+
+**Skip it (or let the LIGHT tier no-op) when:**
+
+- One-line edits, typo fixes, formatting — process would cost more than a retry.
+- Pure Q&A about code or concepts — there's nothing to plan or verify.
+- Docs-only tweaks — a careful re-read is the whole verification.
+- Brainstorming and open-ended ideation — the protocol optimizes execution, not divergence.
+- You deliberately want a quick-and-dirty draft over a verified result — say so in the
+  prompt ("skip verification, just sketch it") and the skill's own effort-calibration rule
+  will honor it.
+
+The rule of thumb baked into the skill itself: **process weight must scale with the cost
+of being wrong.** If a mistake costs one cheap retry, act; if it costs an afternoon or a
+production incident, the full protocol pays for itself.
+
 ## What's in the skill
 
 The skill is plain markdown — a core protocol plus six focused modules. Agents with native
