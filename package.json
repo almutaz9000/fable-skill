@@ -1,6 +1,6 @@
 {
   "name": "fable-skill",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "scripts": {
     "test": "node test/run.js"
   },
@@ -45,4 +45,5 @@
     "url": "https://github.com/almutaz9000/fable-skill/issues"
   }
 }
+
 

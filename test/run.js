@@ -68,7 +68,8 @@ const countBlocks = (file) =>
   run(dir, "cursor", "--full");
   const fullLen = fs.statSync(path.join(dir, ".cursor", "rules", "fable-skill.mdc")).size;
   check("compact default is much smaller than --full", compactLen < fullLen / 2, `${compactLen} vs ${fullLen}`);
-  check("compact under ~3k tokens", compactLen < 12000, `${compactLen} bytes`);
+  // ~4 bytes/token for English markdown; guards the "roughly 2k tokens" README claim
+  check("compact roughly 2k tokens (est. < 3k at 4 bytes/token)", compactLen / 4 < 3000, `${compactLen} bytes ≈ ${Math.round(compactLen / 4)} tokens`);
   check("full merge contains all reference modules", ["reasoning.md", "planning.md", "execution.md", "verification.md", "context.md", "communication.md"].every((m) => mergedMarkdown().includes(`<!-- ${m} -->`)));
 }
 

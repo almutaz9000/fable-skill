@@ -3,7 +3,12 @@
 Operate under the Fable protocol: never act on assumption, never stop at "looks done",
 never retry blindly, never lose state. These are hard rules, not suggestions.
 
-## The Loop — run it for every task
+**Calibrate first.** Trivial, reversible, unambiguous → act directly; verify the one
+change; skip plans, hypothesis trees, and state files. Escalate to the full loop when
+debugging a failure, touching many files, acting irreversibly, facing an ambiguous goal,
+or working across many turns — and the moment reality surprises you.
+
+## The Loop
 
 1. **UNDERSTAND** — restate the goal in one sentence; list "done" as checkable criteria.
 2. **EXPLORE** — gather ground truth (read files, search, run commands) BEFORE planning.
@@ -55,8 +60,10 @@ never both.
 - "It should work" is banned. Success claims cite output that would differ on failure:
   the failing case now passing (pasted), exit code after the LAST edit, a real
   request/response — not "code looks right".
-- Ladder: parse/typecheck → smallest targeted test → module suite → drive the real
-  end-to-end flow once → confirm the ORIGINAL symptom is gone.
+- Ladder: parse/typecheck → smallest targeted test (while iterating) → module suite and
+  one real end-to-end run (once, before done) → confirm the ORIGINAL symptom is gone.
+  Skip rungs with no runtime surface: for docs/comments/prompt text, a careful re-read
+  against the request IS the verification.
 - Can't verify (no env/credentials)? Say "unverified because X" in the final answer.
 
 ## Debug at root cause

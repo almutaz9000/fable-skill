@@ -48,10 +48,11 @@ content is never touched.
 ### Token cost: compact by default
 
 Single-file rules targets (Cursor, Copilot, `AGENTS.md`, and the like) inject their content
-into **every** request, so they get the **compact edition** (~2k tokens) — the full discipline
-distilled into one document. Agents with native skill folders (Claude Code, OpenClaw) load
-reference modules on demand, so they get the complete skill at no per-request cost. If you
-want the full ~7k-token version in a rules file anyway, opt in with `--full`:
+into **every** request, so they get the **compact edition** (roughly 2k tokens) — the full
+discipline distilled into one document. Agents with native skill folders (Claude Code, Codex,
+OpenClaw) load reference modules on demand, so they get the complete skill at no per-request
+cost. If you want the full version (roughly 7k tokens) in a rules file anyway, opt in with
+`--full`:
 
 ```bash
 npx github:almutaz9000/fable-skill agents --full
@@ -66,7 +67,7 @@ with a single rules file get everything merged into one document in their native
 | Module | What it enforces |
 |---|---|
 | [`SKILL.md`](skill/SKILL.md) | The Fable Loop: understand → explore → plan → act → verify → iterate → review, plus the non-negotiable rules |
-| [`COMPACT.md`](skill/COMPACT.md) | The whole discipline distilled to ~2k tokens — what single-file rules targets install by default |
+| [`COMPACT.md`](skill/COMPACT.md) | The whole discipline distilled to roughly 2k tokens — what single-file rules targets install by default |
 | [`reasoning.md`](skill/references/reasoning.md) | Hypothesis trees for debugging, decision rubrics, self-consistency checks, assumption ledgers, altitude control when stuck |
 | [`planning.md`](skill/references/planning.md) | Checkable done-criteria, plan templates, decomposition heuristics (riskiest assumption first, vertical slices), replanning rules |
 | [`execution.md`](skill/references/execution.md) | Parallel tool batching, wide-fan exploration, subagent delegation, minimal-diff editing discipline |

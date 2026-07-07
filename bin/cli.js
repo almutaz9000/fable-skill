@@ -24,47 +24,57 @@ const HOME = os.homedir();
 // Content builders
 // ---------------------------------------------------------------------------
 
-function readSkillMd() {
-  return fs.readFileSync(path.join(SKILL_DIR, "SKILL.md"), "utf8");
+/** Skill content never changes within one process; read and assemble it once. */
+function memo(fn) {
+  let value, cached = false;
+  return () => {
+    if (!cached) {
+      value = fn();
+      cached = true;
+    }
+    return value;
+  };
 }
+
+const readSkillMd = memo(() => fs.readFileSync(path.join(SKILL_DIR, "SKILL.md"), "utf8"));
 
 function stripFrontmatter(md) {
   return md.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, "");
 }
 
-function referenceFiles() {
+const referenceFiles = memo(() => {
   const dir = path.join(SKILL_DIR, "references");
   return fs
     .readdirSync(dir)
     .filter((f) => f.endsWith(".md"))
     .sort()
     .map((f) => ({ name: f, content: fs.readFileSync(path.join(dir, f), "utf8") }));
-}
+});
 
 const FOOTER =
   "\n\n---\n\n*Installed by [fable-skill](https://github.com/almutaz9000/fable-skill). Re-run `npx fable-skill` to update.*\n";
 
-/** Full merge: SKILL.md + every reference module (~7k tokens). */
-function mergedMarkdown() {
+/** Full merge: SKILL.md + every reference module (roughly 7k tokens). */
+const mergedMarkdown = memo(() => {
   const parts = [stripFrontmatter(readSkillMd()).trim()];
   for (const ref of referenceFiles()) {
     parts.push(`\n\n---\n\n<!-- ${ref.name} -->\n\n${ref.content.trim()}`);
   }
   parts.push(FOOTER);
   return parts.join("");
-}
+});
 
 /**
- * Compact edition (~2k tokens) — the default for single-file rules targets,
- * where the content is injected into EVERY request and token cost matters.
- * Agents with native skill folders load references on demand and get the
- * full skill instead.
+ * Compact edition (roughly 2k tokens) — the default for single-file rules
+ * targets, where the content is injected into EVERY request and token cost
+ * matters. Agents with native skill folders load references on demand and
+ * get the full skill instead.
  */
-function compactMarkdown() {
+const compactMarkdown = memo(() => {
   const compact = path.join(SKILL_DIR, "COMPACT.md");
   if (!fs.existsSync(compact)) return mergedMarkdown();
   return fs.readFileSync(compact, "utf8").trim() + FOOTER;
-}
+});
 
 /** Copy the skill folder verbatim (SKILL.md + references/) into destDir. */
 function copySkillFolder(destDir) {
@@ -295,8 +305,8 @@ Scope:
   --global    install into the user-level config (where the agent supports it)
 
 Depth (single-file targets only; skill-folder targets always get the full skill):
-  (default)   compact edition, ~2k tokens — safe for always-on rules files
-  --full      full skill with all reference modules, ~7k tokens per request
+  (default)   compact edition, roughly 2k tokens — safe for always-on rules files
+  --full      full skill with all reference modules, roughly 7k tokens per request
 
 Examples:
   npx fable-skill claude --global     # Claude Code, all projects

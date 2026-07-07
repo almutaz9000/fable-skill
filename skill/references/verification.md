@@ -29,7 +29,12 @@ unverified-and-confident is the failure mode this skill exists to prevent.
 5. **Negative check**: confirm the ORIGINAL symptom is gone, not just that new code runs.
    (Classic miss: the fix works but the old broken path is still the one being called.)
 
-Run 1–2 while iterating; 3–5 once before declaring done.
+Run 1–2 while iterating; 3–5 once before declaring done. The ladder is conditional on the
+change having a runtime surface: rung 4 applies only when a real user-facing flow exists,
+and docs/comment/prompt-text changes have nothing to execute — there, verification is a
+careful re-read against the request plus checking every internal reference, and inventing
+commands to run is theater, not rigor. Isolated pure refactors with solid test coverage
+can stop at rung 3.
 
 ## Root-cause debugging protocol
 
