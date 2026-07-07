@@ -149,7 +149,13 @@ const TARGETS = {
     project: (cwd) => path.join(cwd, ".roo", "rules", "fable-skill.md"),
   },
   codex: {
-    label: "OpenAI Codex CLI",
+    label: "OpenAI Codex (native skill)",
+    kind: "folder",
+    global: () => path.join(HOME, ".agents", "skills", "fable-skill"),
+    project: (cwd) => path.join(cwd, ".agents", "skills", "fable-skill"),
+  },
+  "codex-agents": {
+    label: "OpenAI Codex (AGENTS.md, older CLIs)",
     kind: "managed",
     global: () => path.join(HOME, ".codex", "AGENTS.md"),
     project: (cwd) => path.join(cwd, "AGENTS.md"),

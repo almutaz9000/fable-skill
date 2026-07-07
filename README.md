@@ -25,7 +25,7 @@ Install it once with `npx`, natively, into whichever agent you use:
 # Claude Code, available in every project
 npx github:almutaz9000/fable-skill claude --global
 
-# OpenAI Codex, available in every project (~/.codex/AGENTS.md)
+# OpenAI Codex, native skill available in every project (~/.agents/skills/)
 npx github:almutaz9000/fable-skill codex --global
 
 # Cursor rules for the current repo
@@ -84,7 +84,8 @@ with a single rules file get everything merged into one document in their native
 | Windsurf | `windsurf` | `.windsurf/rules/fable-skill.md` (always-on) |
 | Cline | `cline --global` / `cline` | `~/Documents/Cline/Rules/` or `.clinerules/` |
 | Roo Code | `roo` | `.roo/rules/fable-skill.md` |
-| OpenAI Codex | `codex --global` / `codex` | `~/.codex/AGENTS.md` or `./AGENTS.md` (managed block) |
+| OpenAI Codex ≥ 0.50 | `codex --global` / `codex` | `~/.agents/skills/fable-skill/` or `.agents/skills/fable-skill/` (native skill, loads on demand) |
+| OpenAI Codex (older) | `codex-agents --global` / `codex-agents` | `~/.codex/AGENTS.md` or `./AGENTS.md` (managed block) |
 | Gemini CLI / Antigravity | `gemini --global` / `gemini` | `~/.gemini/GEMINI.md` or `./GEMINI.md` (managed block) |
 | Amp | `amp` | `./AGENTS.md` (managed block) |
 | OpenClaw / ClawBot | `openclaw --global` / `openclaw` | `~/.openclaw/skills/fable-skill/` or `./skills/fable-skill/` |
@@ -106,6 +107,11 @@ with a single rules file get everything merged into one document in their native
 
 **claude.ai:** zip the [`skill/`](skill/) folder (it must contain `SKILL.md` at its root) and
 upload it under **Settings → Capabilities → Skills**.
+
+**Using it in Codex:** after `npx github:almutaz9000/fable-skill codex --global`, invoke it
+explicitly with `$fable-skill` (or browse `/skills`), or just start a complex task — Codex
+auto-selects skills whose description matches the prompt. Codex skills use progressive
+disclosure, so the skill costs almost nothing until it triggers.
 
 **Any agent not listed:** copy [`skill/`](skill/) into wherever your agent reads instructions,
 or paste the merged output of `SKILL.md` + `references/*.md` into its system prompt / rules file.
