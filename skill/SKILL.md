@@ -1,6 +1,6 @@
 ---
 name: fable-skill
-description: "Fable-class agentic operating discipline, gated to task risk so overhead scales with stakes. Trigger on: explicit /fable-skill or $fable-skill; debugging or diagnosing a failure; changes spanning multiple files; refactors and migrations; irreversible or destructive actions; ambiguous goals needing decomposition; tasks likely to span many turns or sessions. Skip for trivial single-step edits, simple factual questions, and docs-only tweaks — there, only the evidence standard applies. Enforces explore → plan → act → verify → iterate, evidence-based verification, root-cause debugging, parallel tool use, state persistence, and outcome-first reporting."
+description: "Fable-class agentic operating discipline, gated to task risk and domain so overhead scales with stakes. Trigger on: explicit /fable-skill or $fable-skill; debugging or diagnosing a failure; changes spanning multiple files; refactors and migrations; irreversible or destructive actions; ambiguous goals needing decomposition; tasks likely to span many turns or sessions; research, analysis, report writing, literature review, scientific paper writing, or search tasks. Skip for trivial single-step edits, simple factual questions, and docs-only tweaks — there, only the evidence standard applies. Enforces explore → plan → act → verify → iterate, evidence-based verification, root-cause debugging, parallel tool use, state persistence, and outcome-first reporting across coding, planning, analysis, writing, science, and search domains."
 ---
 
 # fable-skill — Fable-class operating discipline for any AI agent
@@ -12,21 +12,50 @@ is obvious. Calibrate first, then apply the rules at the chosen tier.
 
 ## Calibration gate (run this first, every time)
 
-Pick the lightest tier that fits, and escalate on the first surprise:
+Calibration is two-axis: pick a **Tier** (how much process) and a **Domain** (which
+protocol). Each axis is independent. Escalate either axis on the first surprise.
+
+### Axis 1 — Tier (how much process)
 
 - **LIGHT** — single-step, reversible, unambiguous (typo, one-liner, direct question).
   Act directly. Keep only the evidence standard: verify the one change, report plainly.
   No written plan, no hypothesis tree, no STATE file, no visible deliberation.
 - **STANDARD** — clear scope, a file or a few, low blast radius. Run the Loop without
-  written artifacts: explore before editing, batch tools, targeted check per change,
+  written artifacts: explore before acting, batch tools, targeted check per change,
   one full gate at the end. Reason out loud only where approaches genuinely diverge.
 - **FULL** — any of: debugging a failure, >3 files or >3 steps, irreversible actions,
-  ambiguous goal, likely multi-session. Everything below applies, including written
-  plans, explicit reasoning, and state persistence.
+  ambiguous goal, likely multi-session, research spanning many sources, long documents.
+  Everything below applies, including written plans, explicit reasoning, and state
+  persistence.
 
 When torn between tiers, go higher only if a mistake would be expensive to undo;
 otherwise go lower and escalate the moment reality surprises you. Rules below marked
 **[FULL]** apply only at the FULL tier; everything else applies at STANDARD and above.
+
+### Axis 2 — Domain (which protocol)
+
+Identify the domain from the task's primary output, then load the corresponding modules:
+
+| Domain | Trigger keywords | Primary modules |
+|---|---|---|
+| **CODE** | implement, fix, debug, refactor, build, migrate | `execution.md`, `verification.md`, `reasoning.md` |
+| **PLAN** | plan, roadmap, strategy, design, architect, outline | `planning.md`, `reasoning.md` |
+| **ANALYSIS** | analyze, compare, evaluate, measure, diagnose, assess | `analysis.md`, `reasoning.md`, `verification.md` |
+| **REPORT** | report, write, document, summarize, brief | `writing.md`, `research.md` |
+| **SCIENCE** | paper, publication, literature, research, experiment, hypothesis | `writing.md`, `research.md`, `reasoning.md` |
+| **SEARCH** | find, search, survey, discover, gather, look up | `research.md`, `verification.md` |
+
+When a task spans domains (e.g., analyze data then write a report), pick the domain of
+the final deliverable and load modules for both. A task that is ambiguous defaults to
+CODE; escalate to the correct domain the moment the real output type is clear.
+
+**Tier × Domain quick reference:**
+
+| | CODE | PLAN | ANALYSIS | REPORT | SCIENCE | SEARCH |
+|---|---|---|---|---|---|---|
+| **LIGHT** | Edit + verify one change | One-sentence plan in mind | One-paragraph assessment | Short answer in prose | Not applicable | Quick lookup with citation |
+| **STANDARD** | Loop without artifacts | Mental plan, reasoning only | Analytical loop, no written artifacts | Draft + cold-reader pass | Literature check + write | Fan queries + synthesize |
+| **FULL** | Written plan + full verification | Written plan with checkable criteria | Written analysis + assumption audit | Full report protocol | Full paper protocol | Multi-source research protocol |
 
 ## The Fable Loop
 
@@ -129,23 +158,28 @@ Style guide: `references/communication.md`.
 
 ## Reference modules (read on demand, not all upfront)
 
-| File | Read when |
-|---|---|
-| `references/reasoning.md` | Ambiguous problems, design decisions, debugging mysteries, tradeoff analysis |
-| `references/planning.md` | Multi-step tasks, refactors, migrations, anything > 3 steps |
-| `references/execution.md` | Heavy exploration, multi-file changes, orchestrating subagents |
-| `references/verification.md` | After any change; whenever something fails; before declaring done |
-| `references/context.md` | Long-running tasks, resuming work, anything spanning sessions |
-| `references/communication.md` | Writing final summaries, reports, PR descriptions, explanations |
+| File | Domain | Read when |
+|---|---|---|
+| `references/reasoning.md` | ALL | Ambiguous problems, design decisions, debugging mysteries, tradeoff analysis, argument mapping, confidence calibration |
+| `references/planning.md` | ALL | Multi-step tasks, refactors, migrations, research plans, writing outlines, anything > 3 steps |
+| `references/execution.md` | CODE | Heavy exploration, multi-file changes, orchestrating subagents |
+| `references/verification.md` | CODE, ANALYSIS, SEARCH | After any change; whenever something fails; before declaring done |
+| `references/context.md` | ALL | Long-running tasks, resuming work, anything spanning sessions |
+| `references/communication.md` | ALL | Writing final summaries, reports, PR descriptions, explanations |
+| `references/research.md` | SEARCH, SCIENCE, REPORT | Any task requiring source gathering, literature review, or evidence synthesis |
+| `references/analysis.md` | ANALYSIS | Data analysis, evaluation, comparison, measurement, diagnosis |
+| `references/writing.md` | REPORT, SCIENCE | Formal reports, scientific papers, white papers, structured documents |
 
 ## Quick-start checklist (paste mentally at task start)
 
 - [ ] Tier picked (LIGHT / STANDARD / FULL) — escalate on first surprise
-- [ ] Goal restated; done-criteria listed
+- [ ] Domain picked (CODE / PLAN / ANALYSIS / REPORT / SCIENCE / SEARCH)
+- [ ] Relevant modules identified for Tier × Domain combination
+- [ ] Goal restated; done-criteria listed (checkable, not vibes)
 - [ ] Ground truth gathered before planning
 - [ ] Plan written down (FULL tier) and tracked
 - [ ] Independent tool calls batched in parallel
-- [ ] Every change verified with real output
+- [ ] Every change or claim verified with real output or real source
 - [ ] Failures diagnosed at root cause, retries always differ
 - [ ] STATE file maintained (if long task)
 - [ ] Hostile self-review passed

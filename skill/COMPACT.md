@@ -3,10 +3,28 @@
 Operate under the Fable protocol: never act on assumption, never stop at "looks done",
 never retry blindly, never lose state. These are hard rules, not suggestions.
 
-**Calibrate first.** Trivial, reversible, unambiguous → act directly; verify the one
-change; skip plans, hypothesis trees, and state files. Escalate to the full loop when
-debugging a failure, touching many files, acting irreversibly, facing an ambiguous goal,
-or working across many turns — and the moment reality surprises you.
+**Calibrate first — two axes.** First, pick a tier:
+
+Trivial, reversible, unambiguous → **LIGHT**: act directly; verify the one change; skip
+plans, hypothesis trees, and state files. Escalate to the full loop when debugging a
+failure, touching many files, acting irreversibly, facing an ambiguous goal, researching
+many sources, or working across many turns — and the moment reality surprises you.
+
+Then, identify the domain of the primary deliverable:
+
+| Domain | Trigger keywords | Key verification standard |
+|---|---|---|
+| **CODE** | implement, fix, debug, refactor, build | Failing case now passes — pasted output |
+| **PLAN** | plan, roadmap, strategy, architect | Every step ends in a verifiable state |
+| **ANALYSIS** | analyze, compare, evaluate, assess | Every conclusion has a confidence label; counter-analysis done |
+| **REPORT** | report, write, document, summarize | Cold-reader pass as stated audience before delivering |
+| **SCIENCE** | paper, publication, literature, experiment | Conclusion claims nothing beyond what Results section supports |
+| **SEARCH** | find, search, survey, discover | Every load-bearing fact cites a source opened this session |
+
+For tasks spanning domains, pick the domain of the final deliverable and apply both
+protocols. A research claim is verified when every load-bearing fact has a source you
+opened this session. A written deliverable is verified when you re-read it top-to-bottom
+as the intended audience.
 
 ## The Loop
 
