@@ -41,16 +41,29 @@ function referenceFiles() {
     .map((f) => ({ name: f, content: fs.readFileSync(path.join(dir, f), "utf8") }));
 }
 
-/** Single merged markdown file for agents that use one rules file. */
+const FOOTER =
+  "\n\n---\n\n*Installed by [fable-skill](https://github.com/almutaz9000/fable-skill). Re-run `npx fable-skill` to update.*\n";
+
+/** Full merge: SKILL.md + every reference module (~7k tokens). */
 function mergedMarkdown() {
   const parts = [stripFrontmatter(readSkillMd()).trim()];
   for (const ref of referenceFiles()) {
     parts.push(`\n\n---\n\n<!-- ${ref.name} -->\n\n${ref.content.trim()}`);
   }
-  parts.push(
-    "\n\n---\n\n*Installed by [fable-skill](https://github.com/almutaz9000/fable-skill). Re-run `npx fable-skill` to update.*\n"
-  );
+  parts.push(FOOTER);
   return parts.join("");
+}
+
+/**
+ * Compact edition (~2k tokens) — the default for single-file rules targets,
+ * where the content is injected into EVERY request and token cost matters.
+ * Agents with native skill folders load references on demand and get the
+ * full skill instead.
+ */
+function compactMarkdown() {
+  const compact = path.join(SKILL_DIR, "COMPACT.md");
+  if (!fs.existsSync(compact)) return mergedMarkdown();
+  return fs.readFileSync(compact, "utf8").trim() + FOOTER;
 }
 
 /** Copy the skill folder verbatim (SKILL.md + references/) into destDir. */
@@ -64,21 +77,26 @@ function copySkillFolder(destDir) {
 
 function writeMerged(destFile, opts = {}) {
   fs.mkdirSync(path.dirname(destFile), { recursive: true });
-  let body = mergedMarkdown();
+  let body = opts.full ? mergedMarkdown() : compactMarkdown();
   if (opts.header) body = opts.header + "\n" + body;
   fs.writeFileSync(destFile, body);
 }
 
+function escapeRegExp(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 /** Append to a shared file (AGENTS.md etc.) between managed markers, idempotently. */
-function upsertManagedBlock(destFile, title) {
+function upsertManagedBlock(destFile, title, opts = {}) {
   const BEGIN = "<!-- BEGIN fable-skill (managed - do not edit inside) -->";
   const END = "<!-- END fable-skill -->";
-  const block = `${BEGIN}\n\n# ${title}\n\n${mergedMarkdown()}\n${END}\n`;
+  const body = opts.full ? mergedMarkdown() : compactMarkdown();
+  const block = `${BEGIN}\n\n# ${title}\n\n${body}\n${END}\n`;
   fs.mkdirSync(path.dirname(destFile), { recursive: true });
   let existing = "";
   if (fs.existsSync(destFile)) existing = fs.readFileSync(destFile, "utf8");
   if (existing.includes(BEGIN)) {
-    const re = new RegExp(`${BEGIN}[\\s\\S]*?${END}\\n?`);
+    const re = new RegExp(`${escapeRegExp(BEGIN)}[\\s\\S]*?${escapeRegExp(END)}\\n?`);
     existing = existing.replace(re, block);
   } else {
     existing = existing ? existing.replace(/\s*$/, "\n\n") + block : block;
@@ -237,7 +255,7 @@ const TARGETS = {
 // CLI
 // ---------------------------------------------------------------------------
 
-function installTarget(name, scope, cwd) {
+function installTarget(name, scope, cwd, opts = {}) {
   const t = TARGETS[name];
   if (!t) throw new Error(`Unknown agent "${name}". Run: npx fable-skill list`);
 
@@ -249,8 +267,8 @@ function installTarget(name, scope, cwd) {
   const dest = resolver(cwd);
 
   if (t.kind === "folder") copySkillFolder(dest);
-  else if (t.kind === "file") writeMerged(dest, { header: t.header });
-  else upsertManagedBlock(dest, "fable-skill — agentic operating discipline");
+  else if (t.kind === "file") writeMerged(dest, { header: t.header, full: opts.full });
+  else upsertManagedBlock(dest, "fable-skill — agentic operating discipline", opts);
 
   console.log(`  ✔ ${t.label.padEnd(28)} → ${dest}`);
 }
@@ -270,6 +288,10 @@ Scope:
   --project   install into the current directory's agent config (default)
   --global    install into the user-level config (where the agent supports it)
 
+Depth (single-file targets only; skill-folder targets always get the full skill):
+  (default)   compact edition, ~2k tokens — safe for always-on rules files
+  --full      full skill with all reference modules, ~7k tokens per request
+
 Examples:
   npx fable-skill claude --global     # Claude Code, all projects
   npx fable-skill cursor              # Cursor rules in this repo
@@ -281,6 +303,7 @@ Examples:
 function main() {
   const args = process.argv.slice(2);
   const scope = args.includes("--global") ? "global" : "project";
+  const opts = { full: args.includes("--full") };
   const names = args.filter((a) => !a.startsWith("--"));
   const cwd = process.cwd();
 
@@ -300,11 +323,11 @@ function main() {
     ? Object.keys(TARGETS).filter((k) => (scope === "global" ? TARGETS[k].global : TARGETS[k].project))
     : names;
 
-  console.log(`\nInstalling fable-skill (${scope} scope):\n`);
+  console.log(`\nInstalling fable-skill (${scope} scope${opts.full ? ", full depth" : ""}):\n`);
   let failed = 0;
   for (const name of list) {
     try {
-      installTarget(name, scope, cwd);
+      installTarget(name, scope, cwd, opts);
     } catch (e) {
       failed++;
       console.error(`  ✘ ${name}: ${e.message}`);
@@ -314,4 +337,6 @@ function main() {
   if (failed) process.exitCode = 1;
 }
 
-main();
+if (require.main === module) main();
+
+module.exports = { TARGETS, installTarget, mergedMarkdown, compactMarkdown };
