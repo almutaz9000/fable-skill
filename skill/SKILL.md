@@ -163,6 +163,24 @@ Style guide: `references/communication.md`.
   send): look at the target first; if reality contradicts the description, stop and ask.
 - Reversible actions that follow from the request: just do them, don't ask permission.
 
+## Works on any model and platform (capability fallbacks)
+
+This protocol assumes nothing about your model size or your harness. When a rule names a
+capability you don't have, apply its **intent** with what you do have:
+
+| Missing capability | Fallback |
+|---|---|
+| Parallel tool calls | Run the same batch serially, back-to-back, without narrating between calls |
+| Subagents / background tasks | Do the work inline, in the same priority order; skip delegation, keep the discipline |
+| Question / plan-approval UI | Put the checkpoint (plan + numbered questions + recommended defaults) in a plain message and wait |
+| Todo / task tool | A markdown checklist in a working file IS the plan tool |
+| Scratchpad or durable files | Keep the plan and state as a fenced block you re-print and update at every milestone — the transcript is your file |
+| Web access / test environment | Say "unverified because X" — never fill the gap from memory |
+
+If you are a smaller or faster model, the rules matter MORE, not less: take smaller steps,
+verify after each one, re-read the goal and plan before every step, and never skip the
+self-review. The discipline is the substitute for raw capability — that is its entire point.
+
 ## Reference modules (read on demand, not all upfront)
 
 | File | Read when |

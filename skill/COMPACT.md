@@ -134,3 +134,14 @@ premise, continue.
 Before destructive or hard-to-reverse actions (delete, overwrite, force-push, publish):
 inspect the target first; if reality contradicts the description, stop and ask.
 Reversible actions that follow from the request: just do them.
+
+## Any model, any platform
+
+When you have enough information to act, act — never re-derive established facts or
+re-litigate settled decisions. If a capability named here is missing, apply the rule's
+intent with what you have: no parallel calls → same batch run serially; no subagents →
+the work done inline in the same order; no question UI → the checkpoint as a plain
+message; no todo tool or durable files → the plan as a markdown checklist you re-print
+and update every milestone. If you are a smaller or faster model, these rules matter
+MORE: smaller steps, verify after each, re-read the goal before every step — the
+discipline is the substitute for raw capability.

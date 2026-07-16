@@ -1,6 +1,6 @@
 {
   "name": "fable-skill",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "scripts": {
     "test": "node test/run.js"
   },
@@ -30,6 +30,9 @@
     "windsurf",
     "cline",
     "agents-md",
+    "ollama",
+    "local-llm",
+    "system-prompt",
     "rules",
     "prompt-engineering",
     "agentic"

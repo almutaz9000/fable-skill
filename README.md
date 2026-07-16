@@ -25,7 +25,13 @@ Install it once with `npx`, natively, into whichever agent you use:
 | Zed | JetBrains Junie | Kiro (AWS) | Trae |
 | Qwen Code | OpenCode | Goose | Warp |
 | Kilo Code | Augment | OpenHands | Replit Agent |
-| any AGENTS.md agent | claude.ai (zip) | | |
+| Crush (Charm) | any AGENTS.md agent | claude.ai (zip) | **any model via system prompt** |
+
+And it is **model-agnostic by design**: the same discipline runs on frontier models and on
+free or local ones — Gemma, Qwen, Kimi K2, GLM (Z.ai), Llama, DeepSeek, Claude Haiku, Grok,
+GPT — with built-in fallbacks when a platform lacks parallel tool calls, subagents, or a
+question UI. For models with no coding harness at all, `npx fable-skill prompt` exports the
+whole discipline as a plain system prompt.
 
 ## Quick start
 
@@ -44,6 +50,9 @@ npx github:almutaz9000/fable-skill agents
 
 # Everything at once for the current repo
 npx github:almutaz9000/fable-skill all
+
+# Plain system prompt for ANY model (Ollama, LM Studio, Grok, ChatGPT, ...)
+npx github:almutaz9000/fable-skill prompt
 
 # See every supported agent and where it installs
 npx github:almutaz9000/fable-skill list
@@ -193,6 +202,32 @@ with a single rules file get everything merged into one document in their native
 | [`context.md`](skill/references/context.md) | STATE.md pattern so long tasks survive context compaction and session breaks |
 | [`communication.md`](skill/references/communication.md) | Outcome-first reporting, honesty rules, readability over compression |
 
+## Any model — including free and local ones
+
+The skill targets **harnesses**, but what it upgrades is the **model inside them** — and it
+works on all of them, three ways:
+
+1. **Pick any model inside a supported harness.** The install is the same regardless of
+   which model the harness runs: Claude Haiku in Claude Code; Gemini Flash in Gemini CLI;
+   free/local models (Gemma, Qwen, Kimi K2, GLM, Llama, DeepSeek via Ollama or an
+   OpenAI-compatible endpoint) in Aider, Cline, Continue.dev, OpenCode, Crush, Goose, or
+   Kilo Code; GPT models in Codex and Copilot; Grok via AGENTS.md-compatible CLIs.
+
+2. **No harness? Export a system prompt.** `npx fable-skill prompt` writes
+   `FABLE-SKILL-PROMPT.md` (add `--stdout` to pipe, `--full` for the complete edition) —
+   paste it into an Ollama Modelfile `SYSTEM` block, the LM Studio / OpenWebUI / Jan system
+   prompt field, or Grok / ChatGPT / Gemini custom instructions.
+
+3. **Capability fallbacks are built in.** The skill never assumes Claude-specific features.
+   If the platform lacks parallel tool calls, subagents, a question/approval UI, a todo
+   tool, or durable files, the skill states the fallback (serial batches, inline work,
+   checkpoint as a plain message, plan as a re-printed markdown checklist) — so a bare
+   chat model can still run the full discipline.
+
+Smaller models benefit the most: the skill explicitly instructs them to take smaller steps,
+verify more often, and re-read the plan before every step — process compensating for
+capability, which is exactly where the model-tier quality gap lives.
+
 ## Per-agent install locations
 
 | Agent | Command | Installs to |
@@ -217,12 +252,14 @@ with a single rules file get everything merged into one document in their native
 | Qwen Code | `qwen --global` / `qwen` | `~/.qwen/QWEN.md` or `./QWEN.md` (managed block) |
 | OpenCode | `opencode --global` / `opencode` | `~/.config/opencode/AGENTS.md` or `./AGENTS.md` (managed block) |
 | Goose (Block) | `goose` | `./.goosehints` (managed block) |
+| Crush (Charm) | `crush` | `./CRUSH.md` (managed block) |
 | Warp | `warp` | `./WARP.md` (managed block) |
 | Kilo Code | `kilo` | `.kilocode/rules/fable-skill.md` |
 | Augment Code | `augment` | `.augment/rules/fable-skill.md` |
 | OpenHands | `openhands` | `.openhands/microagents/repo.md` (managed block) |
 | Replit Agent | `replit` | `./replit.md` (managed block) |
-| AGENTS.md standard | `agents` | `./AGENTS.md` (managed block) |
+| AGENTS.md standard | `agents` | `./AGENTS.md` (managed block; Codex, Amp, Jules, Zed, Factory Droid, Kimi CLI, Grok CLI, ...) |
+| **Any model** (Ollama, LM Studio, OpenWebUI, Grok, ChatGPT, ...) | `prompt` | `./FABLE-SKILL-PROMPT.md` — paste as system prompt / custom instructions |
 
 **claude.ai:** zip the [`skill/`](skill/) folder (it must contain `SKILL.md` at its root) and
 upload it under **Settings → Capabilities → Skills**.

@@ -235,6 +235,11 @@ const TARGETS = {
     kind: "managed",
     project: (cwd) => path.join(cwd, ".goosehints"),
   },
+  crush: {
+    label: "Crush (Charm) — runs GPT, Gemini, Qwen, GLM, local models",
+    kind: "managed",
+    project: (cwd) => path.join(cwd, "CRUSH.md"),
+  },
   warp: {
     label: "Warp",
     kind: "managed",
@@ -261,7 +266,7 @@ const TARGETS = {
     project: (cwd) => path.join(cwd, "replit.md"),
   },
   agents: {
-    label: "AGENTS.md standard (Codex, Amp, Jules, Zed, Factory, and others)",
+    label: "AGENTS.md standard (Codex, Amp, Jules, Zed, Factory Droid, Kimi CLI, Grok CLI, and others)",
     kind: "managed",
     project: (cwd) => path.join(cwd, "AGENTS.md"),
   },
@@ -296,9 +301,14 @@ fable-skill — Fable-class operating discipline for any coding agent
 Usage:
   npx fable-skill <agent> [--project | --global]
   npx fable-skill all [--project | --global]
+  npx fable-skill prompt [--full] [--stdout]   # plain system prompt for ANY model
   npx fable-skill list
 
 Agents: ${Object.keys(TARGETS).join(", ")}
+
+No harness? \`prompt\` writes FABLE-SKILL-PROMPT.md (or prints with --stdout) to paste
+into any model's system prompt: Ollama/LM Studio/OpenWebUI (gemma, qwen, kimi, glm,
+llama, deepseek, ...), or Grok / ChatGPT / Gemini custom instructions.
 
 Scope:
   --project   install into the current directory's agent config (default)
@@ -324,6 +334,30 @@ function main() {
   const cwd = process.cwd();
 
   if (names.length === 0 || names[0] === "help") return usage();
+
+  // Universal escape hatch: emit the skill as a plain system prompt for ANY
+  // model without a supported harness — Gemma, Qwen, Kimi, GLM/Z.ai, Llama,
+  // DeepSeek via Ollama/LM Studio/OpenWebUI/Jan, or Grok/ChatGPT/Gemini
+  // custom instructions. --stdout prints for piping (e.g. into a Modelfile).
+  if (names[0] === "prompt") {
+    const body = opts.full ? mergedMarkdown() : compactMarkdown();
+    if (args.includes("--stdout")) {
+      process.stdout.write(body + "\n");
+      return;
+    }
+    const dest = path.join(cwd, "FABLE-SKILL-PROMPT.md");
+    fs.writeFileSync(dest, body + "\n");
+    console.log(`
+  ✔ system prompt written → ${dest}
+
+  Paste it into any model's system prompt or custom instructions:
+    - Ollama:      SYSTEM block of a Modelfile (gemma, qwen, kimi, glm, llama, deepseek, ...)
+    - LM Studio / OpenWebUI / Jan:  the system prompt field
+    - Grok / ChatGPT / Gemini:     custom instructions
+  Or pipe it:  npx fable-skill prompt --stdout
+`);
+    return;
+  }
 
   if (names[0] === "list") {
     console.log("\nSupported agents:\n");

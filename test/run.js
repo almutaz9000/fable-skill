@@ -83,7 +83,20 @@ const countBlocks = (file) =>
   check("claude folder has all 7 references", refs.length === 7, refs.join(","));
 }
 
-// --- 7. unknown agent fails with exit code 1 ------------------------------
+// --- 7. prompt command: universal system-prompt export ---------------------
+{
+  const dir = freshDir();
+  run(dir, "prompt");
+  const dest = path.join(dir, "FABLE-SKILL-PROMPT.md");
+  check("prompt writes FABLE-SKILL-PROMPT.md", fs.existsSync(dest));
+  check("prompt file has no managed markers", !fs.readFileSync(dest, "utf8").includes("BEGIN fable-skill"));
+  const out = run(dir, "prompt", "--stdout");
+  check("prompt --stdout prints the compact skill", out.includes("Route by deliverable"));
+  const full = run(dir, "prompt", "--stdout", "--full");
+  check("prompt --stdout --full includes reference modules", full.includes("<!-- workflows.md -->"));
+}
+
+// --- 8. unknown agent fails with exit code 1 ------------------------------
 {
   const dir = freshDir();
   let code = 0;

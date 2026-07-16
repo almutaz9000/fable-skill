@@ -64,6 +64,9 @@ Rules for delegation:
 
 ## Momentum rules
 
+- When you have enough information to act, act. Don't re-derive facts already established
+  this session, re-survey options you won't take, or re-litigate a decision already made
+  (by you with stated reasons, or by the user).
 - Never end a turn on a promise ("Next I'll run the tests") — run them.
 - An error in a tool call is a normal event: read it, adjust, continue. Do not report a
   fixable error to the user as if it were a blocker.
