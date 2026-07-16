@@ -45,6 +45,58 @@ Rules:
 - Annotate completed steps with the one-line result — the plan doubles as your state file.
 - Explore steps come first and are real steps, not throat-clearing.
 
+## The approval checkpoint (plan + all questions in one batch)
+
+For work where a wrong direction is expensive — a long run, genuinely divergent options, an
+irreversible step — get the user's confirmation ONCE, before acting, so the model never
+spends an hour building something the user didn't want.
+
+**Checkpoint when ANY of these hold** (otherwise skip it):
+- Two or more viable approaches lead to materially different deliverables.
+- An ambiguity in the request changes what you'd build, write, or analyze.
+- The plan contains an irreversible or outward-facing step.
+- The work will run long enough that a wrong assumption wastes real time.
+
+**Never checkpoint on** things you can cheaply verify yourself (read the code, run the
+command) or that have an obvious conventional default — asking those offloads your work
+onto the user. Verify or default, and flag the assumption in the final answer.
+
+**Format** — one message, or one call to the platform's question tool if it has one
+(e.g. AskUserQuestion in Claude Code, which supports multiple questions per call):
+
+```markdown
+## Plan (for your approval)
+Goal: migrate config loading from JSON files to environment variables.
+Approach: vertical slices, auth service first, broad test gate at the end.
+Done means: all 3 services boot from env vars; old JSON path removed; suite green.
+
+## Questions — answer any or all; "proceed" takes every recommended default
+Q1. Scope: which services in this pass?
+    → Recommended: auth only first — smallest blast radius, proves the pattern.
+    → Alternative: all 3 at once — fewer review cycles, larger risk.
+Q2. Backwards compatibility: keep JSON fallback for one release?
+    → Recommended: no fallback — config is internal, no external consumers found.
+    → Alternative: keep fallback behind a flag — safer if I missed a consumer.
+Q3. The deploy scripts also read the JSON files (found in deploy/*.sh). In scope?
+    → Recommended: yes, include them — otherwise the migration ships broken.
+    → Alternative: separate follow-up task.
+```
+
+Rules:
+- **One batch.** Every open question goes in the same checkpoint, numbered, so the user
+  answers everything in one reply. Trickling one question per turn is banned.
+- **Recommendation first**, explicitly marked, with its one-line reason. The user should be
+  able to answer "proceed" and get a sensible run — every question has a default.
+- **Surface misunderstandings, don't hide them**: if exploration found something that
+  contradicts the request (Q3 above), the checkpoint is where it comes up — not mid-run,
+  not in the final report.
+- One checkpoint per task is the norm. Ask a second batch only if the answers genuinely
+  spawn new decisions.
+- Record the answers in the plan/STATE file so they survive compaction and are never
+  re-asked or re-litigated.
+- If no user is available (autonomous run), take every recommended default and label each
+  such decision visibly in the final report.
+
 ## Decomposition heuristics
 
 - **Vertical slices over horizontal layers**: prefer "make one case work end-to-end, then

@@ -60,6 +60,8 @@ a temporary workaround with the real cause documented next to it.
 
 ## Verifying non-code work
 
+Full per-shape playbooks (research, writing, review/editing, planning, data analysis,
+operations) live in `references/workflows.md`; the evidence standard in brief:
 - **Research/analysis**: every load-bearing fact needs a source you actually opened this
   session. Numbers get sanity-checked for magnitude. Conclusions get one deliberate
   counterargument (see `reasoning.md` §3).

@@ -8,6 +8,24 @@ change; skip plans, hypothesis trees, and state files. Escalate to the full loop
 debugging a failure, touching many files, acting irreversibly, facing an ambiguous goal,
 or working across many turns — and the moment reality surprises you.
 
+**Route by deliverable.** Pick the workflow for what the user will consume, not the prompt's
+vocabulary. Working code → **build**: explore the codebase's idiom first, verify by executing.
+A failure explained → **debug**: reproduce first, ≥3 ranked hypotheses, fix cause not symptom.
+An answer from sources → **research**: source every load-bearing claim, run one deliberate
+disconfirmation pass, surface source disagreements instead of averaging them. A document →
+**write**: gather all inputs, outline with each section's point as a full sentence, draft
+conclusion-first, then separate accuracy / structure / cold-reader edit passes. A verdict on
+an artifact → **review**: read ALL of it before judging, one lens per pass, cite exact
+locations, label defect vs. preference; when editing, smallest change, never alter meaning
+silently. A plan or decision → **plan**: 2–3 real options scored on criteria, riskiest
+assumption front-loaded, checkable milestones, pre-mortem. Insight from data → **analyze**:
+profile the data first, log every exclusion with row counts, sanity-check magnitudes, trace
+one record by hand — a surprising result is a pipeline bug until a bug hunt fails. A state
+change in the world → **operate**: inspect the target, dry-run or verified sample first,
+checkpoint before the irreversible step, name the rollback up front. Mixed tasks: split into
+phases, one workflow each, verified artifact handed between them. Re-route when the
+deliverable changes (a build task hitting an unexplained failure becomes debug).
+
 ## The Loop
 
 1. **UNDERSTAND** — restate the goal in one sentence; list "done" as checkable criteria.
@@ -43,6 +61,19 @@ never both.
   horizontal layers. Every step must end in a verifiable state.
 - Scope creep discovered mid-task: stop and surface it with a recommendation — don't
   silently expand the blast radius.
+
+## Checkpoint before expensive work
+
+Never burn a long run on an unconfirmed guess. When the work is expensive AND direction is
+uncertain — multiple viable approaches with different deliverables, an ambiguity that
+changes the outcome, or an irreversible step — pause once BEFORE acting: present the plan
+in a few lines plus ALL open questions in one numbered batch (use the platform's question
+tool if one exists), each question with options, your recommended choice marked first with
+its one-line reason, and the default taken if the user just says "proceed". Anything found
+during exploration that contradicts the request surfaces here, not mid-run. One batch per
+task; record answers in the plan; never re-ask. For small or clear tasks, skip the
+checkpoint — act and flag minor assumptions in the final answer. Never checkpoint on what
+you can cheaply verify yourself.
 
 ## Execute efficiently (tokens and time)
 

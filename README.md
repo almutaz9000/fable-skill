@@ -7,6 +7,14 @@ discipline that separates top-tier agentic models from ordinary runs: explore be
 plan before acting, verify every change with evidence, debug at root cause instead of retrying
 blindly, persist state across long tasks, and self-review before declaring done.
 
+It also **routes the workflow to the task**: before acting, the agent classifies what the
+user will actually consume — working code, a diagnosed failure, a sourced answer, a report,
+a review verdict, a plan, a data insight, or a changed system — and runs the matching
+playbook (build, debug, research, write, review, plan, analyze, operate). Verification for a
+report means fact/structure/reader edit passes; for a data analysis it means row counts and
+magnitude checks; for a deploy it means dry-runs and rollback plans — not one code-shaped
+process forced onto everything.
+
 Install it once with `npx`, natively, into whichever agent you use:
 
 | | | | |
@@ -106,7 +114,26 @@ it reads the state file first instead of re-deriving everything.
 
 Instead of guessing, the agent turns "slow" into a checkable criterion (measure first,
 then a target), lists its assumptions visibly, verifies the cheap ones immediately, and
-carries the rest flagged into the final answer — no silent load-bearing guesses.
+carries the rest flagged into the final answer — no silent load-bearing guesses. And when
+the direction genuinely forks (is "improve" a quick win or a rewrite? which page matters?),
+it pauses once **before** the long work: the plan plus all open questions in a single
+batch, each with a recommended option marked and a default, so one reply — even just
+"proceed" — sets the whole run on the right track. You never come back to an hour of work
+you didn't want.
+
+### Example: non-code work (research, analysis, writing)
+
+> Analyze last quarter's churn data and write a one-page summary for the leadership team.
+
+The router splits this into two phases with a verified handoff. **Analyze**: profile the
+data before trusting it (nulls, duplicates, units, coverage), log every exclusion with its
+row-count impact, sanity-check magnitudes, and treat any surprising number as a pipeline bug
+until a bug hunt fails to find one. Only then **Write**: outline with each section's point
+as a full sentence, draft conclusion-first for the stated audience, then three separate edit
+passes — accuracy (every figure re-checked against the analysis), structure, and a cold
+read as the intended reader. The same routing covers document review (read it all before
+judging, cite exact locations, label defect vs. preference) and planning (2–3 scored
+options, riskiest assumption first, pre-mortem).
 
 ### Example: trivial task (the skill stays out of the way)
 
@@ -128,6 +155,10 @@ so small tasks stay fast.
 | Irreversible actions (deletes, deploys, force-pushes) | Inspect-target-first rule and explicit confirmation gates |
 | Work spanning many turns or sessions | STATE.md survives context loss |
 | Vague or underspecified goals | Assumption ledger + checkable done-criteria before code |
+| Research and synthesis from sources | Every load-bearing claim sourced; one deliberate disconfirmation pass; disagreements surfaced, not averaged |
+| Writing reports, docs, proposals | Inputs gathered before drafting; per-section points; accuracy → structure → reader edit passes |
+| Reviewing or editing documents | Whole artifact read before judging; findings cited by location; defect separated from preference |
+| Data analysis | Data profiled first; exclusions logged with row counts; surprising results treated as bugs until proven |
 | Smaller/faster models doing agentic work | The discipline compensates for weaker default process — this is where gains are largest |
 
 **Skip it (or let the LIGHT tier no-op) when:**
@@ -146,7 +177,7 @@ production incident, the full protocol pays for itself.
 
 ## What's in the skill
 
-The skill is plain markdown — a core protocol plus six focused modules. Agents with native
+The skill is plain markdown — a core protocol plus seven focused modules. Agents with native
 skill support (Claude Code, OpenClaw) get the folder as-is and load modules on demand; agents
 with a single rules file get everything merged into one document in their native format.
 
@@ -154,8 +185,9 @@ with a single rules file get everything merged into one document in their native
 |---|---|
 | [`SKILL.md`](skill/SKILL.md) | The Fable Loop: understand → explore → plan → act → verify → iterate → review, plus the non-negotiable rules |
 | [`COMPACT.md`](skill/COMPACT.md) | The whole discipline distilled to roughly 2k tokens — what single-file rules targets install by default |
+| [`workflows.md`](skill/references/workflows.md) | Deliverable-based routing: build, debug, research, write, review/edit, plan, analyze, operate — each with its own explore/verify shape and banned failure modes |
 | [`reasoning.md`](skill/references/reasoning.md) | Hypothesis trees for debugging, decision rubrics, self-consistency checks, assumption ledgers, altitude control when stuck |
-| [`planning.md`](skill/references/planning.md) | Checkable done-criteria, plan templates, decomposition heuristics (riskiest assumption first, vertical slices), replanning rules |
+| [`planning.md`](skill/references/planning.md) | Checkable done-criteria, plan templates, the batched approval checkpoint (plan + all questions in one reply, recommendation marked), decomposition heuristics, replanning rules |
 | [`execution.md`](skill/references/execution.md) | Parallel tool batching, wide-fan exploration, subagent delegation, minimal-diff editing discipline |
 | [`verification.md`](skill/references/verification.md) | The evidence standard ("it should work" is banned), a five-rung verification ladder, root-cause debugging protocol |
 | [`context.md`](skill/references/context.md) | STATE.md pattern so long tasks survive context compaction and session breaks |
@@ -211,6 +243,7 @@ success without running anything, retrying the same fix, losing state mid-task) 
 large share of the quality gap between model tiers. This skill closes those by policy:
 
 - **Never act on assumption** — read the code, run the command, get ground truth first.
+- **Never burn a long run on a guess** — before expensive or divergent work, one batched checkpoint: the plan plus every open question in a single reply, recommended option marked, defaults stated, misunderstandings surfaced before the work, not after.
 - **Never claim without evidence** — every "it works" must cite output that would differ if it didn't.
 - **Never retry verbatim** — two failures at the same subgoal force a change of hypothesis or altitude.
 - **Never lose state** — long tasks keep a STATE.md that survives context compaction.
@@ -226,6 +259,7 @@ fable-skill/
 ├── skill/                 # the skill itself (canonical source, plain markdown)
 │   ├── SKILL.md
 │   └── references/
+│       ├── workflows.md
 │       ├── reasoning.md
 │       ├── planning.md
 │       ├── execution.md

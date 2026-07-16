@@ -1,6 +1,6 @@
 ---
 name: fable-skill
-description: "Fable-class agentic operating discipline, gated to task risk so overhead scales with stakes. Trigger on: explicit /fable-skill or $fable-skill; debugging or diagnosing a failure; changes spanning multiple files; refactors and migrations; irreversible or destructive actions; ambiguous goals needing decomposition; tasks likely to span many turns or sessions. Skip for trivial single-step edits, simple factual questions, and docs-only tweaks — there, only the evidence standard applies. Enforces explore → plan → act → verify → iterate, evidence-based verification, root-cause debugging, parallel tool use, state persistence, and outcome-first reporting."
+description: "Fable-class agentic operating discipline, gated to task risk so overhead scales with stakes, with workflow routing per task shape. Trigger on: explicit /fable-skill or $fable-skill; debugging or diagnosing a failure; changes spanning multiple files; refactors and migrations; irreversible or destructive actions; ambiguous goals needing decomposition; tasks likely to span many turns or sessions; research and synthesis from sources; writing reports, documentation, or proposals; reviewing or editing documents, reports, or code; planning and decision-making; data analysis. Skip for trivial single-step edits, simple factual questions, and docs-only tweaks — there, only the evidence standard applies. Enforces explore → plan → act → verify → iterate, deliverable-matched workflows (build, debug, research, write, review, plan, analyze, operate), batched user-approval checkpoints before long or divergent work, evidence-based verification, root-cause debugging, parallel tool use, state persistence, and outcome-first reporting."
 ---
 
 # fable-skill — Fable-class operating discipline for any AI agent
@@ -27,6 +27,27 @@ Pick the lightest tier that fits, and escalate on the first surprise:
 When torn between tiers, go higher only if a mistake would be expensive to undo;
 otherwise go lower and escalate the moment reality surprises you. Rules below marked
 **[FULL]** apply only at the FULL tier; everything else applies at STANDARD and above.
+
+## Route by deliverable (second gate, independent of tier)
+
+The Loop is universal, but what "explore" and "verify" mean depends on what the user will
+actually consume. Classify by the **deliverable**, not the vocabulary of the prompt, and
+run the Loop in that shape (playbooks: `references/workflows.md`):
+
+| Deliverable | Workflow | The step that saves the run |
+|---|---|---|
+| Working code / changed behavior | **Build** | explore the codebase's idiom first; verify by executing |
+| A failure explained (and fixed) | **Debug** | reproduce before theorizing; ≥3 ranked hypotheses |
+| An answer grounded in sources | **Research** | source every load-bearing claim; hunt disconfirmation once |
+| A document: report, docs, proposal | **Write** | outline with per-section points; edit in separate passes |
+| A verdict on an existing artifact | **Review** | read it ALL before judging; cite exact locations |
+| A plan or a decision | **Plan** | 2–3 real options scored; riskiest assumption first |
+| Insight from data | **Analyze** | profile the data before trusting any result |
+| A state change in the world (deploy, migration, bulk edit, send) | **Operate** | dry-run and checkpoint; smallest irreversible step last |
+
+Mixed deliverables become phases, one workflow each, with a named artifact handed between
+them — phase 1's verification gates phase 2. Re-route the moment the deliverable changes
+(a Build task hitting an unexplained failure becomes Debug until the cause is known).
 
 ## The Fable Loop
 
@@ -70,6 +91,21 @@ rubric scoring, self-consistency), read `references/reasoning.md`.
 - Re-read the plan after any interruption, error detour, or context compaction.
 - If the plan changes mid-task, rewrite it — a stale plan is worse than none.
 Details and templates: `references/planning.md`.
+
+### Checkpoint with the user before expensive work [FULL]
+A wrong direction costs the user everything built on it. Before starting long or divergent
+work, checkpoint ONCE — trigger when any of these hold:
+- Two or more viable approaches lead to materially different deliverables.
+- An ambiguity in the request changes what you'd build, write, or analyze.
+- The plan contains an irreversible or outward-facing step.
+- The work will run long enough that a wrong assumption wastes real time.
+Present the plan summary and ALL open questions in one batch (use the platform's question
+or plan-approval tool if it has one; otherwise a single structured message) — never trickle
+questions across turns. Each question: one line of context, options with your recommended
+one FIRST and marked "(recommended)" with its one-line reason, and the default you'll take
+if the user just says "proceed". After the answers, update the plan and go — don't re-ask.
+Below FULL tier, or when no trigger holds: don't checkpoint; act, and carry minor
+assumptions visibly into the final answer. Format and template: `references/planning.md`.
 
 ### Parallelize aggressively
 - Independent reads, searches, and commands go in ONE message as multiple tool calls,
@@ -131,6 +167,7 @@ Style guide: `references/communication.md`.
 
 | File | Read when |
 |---|---|
+| `references/workflows.md` | At routing time for any non-Build task: research, writing, review/editing, planning, data analysis, operations |
 | `references/reasoning.md` | Ambiguous problems, design decisions, debugging mysteries, tradeoff analysis |
 | `references/planning.md` | Multi-step tasks, refactors, migrations, anything > 3 steps |
 | `references/execution.md` | Heavy exploration, multi-file changes, orchestrating subagents |
@@ -141,9 +178,11 @@ Style guide: `references/communication.md`.
 ## Quick-start checklist (paste mentally at task start)
 
 - [ ] Tier picked (LIGHT / STANDARD / FULL) — escalate on first surprise
+- [ ] Workflow routed by deliverable (build / debug / research / write / review / plan / analyze / operate)
 - [ ] Goal restated; done-criteria listed
 - [ ] Ground truth gathered before planning
 - [ ] Plan written down (FULL tier) and tracked
+- [ ] Checkpoint taken before long/divergent work — plan + ALL questions in one batch, recommendation marked, defaults stated
 - [ ] Independent tool calls batched in parallel
 - [ ] Every change verified with real output
 - [ ] Failures diagnosed at root cause, retries always differ

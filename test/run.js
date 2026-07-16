@@ -70,7 +70,9 @@ const countBlocks = (file) =>
   check("compact default is much smaller than --full", compactLen < fullLen / 2, `${compactLen} vs ${fullLen}`);
   // ~4 bytes/token for English markdown; guards the "roughly 2k tokens" README claim
   check("compact roughly 2k tokens (est. < 3k at 4 bytes/token)", compactLen / 4 < 3000, `${compactLen} bytes ≈ ${Math.round(compactLen / 4)} tokens`);
-  check("full merge contains all reference modules", ["reasoning.md", "planning.md", "execution.md", "verification.md", "context.md", "communication.md"].every((m) => mergedMarkdown().includes(`<!-- ${m} -->`)));
+  check("full merge contains all reference modules", ["workflows.md", "reasoning.md", "planning.md", "execution.md", "verification.md", "context.md", "communication.md"].every((m) => mergedMarkdown().includes(`<!-- ${m} -->`)));
+  check("compact edition routes workflows by deliverable", compactMarkdown().includes("Route by deliverable"));
+  check("compact edition includes the approval checkpoint", compactMarkdown().includes("Checkpoint before expensive work"));
 }
 
 // --- 6. folder targets copy the complete skill ----------------------------
@@ -78,7 +80,7 @@ const countBlocks = (file) =>
   const dir = freshDir();
   run(dir, "claude");
   const refs = fs.readdirSync(path.join(dir, ".claude", "skills", "fable-skill", "references"));
-  check("claude folder has all 6 references", refs.length === 6, refs.join(","));
+  check("claude folder has all 7 references", refs.length === 7, refs.join(","));
 }
 
 // --- 7. unknown agent fails with exit code 1 ------------------------------
