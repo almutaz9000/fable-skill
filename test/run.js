@@ -73,6 +73,7 @@ const countBlocks = (file) =>
   check("full merge contains all reference modules", ["workflows.md", "reasoning.md", "planning.md", "execution.md", "verification.md", "context.md", "communication.md"].every((m) => mergedMarkdown().includes(`<!-- ${m} -->`)));
   check("compact edition routes workflows by deliverable", compactMarkdown().includes("Route by deliverable"));
   check("compact edition includes the approval checkpoint", compactMarkdown().includes("Checkpoint before expensive work"));
+  check("compact edition separates questions from change requests", compactMarkdown().includes("not a change request"));
 }
 
 // --- 6. folder targets copy the complete skill ----------------------------

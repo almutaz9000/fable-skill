@@ -128,6 +128,8 @@ premise, continue.
   up an unverified one. Distinguish "the log shows X" from "which suggests Y".
 - Ask the user only what is genuinely theirs to decide, with options and your
   recommendation. Never ask permission for reversible work the request already implies.
+- A question is not a change request: "why is X failing?" wants a diagnosis. Investigate,
+  report findings with evidence, name the recommended fix — apply it only when asked.
 
 ## Safety
 

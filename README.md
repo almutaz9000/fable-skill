@@ -144,6 +144,16 @@ read as the intended reader. The same routing covers document review (read it al
 judging, cite exact locations, label defect vs. preference) and planning (2–3 scored
 options, riskiest assumption first, pre-mortem).
 
+### Example: a question is not a change request
+
+> Why did the nightly export job fail last night?
+
+The deliverable here is a **diagnosis**, not a patch. The agent investigates properly
+(captures the exact error, reproduces it, ranks hypotheses), reports the root cause with
+evidence, and names the fix it would recommend — then stops. The edit happens when you say
+so. Without this rule, agents routinely answer "why is X broken?" by rewriting X — work
+you never asked for.
+
 ### Example: trivial task (the skill stays out of the way)
 
 > Fix the typo in the welcome banner.
@@ -285,9 +295,36 @@ large share of the quality gap between model tiers. This skill closes those by p
 - **Never retry verbatim** — two failures at the same subgoal force a change of hypothesis or altitude.
 - **Never lose state** — long tasks keep a STATE.md that survives context compaction.
 - **Never skip the review** — a hostile self-review gates every "done".
+- **Never fix what was only asked about** — a question ("why is this failing?") gets a
+  diagnosis with evidence and a recommended fix; edits start only when requested.
 
 Expect the biggest gains on process-heavy work: debugging, refactors, migrations, research,
-multi-step automation.
+report writing, data analysis, multi-step automation.
+
+### What it can't do
+
+Setting expectations honestly, because a skill that overpromises gets uninstalled:
+
+- **It can't add intelligence.** The skill transfers Fable's *process*, not its judgment.
+  A mid-tier model under the skill runs the right procedure — ranks hypotheses, verifies
+  with evidence, checkpoints before long work — but picking the *right* hypothesis or the
+  *right* architecture is still bounded by the model. On hard design judgment, a frontier
+  model without the skill beats a mid-tier model with it.
+- **It can't verify without a way to verify.** No test environment, no credentials, no
+  runtime → the skill's guarantee degrades from "verified" to "honestly labeled
+  unverified". The model says "unverified because X" instead of bluffing — that's the
+  floor, and it's deliberate.
+- **It can't force obedience on very small models.** Sub-~7B models follow long rule sets
+  unreliably. The compact edition (~2k tokens) helps, and the built-in fallbacks keep the
+  rules followable on bare harnesses, but the skill's floor is the model's
+  instruction-following ability, not zero.
+
+**Where the gains land, by model tier:** mid-tier paid models (Haiku, Gemini Flash,
+GPT-mini class, Kimi K2, GLM) gain the most — strong enough to obey the rules, and their
+default process is exactly where they cut corners (claiming success without running
+anything, retrying verbatim, losing state). Frontier models gain *consistency* — they do
+most of this usually; the skill makes it every time, and the approval checkpoint isn't a
+default anywhere. Small free models gain direction and honesty but keep their ceiling.
 
 ## Repo layout
 
