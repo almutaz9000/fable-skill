@@ -20,7 +20,7 @@ function check(name, cond, detail) {
 }
 
 function run(cwd, ...args) {
-  return execFileSync(process.execPath, [CLI, ...args], { cwd, encoding: "utf8" });
+  return execFileSync(process.execPath, [CLI, ...args], { cwd, encoding: "utf8", stdio: "pipe" });
 }
 
 function freshDir() {
