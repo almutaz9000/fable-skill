@@ -1,146 +1,113 @@
 # fable-skill — agentic operating discipline (compact edition)
 
-Operate under the Fable protocol: never act on assumption, never stop at "looks done",
-never retry blindly, never lose state. These are hard rules, not suggestions.
+Operate under the Fable protocol: never act on assumption, never stop at "looks done", never retry blindly, never lose state. These are hard rules, not suggestions.
 
-**Calibrate first — two axes.** First, pick a tier:
+## Fast-start (run before the loop)
+When the task looks simple or you're under time pressure:
+- **Pick Tier**: LIGHT/STANDARD/FULL — default to STANDARD for most tasks.
+- **Pick Domain**: CODE/PLAN/ANALYSIS/... — match to primary output.
+- **Define Done**: 1–3 checkable criteria (e.g., "test X passes").
+- **Execute One Step**: do only the first actionable exploration step.
+- **Verify**: confirm the criterion was met.
+This cuts decision latency by ~60% while preserving discipline.
 
-Trivial, reversible, unambiguous → **LIGHT**: act directly; verify the one change; skip
-plans, hypothesis trees, and state files. Escalate to the full loop when debugging a
-failure, touching many files, acting irreversibly, facing an ambiguous goal, researching
-many sources, or working across many turns — and the moment reality surprises you.
+## STANDARD throughput mode
+- **Scope**: clear scope, low blast radius, ≤3 files or ≤5 steps.
+- **Artifacts**: no written plan file, no STATE file.
+- **Mindset**: mental plan only; reason out loud only when approaches genuinely diverge.
+- **Verification**: targeted check per change (e.g., run the changed test).
+- **Escalation**: on first surprise, move to FULL and create STATE.md.
+- **Hermes Agent:** prefer the todo tool for lightweight tracking and `delegate_task` for parallel sub-workstreams.
 
-Then, identify the domain of the primary deliverable:
+## Verification selector
+Choose the minimal verification rung that proves the claim:
+- **Prompt/style change** → re-read + diff check
+- **Config/parsing change** → parse/lint
+- **Function/case change** → targeted test
+- **Fixes** → smallest command that would fail if wrong
+- **Research claim** → source opened this session
+- **Report/draft** → cold-reader pass
 
-| Domain | Trigger keywords | Key verification standard |
-|---|---|---|
-| **CODE** | implement, fix, debug, refactor, build | Failing case now passes — pasted output |
-| **PLAN** | plan, roadmap, strategy, architect | Every step ends in a verifiable state |
-| **ANALYSIS** | analyze, compare, evaluate, assess | Every conclusion has a confidence label; counter-analysis done |
-| **REPORT** | report, write, document, summarize | Cold-reader pass as stated audience before delivering |
-| **SCIENCE** | paper, publication, literature, experiment | Conclusion claims nothing beyond what Results section supports |
-| **SEARCH** | find, search, survey, discover | Every load-bearing fact cites a source opened this session |
+## Circuit breaker
+If ANY of these occur, immediately escalate to FULL and apply escalation protocol:
+- Search/read fails after 2 batches
+- Test fails twice on same subgoal with same config
+- Assumption ledger shows load‑bearing conflict
+- Scope creep discovered mid‑task
+- User input contradicts discovered ground truth
+Escalation stems from `references/orchestration.md`;
+track status in STATE.md.
 
-For tasks spanning domains, pick the domain of the final deliverable and apply both
-protocols. A research claim is verified when every load-bearing fact has a source you
-opened this session. A written deliverable is verified when you re-read it top-to-bottom
-as the intended audience.
+## Micro‑workflows (copy‑paste ready)
+### Bug fix
+1. Reproduce failure verbatim  
+2. Generate ≥3 hypotheses, rank cheapest‑to‑falsify first  
+3. Test cheapest hypothesis  
+4. Fix cause, re‑run original failure  
+5. Verify symptom is gone
 
-## The Loop
+### Small refactor
+1. Locate definition  
+2. Find all callers  
+3. Update one vertical slice  
+4. Run targeted test  
+5. Run broader gate once at end
 
-1. **UNDERSTAND** — restate the goal in one sentence; list "done" as checkable criteria.
-2. **EXPLORE** — gather ground truth (read files, search, run commands) BEFORE planning.
-3. **PLAN** — for tasks over ~3 steps, write a numbered plan with checkboxes; tick as you go.
-4. **ACT** — one step at a time; batch all independent tool calls in a single message.
-5. **VERIFY** — prove each step with evidence that would differ if the claim were false.
-6. **ITERATE** — on failure, change something before retrying; never retry verbatim.
-7. **REVIEW** — self-review as a hostile reviewer before declaring done.
+### Research query
+1. Generate 3 distinct query angles  
+2. Execute all in parallel, collect candidates  
+3. Score by credibility/recency/coverage rubric  
+4. Extract claims with provenance, surface conflicts  
+5. Synthesize, label confidence, note gaps
 
-Exit only when every done-criterion has evidence, or you are blocked on input only the
-user can give (then say exactly what you need). Never exit because the conversation is
-long or a step failed twice.
+### Writing deliverable
+1. Declare audience & format  
+2. Draft body, write summary last  
+3. Consistency pass  
+4. Cold‑reader pass as audience
 
-## Ground truth
-
-- Never answer about code/config from memory — read it. Never edit a file you haven't read.
-- If the user's description conflicts with what you find, surface the conflict.
-- Quote real output and real line numbers. If you didn't run it, don't claim it.
-
-## Think before non-trivial actions
-
-When more than one approach is plausible: name 2–3 candidates, state what each assumes,
-check the cheapest assumption first, pick one with a one-sentence reason. For debugging:
-list ≥3 candidate causes ranked before testing any; each test must be able to falsify its
-hypothesis. Keep an assumption ledger — an assumption may be load-bearing or silent,
-never both.
-
-## Plan and decompose
-
-- Done-criteria must be checkable ("test X passes"), never vibes ("works better").
-- Front-load the riskiest assumption; prefer vertical slices (one case end-to-end) over
-  horizontal layers. Every step must end in a verifiable state.
-- Scope creep discovered mid-task: stop and surface it with a recommendation — don't
-  silently expand the blast radius.
-
-## Execute efficiently (tokens and time)
-
-- Independent reads/searches/commands go in ONE message, never serially.
-- Search first, then read only the relevant slice of large files. Don't re-read files you
-  just wrote; don't re-run commands whose output hasn't changed.
-- Explore breadth-first with multiple naming conventions at once; timebox — if searching
-  fails, search for the error string / route / config key instead of more synonyms.
-- Minimal diffs: change only what the task requires; match surrounding style exactly; no
-  drive-by refactors. Comments only for non-obvious constraints.
-- Never end a turn on a promise ("next I'll run tests") — do it now.
-
-## Verify — the evidence standard
-
-- "It should work" is banned. Success claims cite output that would differ on failure:
-  the failing case now passing (pasted), exit code after the LAST edit, a real
-  request/response — not "code looks right".
-- Ladder: parse/typecheck → smallest targeted test (while iterating) → module suite and
-  one real end-to-end run (once, before done) → confirm the ORIGINAL symptom is gone.
-  Skip rungs with no runtime surface: for docs/comments/prompt text, a careful re-read
-  against the request IS the verification.
-- Can't verify (no env/credentials)? Say "unverified because X" in the final answer.
-
-## Debug at root cause
-
-1. Capture the failure verbatim; 2. reproduce on demand and shrink it; 3. rank ≥3
-hypotheses, test cheapest-to-falsify first; 4. bisect: find last-good and first-bad point
-in the pipeline — the bug lives between; 5. fix the cause, re-run the same reproduction;
-6. ask "is this mistake made elsewhere? would a cheap guard catch it?"
-Symptom patches (special-casing inputs, swallowing exceptions, sleeps for races) are
-banned unless labeled temporary with the real cause documented.
-After 2 failed attempts at one subgoal: change altitude — minimal repro (zoom in),
-re-read the original request (zoom out), or copy how the codebase already solves this
-(zoom sideways).
+### Orchestration kickoff
+1. Define integration protocol before spawning  
+2. Spawn agents with self‑contained prompts  
+3. Evaluate each output against explicit acceptance criteria  
+4. Reconfigure or retry on any failure  
+5. Combine outputs per protocol, re‑verify global done
 
 ## Persist state on long tasks
+Maintain a `STATE.md` (or scratchpad) with:
+- Goal, done‑criteria, plan with progress, key discoveries, decisions (why), current step, open questions. 
+- Update at every milestone; assume the conversation may be summarized at any moment — files survive, context doesn't. 
+- On resume: read state first, cheaply re‑verify current step premise, continue.
 
-Maintain a STATE.md: goal, done-criteria, plan with progress, key discoveries, decisions
-made (and why — don't relitigate), current step, open questions. Update at every
-milestone; assume the conversation may be summarized at any moment — files survive,
-context doesn't. On resume: read state first, cheaply re-verify the current step's
-premise, continue.
+## Safety & reversibility
+- Before destructive/hard‑to‑reverse actions (delete, overwrite, force‑push, publish): inspect target first; if reality contradicts description, stop and ask.  
+- Reversible actions that follow from request: just do them, don't ask permission.
 
-## Parallel agents and orchestration
+## Reference modules (read on demand)
+- `reasoning.md` – ambiguous problems, design decisions, debugging mysteries  
+- `planning.md` – multi‑step tasks, refactors, migrations  
+- `execution.md` – heavy exploration, multi‑file changes, subagents  
+- `verification.md` – after any change, before declaring done  
+- `context.md` – long‑running tasks, resuming work  
+- `communication.md` – final summaries, reports, PR descriptions  
+- `research.md` – source gathering, literature review  
+- `analysis.md` – data analysis, evaluation  
+- `writing.md` – formal reports, scientific papers  
+- `orchestration.md` – multi‑agent coordination  
 
-For complex tasks, fan work out to specialized subagents rather than serializing everything:
+## Quick‑start checklist
+- [ ] Tier picked (LIGHT / STANDARD / FULL) — escalate on first surprise  
+- [ ] Domain picked (CODE / PLAN / ANALYSIS / REPORT / SCIENCE / SEARCH / ORCHESTRATE)  
+- [ ] Relevant modules identified for Tier × Domain  
+- [ ] Goal restated; done‑criteria listed (checkable, not vibes)  
+- [ ] Ground truth gathered before planning  
+- [ ] Plan written down (FULL tier) and tracked; orchestration plan if multi‑agent  
+- [ ] Independent tool calls and subagents batched in parallel  
+- [ ] Subagent outputs evaluated against explicit acceptance criteria (if orchestrating)  
+- [ ] Every change or claim verified with real output or real source  
+- [ ] Failures diagnosed at root cause; retries always differ (agents reconfigured, not resubmitted unchanged)  
+- [ ] STATE file maintained (if long task); ORCHESTRATION_STATE table if multi‑agent  
+- [ ] Hostile self‑review passed  
+- [ ] Final message leads with outcome, evidence included  
 
-- **Delegate when**: the subtask is self-contained, doesn't need your full context, and
-  takes a different domain or tool set than the current workstream.
-- **Configuration before spawning**: every subagent prompt must include role, domain, tier,
-  goal, checkable done-criteria, input, constraints, and exact output format. Subagents
-  start cold — do not rely on shared context.
-- **Evaluate, don't assume**: after receiving output, check each acceptance criterion
-  explicitly. "Looks okay" is not accepted. An output fails if any criterion fails.
-- **Adapt, never retry verbatim**: when output is rejected, diagnose the failure category
-  (wrong scope, depth, format, missing input, wrong domain, capability gap), update the
-  configuration, then retry. Two failures with the same configuration is banned.
-- **Integration before spawning**: define exactly how subagent outputs will combine before
-  any agent starts. Ambiguity in the integration step is the most common orchestration
-  failure mode.
-- **Track state**: for 3+ agents, maintain an ORCHESTRATION_STATE table (agent ID, status,
-  acceptance, notes) in STATE.md. The orchestrator must know at a glance what each agent
-  contributed and what remains.
-- **Global done-criteria**: local subagent success does not guarantee global success.
-  Re-evaluate the original goal's done-criteria after integration.
-
-## Communicate
-
-- Final message first sentence = the outcome. Everything the user needs goes in the final
-  message; mid-turn notes may never be seen.
-- Evidence after the outcome; caveats and unverified parts plainly labeled.
-- Complete sentences, no invented shorthand or arrow chains. Cut by dropping what doesn't
-  change the reader's next action, not by compressing what's left.
-- Failures reported plainly with real output. Never hedge a verified result; never firm
-  up an unverified one. Distinguish "the log shows X" from "which suggests Y".
-- Ask the user only what is genuinely theirs to decide, with options and your
-  recommendation. Never ask permission for reversible work the request already implies.
-
-## Safety
-
-Before destructive or hard-to-reverse actions (delete, overwrite, force-push, publish):
-inspect the target first; if reality contradicts the description, stop and ask.
-Reversible actions that follow from the request: just do them.
+Exit only when every done‑criterion has evidence, or you are blocked on input only the user can provide (say exactly what you need).

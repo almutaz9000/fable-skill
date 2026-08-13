@@ -13,11 +13,11 @@ Install it once with `npx`, natively, into whichever agent you use:
 |---|---|---|---|
 | Claude Code | Cursor | GitHub Copilot | OpenAI Codex |
 | Gemini CLI / Antigravity | Windsurf | Cline | Roo Code |
-| Amp | OpenClaw / ClawBot | Aider | Continue.dev |
-| Zed | JetBrains Junie | Kiro (AWS) | Trae |
-| Qwen Code | OpenCode | Goose | Warp |
-| Kilo Code | Augment | OpenHands | Replit Agent |
-| any AGENTS.md agent | claude.ai (zip) | | |
+| Amp | OpenClaw / ClawBot | Hermes Agent | Aider |
+| Continue.dev | Zed | JetBrains Junie | Kiro (AWS) |
+| Trae | Qwen Code | OpenCode | Goose |
+| Warp | Kilo Code | Augment | OpenHands |
+| Replit Agent | any AGENTS.md agent | claude.ai (zip) | |
 
 ## Quick start
 
@@ -33,6 +33,9 @@ npx github:almutaz9000/fable-skill cursor
 
 # AGENTS.md block — picked up by Codex, Amp, Jules, Zed, Factory, and others
 npx github:almutaz9000/fable-skill agents
+
+# Hermes Agent native skill, available in every project (~/.hermes/skills/)
+npx github:almutaz9000/fable-skill hermes --global
 
 # Everything at once for the current repo
 npx github:almutaz9000/fable-skill all
@@ -50,7 +53,7 @@ content is never touched.
 Single-file rules targets (Cursor, Copilot, `AGENTS.md`, and the like) inject their content
 into **every** request, so they get the **compact edition** (roughly 2k tokens) — the full
 discipline distilled into one document. Agents with native skill folders (Claude Code, Codex,
-OpenClaw) load reference modules on demand, so they get the complete skill at no per-request
+OpenClaw, Hermes Agent) load reference modules on demand, so they get the complete skill at no per-request
 cost. If you want the full version (roughly 7k tokens) in a rules file anyway, opt in with
 `--full`:
 
@@ -237,7 +240,7 @@ production incident, the full protocol pays for itself.
 ## What's in the skill
 
 The skill is plain markdown — a core protocol plus nine focused modules. Agents with native
-skill support (Claude Code, OpenClaw) get the folder as-is and load modules on demand; agents
+skill support (Claude Code, OpenClaw, Hermes Agent) get the folder as-is and load modules on demand; agents
 with a single rules file get everything merged into one document in their native format.
 
 | Module | What it enforces |
@@ -270,6 +273,7 @@ with a single rules file get everything merged into one document in their native
 | Gemini CLI / Antigravity | `gemini --global` / `gemini` | `~/.gemini/GEMINI.md` or `./GEMINI.md` (managed block) |
 | Amp | `amp` | `./AGENTS.md` (managed block) |
 | OpenClaw / ClawBot | `openclaw --global` / `openclaw` | `~/.openclaw/skills/fable-skill/` or `./skills/fable-skill/` |
+| Hermes Agent | `hermes --global` / `hermes` | `~/.hermes/skills/fable-skill/` or `./.hermes/skills/fable-skill/` |
 | Aider | `aider` | `./CONVENTIONS.md` (managed block; load with `--read CONVENTIONS.md`) |
 | Continue.dev | `continue --global` / `continue` | `~/.continue/rules/` or `.continue/rules/` |
 | Zed | `zed` | `./.rules` (managed block) |
@@ -312,6 +316,10 @@ large share of the quality gap between model tiers. This skill closes those by p
 
 Expect the biggest gains on process-heavy work: debugging, refactors, migrations, research,
 multi-step automation.
+
+For Hermes Agent specifically, prefer Hermes-native workflows when available: use the todo tool instead of inventing a plan file for medium tasks, use `delegate_task` for parallel sub-workstreams, and rely on Hermes skill folders and session persistence instead of stuffing everything into always-on rules text.
+
+Across models, this skill is designed to help most of the common coding and agentic models that can follow structured instructions and use tools reliably. It improves process rather than raw intelligence, so stronger models will still reason better, but smaller and cheaper models often benefit the most from the explicit workflow discipline.
 
 ## Repo layout
 
