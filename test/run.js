@@ -180,6 +180,11 @@ const countBlocks = (file) =>
   check("README support matrix mentions Hermes", /Hermes/i.test(readme), "README missing Hermes");
   check("README install table mentions Hermes", /\| Hermes /i.test(readme) || /Hermes Agent/i.test(readme), "README install table missing Hermes");
   check("README discusses common-model suitability", /smaller\/faster models|common models|most of the common models|quality gap between model tiers/i.test(readme), "README missing model-suitability guidance");
+  check("README has a 3-minute install section", /## 3-minute install/i.test(readme), "README missing 3-minute install section");
+  check("README has a verify installation section", /## Verify installation/i.test(readme), "README missing verify installation section");
+  check("README has an example usage section", /## Example usage/i.test(readme), "README missing example usage section");
+  check("README includes agent-specific invoke guidance", /Claude Code\s*\|.*\/fable-skill|Hermes Agent\s*\|.*delegate_task|Cursor\s*\|.*always on/i.test(readme), "README missing agent-specific invocation guidance");
+  check("README includes grounded install commands for key agents", /fable-skill claude --global/i.test(readme) && /fable-skill hermes --global/i.test(readme) && /fable-skill codex --global/i.test(readme) && /fable-skill cursor/i.test(readme) && /fable-skill gemini/i.test(readme) && /fable-skill openclaw --global/i.test(readme), "README missing practical install commands");
 
   check("SKILL.md mentions Hermes-native workflows", /Hermes/i.test(skill), "SKILL.md missing Hermes references");
   check("SKILL.md mentions Hermes todo tool or delegate_task", /todo tool|delegate_task|Hermes todo/i.test(skill), "SKILL.md missing Hermes-native workflow guidance");

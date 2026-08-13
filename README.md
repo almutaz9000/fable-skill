@@ -19,61 +19,136 @@ Install it once with `npx`, natively, into whichever agent you use:
 | Warp | Kilo Code | Augment | OpenHands |
 | Replit Agent | any AGENTS.md agent | claude.ai (zip) | |
 
-## Quick start
-
-```bash
-# Claude Code, available in every project
-npx github:almutaz9000/fable-skill claude --global
-
-# OpenAI Codex, native skill available in every project (~/.agents/skills/)
-npx github:almutaz9000/fable-skill codex --global
-
-# Cursor rules for the current repo
-npx github:almutaz9000/fable-skill cursor
-
-# AGENTS.md block — picked up by Codex, Amp, Jules, Zed, Factory, and others
-npx github:almutaz9000/fable-skill agents
-
-# Hermes Agent native skill, available in every project (~/.hermes/skills/)
-npx github:almutaz9000/fable-skill hermes --global
-
-# Everything at once for the current repo
-npx github:almutaz9000/fable-skill all
-
-# See every supported agent and where it installs
-npx github:almutaz9000/fable-skill list
-```
-
 No dependencies, no build step, Node ≥ 16. The installer is idempotent — re-run it any time
 to update; shared files like `AGENTS.md` are edited only between managed markers, so your own
 content is never touched.
 
+## 3-minute install
+
+Step 1: pick the agent you actually use.
+Step 2: run one command.
+Step 3: verify the file or folder exists.
+Step 4: try one example prompt from the section below.
+
+```bash
+# Claude Code: native skill for every project
+npx github:almutaz9000/fable-skill claude --global
+
+# Hermes Agent: native skill for every project
+npx github:almutaz9000/fable-skill hermes --global
+
+# OpenAI Codex: native skill for every project
+npx github:almutaz9000/fable-skill codex --global
+
+# Cursor: always-on rules file for the current repo
+npx github:almutaz9000/fable-skill cursor
+
+# Gemini CLI / Antigravity: managed GEMINI.md block
+npx github:almutaz9000/fable-skill gemini --global
+
+# OpenClaw / ClawBot: native skill for every project
+npx github:almutaz9000/fable-skill openclaw --global
+```
+
+If you want to see every supported target and install path first:
+
+```bash
+npx github:almutaz9000/fable-skill list
+```
+
+### Best-fit install paths for the most common agents
+
+| Agent | Best install command | Why this is the default |
+|---|---|---|
+| Claude Code | `npx github:almutaz9000/fable-skill claude --global` | Native skill folder, loads references on demand |
+| Hermes Agent | `npx github:almutaz9000/fable-skill hermes --global` | Native skill folder, best for todo/delegate_task workflows |
+| OpenAI Codex | `npx github:almutaz9000/fable-skill codex --global` | Native skill folder, progressive disclosure |
+| Cursor | `npx github:almutaz9000/fable-skill cursor` | Repo-local always-on rules file |
+| Gemini CLI / Antigravity | `npx github:almutaz9000/fable-skill gemini --global` | Managed `GEMINI.md` block for broad CLI coverage |
+| OpenClaw / ClawBot | `npx github:almutaz9000/fable-skill openclaw --global` | Native skill folder, low token overhead |
+
 ### Token cost: compact by default
 
-Single-file rules targets (Cursor, Copilot, `AGENTS.md`, and the like) inject their content
-into **every** request, so they get the **compact edition** (roughly 2k tokens) — the full
-discipline distilled into one document. Agents with native skill folders (Claude Code, Codex,
-OpenClaw, Hermes Agent) load reference modules on demand, so they get the complete skill at no per-request
-cost. If you want the full version (roughly 7k tokens) in a rules file anyway, opt in with
-`--full`:
+Single-file rules targets (Cursor, Copilot, `AGENTS.md`, `GEMINI.md`, and the like) inject
+their content into **every** request, so they get the **compact edition** (roughly 2k
+tokens) — the full discipline distilled into one document. Agents with native skill folders
+(Claude Code, Codex, OpenClaw, Hermes Agent) load reference modules on demand, so they get
+the complete skill at no per-request cost. If you want the full version (roughly 7k tokens)
+in a rules file anyway, opt in with `--full`:
 
 ```bash
 npx github:almutaz9000/fable-skill agents --full
 ```
 
-## How to use it
+## Verify installation
+
+Use the check that matches your agent after running the installer.
+
+| Agent | What to verify | Expected result |
+|---|---|---|
+| Claude Code | `~/.claude/skills/fable-skill/` or `.claude/skills/fable-skill/` exists | `SKILL.md` and `references/` are present |
+| Hermes Agent | `~/.hermes/skills/fable-skill/` or `./.hermes/skills/fable-skill/` exists | `SKILL.md` and `references/` are present |
+| OpenAI Codex | `~/.agents/skills/fable-skill/` or `.agents/skills/fable-skill/` exists | `SKILL.md` and `references/` are present |
+| OpenClaw / ClawBot | `~/.openclaw/skills/fable-skill/` or `./skills/fable-skill/` exists | `SKILL.md` and `references/` are present |
+| Cursor | `.cursor/rules/fable-skill.mdc` exists | rules file contains fable-skill content |
+| Gemini CLI / Antigravity | `~/.gemini/GEMINI.md` or `./GEMINI.md` exists | managed fable-skill block is present |
+
+If the file or folder is missing, re-run the same install command. The installer is safe to
+run repeatedly.
+
+## How to invoke after install
+
+| Agent | How to use it after install | What to expect |
+|---|---|---|
+| Claude Code | Invoke `/fable-skill` or let it auto-load on matching tasks | Native skill loads references only when needed |
+| Hermes Agent | Let it auto-match, or explicitly ask to use fable-skill; pair with `todo` and `delegate_task` on larger jobs | Native skill plus Hermes tools gives the best workflow fit |
+| OpenAI Codex | Invoke `$fable-skill` or browse `/skills` | Native skill auto-selects on matching prompts |
+| Cursor | Nothing extra — it is always on in that repo | Rules file shapes every request in the repo |
+| Gemini CLI / Antigravity | Nothing extra after install; the managed `GEMINI.md` block stays active | Good for broad CLI usage without native skill folders |
+| OpenClaw / ClawBot | Use the native skill if the host exposes skill selection, or just start a matching task | Native skill folder keeps token cost low |
+
+## Example usage
+
+These are practical first prompts you can paste right after installation.
+
+### Claude Code
+- `/fable-skill debug why the login endpoint started returning 500 after the last deploy and verify the fix with real output`
+- `/fable-skill migrate config loading from JSON files to environment variables safely and show the final verification results`
+
+### Hermes Agent
+- `Use fable-skill to investigate why checkout conversion dropped last week. Track the work with todo and delegate data collection and code inspection separately if helpful.`
+- `Use fable-skill to refactor the reporting pipeline safely. Keep a tracked plan and verify each major step with real output.`
+
+### OpenAI Codex
+- `$fable-skill find the root cause of the flaky auth test and prove the fix by rerunning the failing case`
+- `$fable-skill compare three approaches for caching this endpoint and recommend one with trade-offs`
+
+### Cursor
+- `Use the fable-skill workflow to debug the API timeout. Read the code first, form multiple hypotheses, then verify the final fix.`
+- `Refactor this module with fable-skill discipline: small diffs, real tests, and no unverifiable claims.`
+
+### Gemini CLI / Antigravity
+- `Analyze this repo with fable-skill discipline and produce a concrete migration plan with checkable milestones.`
+- `Use fable-skill to research current RAG approaches, compare them with citations, and surface disagreements between sources.`
+
+### OpenClaw / ClawBot
+- `Use fable-skill to trace why the worker crashes under load and verify the fix with a targeted reproduction.`
+- `Use fable-skill to plan and execute a safe multi-file refactor, then summarize the evidence that it worked.`
+
+## How it works
 
 Once installed, the skill activates two ways:
 
 - **Explicitly** — type `/fable-skill` in Claude Code, `$fable-skill` in Codex (or browse
-  `/skills`). Rules-file agents (Cursor, Copilot, AGENTS.md, …) have it always on, so
-  there is nothing to invoke.
+  `/skills`) when the host supports explicit skill invocation.
 - **Automatically** — skill-native agents match your prompt against the skill description
   and load it when the task fits: debugging, multi-file changes, refactors, research,
   analysis, writing, scientific work, search, and long-running or multi-agent tasks.
+- **Always on** — rules-file agents such as Cursor and managed-document hosts such as
+  Gemini CLI / Antigravity apply the installed text without an extra invocation step.
 
-You don't need special prompt phrasing — the skill adapts to the task. But the examples
-below show what it changes in each case.
+You do not need special prompt phrasing. The practical examples above are just the fastest way
+to confirm the install worked and the workflow feels right.
 
 ### Two-axis calibration
 
