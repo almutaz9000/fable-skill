@@ -2,33 +2,34 @@
 
 Fable's answers look smarter because it spends its effort *before* acting, in structured
 reasoning, instead of after acting, in damage control. These patterns replicate that on any
-model. Use them explicitly — write the reasoning out; do not just "keep it in mind".
+model. Write a concise decision, rationale, and evidence. Do not produce a transcript of
+internal reasoning.
 
 ## 1. Hypothesis tree (for debugging and mysteries)
 
-Never chase the first plausible cause. Build the tree first:
+Never chase the first untested guess. State the cheapest evidence-backed hypothesis first:
 
 ```
 Symptom: <exact observed behavior, verbatim error>
-Hypotheses (ranked by prior probability × cheapness to test):
+Hypothesis (ranked by prior probability × cheapness to test):
   H1: <cause> — test: <cheapest observation that would confirm/kill it>
-  H2: <cause> — test: <...>
-  H3: <cause> — test: <...>
+  H2/H3: <only if H1 is weak, the failure is ambiguous, or H1 dies>
 ```
 
 Rules:
-- Always generate at least 3 hypotheses before testing any. The bug is disproportionately
-  often the one a hasty run never lists.
+- One well-supported hypothesis is enough when evidence already points there. Add
+  alternatives when the failure is ambiguous or H1 is falsified.
 - Test the cheapest-to-check first, not the most likely.
 - A test must be able to FALSIFY the hypothesis. "Add a log and see" is only valid if you
   state beforehand what output confirms vs. kills the hypothesis.
-- When all hypotheses die, the symptom description is wrong: re-observe the symptom itself
+- When listed hypotheses die, the symptom description is wrong: re-observe the symptom itself
   (is the error what you think it is? is the code you're reading the code that runs?).
 
 ## 2. Decision rubric (for design choices, trade-offs, and non-technical decisions)
 
-When choosing between approaches, never argue in prose alone — it hides thumb-on-scale
-reasoning. Score it:
+When choosing between approaches, never hide thumb-on-scale reasoning. A short scored
+rubric is enough when options genuinely compete; a one-sentence rationale plus the rejected
+option's redeeming quality is enough when they do not.
 
 ```
 Criteria (weighted): correctness risk (×3), blast radius (×2), effort (×1), reversibility (×2)
@@ -81,7 +82,8 @@ When stuck, deliberately change altitude instead of grinding:
 - **Zoom sideways**: how does the codebase already solve a problem shaped like this? Copy
   the existing idiom instead of inventing.
 
-Trigger: 2 failed attempts at the same subgoal = mandatory altitude change.
+Trigger: 2 failed attempts at the same subgoal = mandatory altitude change. After two
+altitude changes with no progress, stop and report incomplete work instead of looping.
 
 ## 6. Pre-mortem (before large or risky changes)
 
@@ -117,13 +119,14 @@ Rules:
 - Sub-claims that are not load-bearing (supporting color, examples, context) do not need
   to be mapped — but must not be cited as if they were evidence.
 
-Use this before any significant written conclusion, recommendation, or analytical summary.
-For `reasoning.md` §1 (hypothesis trees in debugging), the mapping is over causes, not
-claims — but the same weakest-link principle applies.
+Use this before a significant written conclusion, recommendation, or analytical summary.
+Skip it for routine, low-stakes answers. For `reasoning.md` §1 (hypothesis trees in debugging),
+the mapping is over causes, not claims — but the same weakest-link principle applies.
 
 ## 9. Confidence calibration
 
-Before stating any conclusion in a final answer, assign an explicit confidence label:
+Before stating a load-bearing conclusion that could change the user's action, assign an
+explicit confidence label. Skip the ceremony for trivial, directly observed facts.
 
 | Label | When to use |
 |---|---|

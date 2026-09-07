@@ -1,8 +1,11 @@
 {
   "name": "fable-skill",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "scripts": {
-    "test": "node test/run.js"
+    "test": "node test/run.js",
+    "eval:list": "node evals/run.js --list",
+    "eval:grade": "node evals/run.js --grade-fixtures",
+    "sizes": "node evals/run.js --sizes"
   },
   "description": "Fable-class agentic operating discipline for any AI coding agent — Claude Code, Cursor, Copilot, Codex, Gemini, Windsurf, Cline, Amp, and more. One skill, installed natively everywhere.",
   "bin": {

@@ -8,7 +8,9 @@ one guess at a time.
 - **The batch rule**: before sending any tool call, ask "what else will I need regardless of
   this call's result?" — send all of it in the same message. Reads, searches, `git status` +
   `git diff` + `git log`, multiple file reads: one batch.
-- Only serialize when call B's *arguments* depend on call A's *result*.
+- Only serialize when call B's *arguments* depend on call A's *result*. Independent reads
+  are still concurrent even when they write nothing. Concurrent writes to the same file or
+  overlapping ownership are not safe from independence alone: serialize conflicting writes.
 - Typical Fable exploration opening for a code task is a single message containing:
   a glob for the file layout, 2–3 greps for the key symbols under different naming
   conventions, and a read of the most likely entry point.
@@ -36,12 +38,14 @@ suite green on module B while I do module A".
 
 For complex tasks requiring multiple subagents running in parallel, coordinating
 dependencies between them, or adapting based on their output quality, read
-`references/orchestration.md` — it covers the full orchestration protocol.
+`orchestration.md` — it covers the full orchestration protocol.
 
 Rules for delegation:
-- The prompt to a subagent must be self-sufficient: role, domain, tier, goal,
-  done-criteria, constraints, output format, where to start, and when to escalate back.
-  Subagents start cold; do not rely on shared context.
+- Default to one agent. Delegate only when a substantial independent task can repay prompt,
+  execution, waiting, validation, and integration cost.
+- The prompt to a subagent must be self-sufficient: role, domain, tier, goal, task contract
+  boundaries, done-criteria, budget/stop conditions, file ownership, output format, where
+  to start, and when to escalate back. Subagents start cold; do not rely on shared context.
 - Specify the output format before spawning, not after receiving output. The format must
   match what the integration step requires — format mismatches cause integration failures
   that look like subagent failures.
@@ -50,15 +54,19 @@ Rules for delegation:
 - After receiving a subagent's output, evaluate it explicitly against the acceptance
   criteria you defined before spawning. An output that "looks okay" is not accepted until
   every criterion is checked.
+- Repair small formatting defects locally. Rerun only missing or incorrect portions. Do not
+  reject an entire result for a minor format issue.
 - If output fails acceptance criteria, diagnose the failure category before reconfiguring:
   wrong scope, wrong depth, wrong format, missing input, wrong domain, or capability gap.
-  See `references/orchestration.md` for the full reconfiguration protocol.
+  See `orchestration.md` for the full reconfiguration protocol.
+- Share any known parent budget with workers when the host supports it; otherwise note that
+  worker spend is not observable.
 - Run long commands (builds, test suites, downloads) in the background when the platform
   supports it, and do useful work while they run — don't idle-poll.
 
 For orchestration involving 3+ subagents: maintain an ORCHESTRATION_STATE table in
 STATE.md tracking each agent's status, output location, acceptance result, and next
-action. See `references/orchestration.md` for the template.
+action. See `orchestration.md` for the template.
 
 ## Editing discipline
 
@@ -80,10 +88,18 @@ action. See `references/orchestration.md` for the template.
 - Destructive commands (`rm -rf`, `git reset --hard`, `DROP`, force-push): re-read the
   target immediately before executing, every time.
 
-## Momentum rules
+## Momentum and recovery
 
 - Never end a turn on a promise ("Next I'll run the tests") — run them.
 - An error in a tool call is a normal event: read it, adjust, continue. Do not report a
   fixable error to the user as if it were a blocker.
-- Blocked for real (missing credential, ambiguous requirement, permission denied by user)
-  → say precisely what you need and what you'll do the moment you have it.
+- Transient failures (timeout, 5xx, lock) may retry the same request a bounded number of
+  times. Deterministic failures (missing file, bad args, same test with same config) must
+  change the request or stop.
+- Before another search, retry, review, or spawn: name the unresolved requirement and the
+  new evidence expected. Stop optional investigation when acceptance already has evidence.
+- After two failed attempts at the same subgoal, change altitude or hypothesis. After two
+  altitude changes with no progress, stop and report incomplete status.
+- Blocked for real (missing credential, ambiguous requirement, permission denied, exhausted
+  hard limit, unavailable capability) → say precisely what is done, what remains, and the
+  blocker. Do not claim success.

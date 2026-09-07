@@ -45,6 +45,9 @@ DONE MEANS:  <checkable criteria, at least two>
 INPUT:       <what is provided to the subagent — files, data, context summary>
 
 CONSTRAINTS: <what must be true about the output — format, scope, length, exclusions>
+BUDGET:      <shared parent limit if the host exposes one; else "not observable">
+STOP IF:     <hard stop conditions, including redundant work after new evidence>
+OWNERSHIP:   <files or paths this worker may write; do not overlap writers>
 
 OUTPUT FORMAT:
   <exact structure the orchestrator expects back — section headings, schema, format>
@@ -142,9 +145,10 @@ Acceptance check for subagent [name]:
 Overall: ACCEPTED / REJECTED (reason: ...)
 ```
 
-An output is accepted only when ALL criteria pass. Partial passes are rejections — do
-not proceed with an output that fails any criterion, even a minor one, without explicitly
-documenting the tradeoff and getting it reviewed.
+An output is accepted when all *material* criteria pass. Repair small formatting defects
+locally. Rerun only missing or incorrect portions. Do not reject an entire result for a
+minor format issue. Do not proceed with an output that fails a material criterion without
+documenting the tradeoff.
 
 ## Adaptive reconfiguration protocol
 
@@ -172,7 +176,9 @@ Attempt 2 — ACCEPTED.
 ```
 
 Two failed attempts at the same subagent configuration mandate a diagnosis log entry.
-Retrying without changing the configuration is banned.
+Retrying without changing the configuration is banned. After two reconfigurations with no
+progress, stop that worker, report incomplete status, and do not keep reformulating the
+same request.
 
 ## Multi-agent state tracking
 

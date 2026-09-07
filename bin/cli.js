@@ -73,27 +73,53 @@ const referenceFiles = memo(() => {
 const FOOTER =
   "\n\n---\n\n*Installed by [fable-skill](https://github.com/almutaz9000/fable-skill). Re-run `npx fable-skill` to update.*\n";
 
-/** Full merge: SKILL.md + every reference module (roughly 7k tokens). */
+function rewriteMergedSectionRefs(text, moduleNames) {
+  let out = text;
+  for (const name of moduleNames) {
+    const section = `${name} (inlined section below)`;
+    out = out.replace(new RegExp(`references/${name.replace(".", "\\.")}`, "g"), section);
+  }
+  return out;
+}
+
+/** Full merge: SKILL.md + every reference module as inlined sections. */
 const mergedMarkdown = memo(() => {
-  const parts = [stripFrontmatter(readSkillMd()).trim()];
-  for (const ref of referenceFiles()) {
-    parts.push(`\n\n---\n\n<!-- ${ref.name} -->\n\n${ref.content.trim()}`);
+  const refs = referenceFiles();
+  const names = refs.map((ref) => ref.name);
+  const parts = [rewriteMergedSectionRefs(stripFrontmatter(readSkillMd()).trim(), names)];
+  for (const ref of refs) {
+    parts.push(`\n\n---\n\n<!-- ${ref.name} -->\n\n${rewriteMergedSectionRefs(ref.content.trim(), names)}`);
   }
   parts.push(FOOTER);
   return parts.join("");
 });
 
 /**
- * Compact edition (roughly 2k tokens) — the default for single-file rules
- * targets, where the content is injected into EVERY request and token cost
- * matters. Agents with native skill folders load references on demand and
- * get the full skill instead.
+ * Compact edition — the default for single-file rules targets, where the
+ * content is injected into every request. Missing COMPACT.md is an error;
+ * do not silently fall back to the full merge.
  */
 const compactMarkdown = memo(() => {
-  const compact = path.join(SKILL_DIR, "COMPACT.md");
-  if (!fs.existsSync(compact)) return mergedMarkdown();
   return fs.readFileSync(requireSkillFile("COMPACT.md"), "utf8").trim() + FOOTER;
 });
+
+function utf8Bytes(text) {
+  return Buffer.byteLength(text, "utf8");
+}
+
+function contentSizes() {
+  const core = readSkillMd();
+  const compact = compactMarkdown();
+  const merged = mergedMarkdown();
+  return {
+    coreBytes: utf8Bytes(core),
+    compactBytes: utf8Bytes(compact),
+    mergedBytes: utf8Bytes(merged),
+    coreTokens4: Math.round(utf8Bytes(core) / 4),
+    compactTokens4: Math.round(utf8Bytes(compact) / 4),
+    mergedTokens4: Math.round(utf8Bytes(merged) / 4),
+  };
+}
 
 /** Copy the skill folder verbatim (SKILL.md + references/) into destDir. */
 function copySkillFolder(destDir) {
@@ -126,8 +152,13 @@ function upsertManagedBlock(destFile, title, opts = {}) {
   let existing = "";
   if (fs.existsSync(destFile)) existing = fs.readFileSync(destFile, "utf8");
   if (existing.includes(BEGIN)) {
-    const re = new RegExp(`${escapeRegExp(BEGIN)}[\\s\\S]*?${escapeRegExp(END)}\\n?`);
-    existing = existing.replace(re, block);
+    const re = new RegExp(`${escapeRegExp(BEGIN)}[\\s\\S]*?${escapeRegExp(END)}\\n?`, "g");
+    let replaced = false;
+    existing = existing.replace(re, () => {
+      if (replaced) return "";
+      replaced = true;
+      return block;
+    });
   } else {
     existing = existing ? existing.replace(/\s*$/, "\n\n") + block : block;
   }
@@ -297,6 +328,57 @@ const TARGETS = {
 // CLI
 // ---------------------------------------------------------------------------
 
+function packageVersion() {
+  const pkg = path.join(ROOT, "package.json");
+  return JSON.parse(fs.readFileSync(pkg, "utf8")).version;
+}
+
+function findDuplicateInstalls(cwd) {
+  const hits = [];
+  for (const [name, t] of Object.entries(TARGETS)) {
+    if (!t.project) continue;
+    const dest = t.project(cwd);
+    const marker = t.kind === "folder" ? path.join(dest, "SKILL.md") : dest;
+    if (fs.existsSync(marker)) {
+      const text = t.kind === "folder" ? "" : fs.readFileSync(marker, "utf8");
+      if (t.kind === "folder" || /BEGIN fable-skill/.test(text) || /fable-skill/.test(text)) {
+        hits.push({ name, kind: t.kind, dest: marker });
+      }
+    }
+  }
+  return hits;
+}
+
+function printSizes() {
+  const sizes = contentSizes();
+  console.log(`
+fable-skill content sizes (UTF-8 bytes; token estimate at 4 bytes/token, not a tokenizer):
+  SKILL.md core     ${sizes.coreBytes} bytes  (~${sizes.coreTokens4} tokens)
+  compact installed ${sizes.compactBytes} bytes  (~${sizes.compactTokens4} tokens)
+  full merge        ${sizes.mergedBytes} bytes  (~${sizes.mergedTokens4} tokens)
+Host wrappers, caching, outputs, tools, retries, and workers are not included.
+`);
+}
+
+function printDoctor(cwd) {
+  printSizes();
+  console.log(`Version: ${packageVersion()}`);
+  console.log(`Working directory: ${cwd}`);
+  const hits = findDuplicateInstalls(cwd);
+  if (!hits.length) {
+    console.log("No fable-skill install markers found in this directory.");
+    return;
+  }
+  console.log("Install markers in this directory:");
+  for (const hit of hits) {
+    console.log(`  ${hit.name.padEnd(12)} ${hit.kind.padEnd(8)} ${hit.dest}`);
+  }
+  const kinds = new Set(hits.map((h) => h.kind));
+  if (kinds.has("folder") && (kinds.has("file") || kinds.has("managed"))) {
+    console.log("Note: this directory may load both a native skill folder and an always-on copy.");
+  }
+}
+
 function installTarget(name, scope, cwd, opts = {}) {
   const t = TARGETS[name];
   if (!t) throw new Error(`Unknown agent "${name}". Run: npx fable-skill list`);
@@ -308,11 +390,17 @@ function installTarget(name, scope, cwd, opts = {}) {
   }
   const dest = resolver(cwd);
 
+  if (opts.dryRun) {
+    console.log(`  · ${t.label.padEnd(28)} → ${dest} (dry-run)`);
+    return dest;
+  }
+
   if (t.kind === "folder") copySkillFolder(dest);
   else if (t.kind === "file") writeMerged(dest, { header: t.header, full: opts.full });
   else upsertManagedBlock(dest, "fable-skill — agentic operating discipline", opts);
 
   console.log(`  ✔ ${t.label.padEnd(28)} → ${dest}`);
+  return dest;
 }
 
 function printUsage() {
@@ -320,9 +408,11 @@ function printUsage() {
 fable-skill — Fable-class operating discipline for any coding agent
 
 Usage:
-  npx fable-skill <agent> [--project | --global]
-  npx fable-skill all [--project | --global]
+  npx fable-skill <agent> [--project | --global] [--full] [--dry-run]
+  npx fable-skill all [--project | --global] [--full] [--dry-run]
   npx fable-skill list
+  npx fable-skill doctor
+  npx fable-skill sizes
 
 Agents: ${Object.keys(TARGETS).join(", ")}
 
@@ -331,8 +421,9 @@ Scope:
   --global    install into the user-level config (where the agent supports it)
 
 Depth (single-file targets only; skill-folder targets always get the full skill):
-  (default)   compact edition, roughly 2k tokens — safe for always-on rules files
-  --full      full skill with all reference modules, roughly 7k tokens per request
+  (default)   compact edition (see \`npx fable-skill sizes\` for current byte/token estimates)
+  --full      full skill with all reference modules inlined
+  --dry-run   print destinations without writing files
 
 Examples:
   npx fable-skill claude --global     # Claude Code, all projects
@@ -340,6 +431,7 @@ Examples:
   npx fable-skill cursor              # Cursor rules in this repo
   npx fable-skill agents              # AGENTS.md block (Codex, Amp, Jules, ...)
   npx fable-skill all                 # every project-level target at once
+  npx fable-skill doctor              # sizes, version, duplicate-install scan
 `);
 }
 
@@ -348,6 +440,7 @@ function parseArgs(argv) {
   const names = [];
   let scope = "project";
   let full = false;
+  let dryRun = false;
   let scopeCount = 0;
 
   for (const arg of args) {
@@ -365,6 +458,10 @@ function parseArgs(argv) {
       full = true;
       continue;
     }
+    if (arg === "--dry-run") {
+      dryRun = true;
+      continue;
+    }
     if (arg === "--help") {
       names.push("help");
       continue;
@@ -379,7 +476,7 @@ function parseArgs(argv) {
     throw new Error("Choose exactly one of --project or --global.");
   }
 
-  return { names, scope, opts: { full } };
+  return { names, scope, opts: { full, dryRun } };
 }
 
 function main() {
@@ -397,6 +494,16 @@ function main() {
 
   if (names.length === 0 || names[0] === "help") {
     printUsage();
+    return;
+  }
+
+  if (names[0] === "doctor") {
+    printDoctor(cwd);
+    return;
+  }
+
+  if (names[0] === "sizes") {
+    printSizes();
     return;
   }
 
@@ -438,4 +545,8 @@ module.exports = {
   parseArgs,
   requireSkillFile,
   requireReferencesDir,
+  contentSizes,
+  findDuplicateInstalls,
+  packageVersion,
+  rewriteMergedSectionRefs,
 };

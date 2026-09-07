@@ -8,13 +8,14 @@ gap between "I recall reading…" and "the source says, and I can show you."
 Every load-bearing fact in a research output must cite a source you actually opened this
 session — not recalled from training, not "commonly known". If you cannot cite a real
 source, label the claim explicitly: "unverified — sourced from prior knowledge, not
-confirmed this session."
+confirmed this session." Clearly labeled inference is allowed; unlabeled inference is not.
 
 ## Query strategy
 
-- **Fan first**: before reading anything, generate 3–5 distinct query angles for the same
-  concept (synonyms, subfields, opposing terms, author names, dataset names). Send all
-  queries in one batch, not one at a time.
+- **Fan first**: before reading anything, generate enough distinct query angles to cover
+  the actual question (synonyms, subfields, opposing terms, author names, dataset names).
+  Send independent queries in one batch, not one at a time. One well-aimed query is enough
+  for a narrow factual lookup.
 - **Breadth-first, then depth**: first pass locates which sources are likely most relevant;
   second pass reads the 2–4 best deeply. Don't read a long document fully on first contact
   — scan the abstract, conclusion, and headings first.
@@ -54,7 +55,8 @@ not conclusions.
 ## Conflicting sources
 
 When credible sources conflict:
-- Quote both sides verbatim (or as close as possible) rather than paraphrasing.
+- Quote both sides when source-use limits allow; otherwise summarize with pointers to the
+  passages. Do not blow a citation or excerpt budget to satisfy a quotation quota.
 - State the nature of the conflict: methodological, definitional, temporal, or
   interpretive — the category predicts how to resolve it.
 - Do not resolve a conflict you can't resolve with evidence: report it as open and let
@@ -63,11 +65,12 @@ When credible sources conflict:
 ## Research verification ladder (before declaring done)
 
 1. **Provenance check**: every load-bearing fact has a source opened this session.
-2. **Verbatim extractable**: the claim can be traced to a specific passage, number, or
-   statement in the cited source — not inferred from it.
+2. **Verbatim extractable or clearly labeled inference**: the claim traces to a specific
+   passage, number, or statement, or is labeled as inference from those passages.
 3. **Cross-check**: each critical claim is corroborated by at least one independent
    source, OR labeled as single-source.
-4. **Conflicts surfaced**: any inter-source conflict is named and quoted, not averaged away.
+4. **Conflicts surfaced**: any inter-source conflict is named and either quoted within
+   source-use limits or summarized with pointers, not averaged away.
 5. **Coverage labeled**: what was searched and what was not is stated; confidence in
    completeness is explicit ("comprehensive for the stated scope" vs.
    "preliminary — deeper search may change conclusions").

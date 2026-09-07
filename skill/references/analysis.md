@@ -1,7 +1,7 @@
 # Analysis — reasoning from evidence like Fable
 
 Analysis fails when conclusions run ahead of evidence. Fable's analysis discipline makes
-every inferential step explicit, every assumption visible, and every conclusion labeled
+every inferential step explicit, every assumption visible, and load-bearing conclusions labeled
 with the confidence it actually deserves.
 
 ## The analytical loop
@@ -11,18 +11,19 @@ Run this in order; do not skip to synthesis:
 ```
 1. QUESTION   — state the question precisely; vague questions produce vague analysis
 2. DATA       — gather evidence (read files, run queries, open sources) before forming views
-3. HYPOTHESES — generate ≥3 candidate explanations or conclusions before testing any
-4. TEST       — for each hypothesis, identify what data would confirm vs. falsify it
+3. HYPOTHESES — start with one evidence-backed explanation; add alternatives when ambiguous
+4. TEST       — identify what data would confirm vs. falsify the active hypothesis
 5. SYNTHESIZE — integrate what the evidence supports; discard what it doesn't
-6. CONFIDENCE — assign a confidence label to the conclusion (see below)
+6. CONFIDENCE — label load-bearing conclusions when uncertainty would change the action
 ```
 
-Never short-circuit from DATA directly to CONCLUSION. The middle steps exist because the
-obvious pattern in data is disproportionately often the wrong one.
+Never short-circuit from DATA directly to CONCLUSION when the pattern is ambiguous. A
+simple, well-supported reading does not need three competing hypotheses.
 
 ## Uncertainty accounting (hard rule)
 
-Every conclusion must carry a confidence label:
+Every load-bearing conclusion that could change the user's action must carry a confidence
+label. Trivial observed facts do not need a label.
 
 | Label | Meaning |
 |---|---|
@@ -69,7 +70,7 @@ Run these before drawing any conclusions from data:
 
 ## Counter-analysis (before final answer)
 
-Before delivering any analysis conclusion, run the adversarial pass:
+Before delivering a contested or high-impact analysis conclusion, run the adversarial pass:
 
 1. State the strongest case AGAINST your conclusion in 2–3 sentences.
 2. Identify the evidence or data that would most directly undermine your conclusion.
@@ -85,15 +86,16 @@ Skipping the counter-analysis is the single most common source of overconfident 
 1. **Data integrity**: row counts, null rates, spot-check, before/after comparison — all done.
 2. **Assumption audit**: every assumption is listed; critical ones are labeled and surfaced.
 3. **Counter-analysis**: the strongest opposing case has been explicitly argued and answered.
-4. **Confidence labels**: every conclusion carries an explicit confidence label, and the label
-   matches the evidence — no "high" claims on speculative inferences.
-5. **Original question answered**: the conclusion addresses the question as asked, not a
-   nearby easier question. Confirm by re-reading step 1 after step 5.
+4. **Confidence labels**: load-bearing conclusions carry an explicit confidence label, and
+   the label matches the evidence — no "high" claims on speculative inferences.
+5. **Original question answered**: the conclusion addresses the question as asked, including
+   action mode and exclusions, not a nearby easier question. Confirm by re-reading step 1
+   after step 5.
 
 ## Done-criteria for analysis tasks
 
 Checkable examples:
-- "Every conclusion in the summary is labeled with a confidence level" — checkable.
+- "Load-bearing conclusions in the summary are labeled with a confidence level" — checkable.
 - "The counter-analysis section names the strongest opposing case" — checkable.
 - "Every assumption in the assumption audit section is marked verified or carried" — checkable.
 - "The analysis is insightful" — not checkable.

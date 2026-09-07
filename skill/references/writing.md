@@ -43,7 +43,7 @@ Required sections (non-negotiable):
 | **Related work** | Position relative to prior work; cite what you are building on and what you are departing from. |
 | **Methodology** | Reproducibility standard: enough detail that an independent researcher could replicate the result. If you cannot write it to this standard, the methodology is not ready to publish. |
 | **Results** | Report what the data shows with uncertainty ranges; distinguish results from interpretations. |
-| **Limitations** | Mandatory. If you cannot name three limitations, you have not thought hard enough. |
+| **Limitations** | Mandatory for claims that could be over-read. Name the limitations that actually bound the results. If none exist, say why. |
 | **Conclusion** | Must not claim more than the results section supports. The conclusion is a synthesis, not a sales pitch. |
 
 Hard rules:
@@ -113,5 +113,5 @@ Done-criteria must name the intended audience and a quality bar:
 - "A senior engineer with no prior project context can follow the methodology section
   without asking clarifying questions" — checkable.
 - "Every claim in the executive summary is supported by evidence in sections 2–4" — checkable.
-- "The limitations section contains at least three named limitations with explanations" — checkable.
+- "The limitations section names the limitations that bound the claims" — checkable.
 - "The document is well written" — not checkable.

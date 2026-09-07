@@ -65,16 +65,20 @@ npx github:almutaz9000/fable-skill list
 | OpenAI Codex | `npx github:almutaz9000/fable-skill codex --global` | Native skill folder, progressive disclosure |
 | Cursor | `npx github:almutaz9000/fable-skill cursor` | Repo-local always-on rules file |
 | Gemini CLI / Antigravity | `npx github:almutaz9000/fable-skill gemini --global` | Managed `GEMINI.md` block for broad CLI coverage |
-| OpenClaw / ClawBot | `npx github:almutaz9000/fable-skill openclaw --global` | Native skill folder, low token overhead |
+| OpenClaw / ClawBot | `npx github:almutaz9000/fable-skill openclaw --global` | Native skill folder; host still pays for activated content |
 
 ### Token cost: compact by default
 
 Single-file rules targets (Cursor, Copilot, `AGENTS.md`, `GEMINI.md`, and the like) inject
-their content into **every** request, so they get the **compact edition** (roughly 2k
-tokens) — the full discipline distilled into one document. Agents with native skill folders
-(Claude Code, Codex, OpenClaw, Hermes Agent) load reference modules on demand, so they get
-the complete skill at no per-request cost. If you want the full version (roughly 7k tokens)
-in a rules file anyway, opt in with `--full`:
+their content into **every** request, so they get the **compact edition**. Agents with
+native skill folders (Claude Code, Codex, OpenClaw, Hermes Agent) still pay for discovery
+metadata and any activated content; they load reference modules on demand rather than
+inlining them. Run `npx github:almutaz9000/fable-skill sizes` (or `npx fable-skill sizes`
+after clone) for current UTF-8 byte counts and a 4-bytes-per-token estimate. Those are
+size estimates, not billed usage. Host wrappers, caching, outputs, tools, retries, and
+workers are extra.
+
+If you want the full merge in a rules file, opt in with `--full`:
 
 ```bash
 npx github:almutaz9000/fable-skill agents --full
@@ -105,7 +109,7 @@ run repeatedly.
 | OpenAI Codex | Invoke `$fable-skill` or browse `/skills` | Native skill auto-selects on matching prompts |
 | Cursor | Nothing extra — it is always on in that repo | Rules file shapes every request in the repo |
 | Gemini CLI / Antigravity | Nothing extra after install; the managed `GEMINI.md` block stays active | Good for broad CLI usage without native skill folders |
-| OpenClaw / ClawBot | Use the native skill if the host exposes skill selection, or just start a matching task | Native skill folder keeps token cost low |
+| OpenClaw / ClawBot | Use the native skill if the host exposes skill selection, or just start a matching task | Native skill folder; activation cost depends on the host |
 
 ## Example usage
 
@@ -182,10 +186,10 @@ The tier and domain are independent. A FULL × SCIENCE task uses the full paper 
 > Find the root cause and fix it.
 
 Without the skill, a typical agent grabs the first plausible cause and patches it. With it,
-the agent must capture the exact error, reproduce it on demand, rank **at least three
-hypotheses** before testing any, bisect to where good state turns bad, fix the cause (not
-the symptom), and re-run the original failing case to prove the symptom is gone. Symptom
-patches like swallowing the exception are explicitly banned.
+the agent must capture the exact error, reproduce it on demand, start with an evidence-backed
+hypothesis (adding alternatives when the failure is ambiguous), bisect to where good state
+turns bad, fix the cause (not the symptom), and re-run the original failing case to prove the
+symptom is gone. Symptom patches like swallowing the exception are explicitly banned.
 
 ### Example: multi-file refactor or migration
 
@@ -225,24 +229,24 @@ so small tasks stay fast.
 > Survey the current state of retrieval-augmented generation — what approaches exist,
 > how do they compare, and what are the open problems?
 
-Domain: SEARCH, Tier: FULL. The agent generates at least three distinct query angles in
-one batch (not one query at a time), evaluates each source against a credibility/recency
+Domain: SEARCH, Tier: FULL. The agent generates enough distinct query angles to cover the
+question (not one query at a time), evaluates each source against a credibility/recency
 rubric, builds a claim map tracing each key finding to its source, surfaces any conflicts
-between sources with both sides quoted, and labels confidence levels throughout. Every
+between sources, and labels confidence where uncertainty would change the action. Every
 load-bearing claim in the output cites a source actually opened in the session — training
-recall is not a citation.
+recall is not a citation. Clearly labeled inference is allowed.
 
 ### Example: data analysis
 
 > Our checkout funnel conversion dropped 12% last week. Find out why.
 
 Domain: ANALYSIS, Tier: FULL. The agent runs data integrity checks first (row counts, null
-rates, before/after comparison using the same measurement definition), generates at least
-three hypotheses before testing any, builds an assumption audit marking which are verified
-and which are carried, runs the counter-analysis (argues the strongest case against the
-primary conclusion), and labels every conclusion with a confidence level. "The data shows
-X" is used only for directly observed facts; "this suggests Y" for inferences; "one
-possible explanation" for speculation.
+rates, before/after comparison using the same measurement definition), starts with one
+evidence-backed hypothesis and adds alternatives when the drop is ambiguous, builds an
+assumption audit marking which are verified and which are carried, runs counter-analysis
+when the conclusion is contested or high-impact, and labels load-bearing conclusions with
+a confidence level. "The data shows X" is used only for directly observed facts; "this
+suggests Y" for inferences; "one possible explanation" for speculation.
 
 ### Example: writing a technical report
 
@@ -262,9 +266,9 @@ deliverable is a document artifact, not prose in the chat window.
 Domain: SCIENCE, Tier: FULL. The agent writes the methodology to the reproducibility
 standard (enough detail for an independent researcher to replicate), reports results with
 uncertainty ranges and distinguishes results from interpretations, writes a limitations
-section with at least three named limitations, and ensures the conclusion section claims
-nothing beyond what the results support. Every number traces to a specific experiment or
-dataset. "Future work" is not a substitute for a limitation.
+section with the limitations that actually bound the claims, and ensures the conclusion
+section claims nothing beyond what the results support. Every number traces to a specific
+experiment or dataset. "Future work" is not a substitute for a limitation.
 
 ### Example: complex parallel task with multiple agents
 
@@ -278,9 +282,9 @@ agent surveys performance literature, a CODE agent implements both candidates on
 survey is done, and an ANALYSIS agent interprets load test results. Each subagent receives
 a self-sufficient prompt with role, domain, tier, done-criteria, input, constraints, and
 the exact output format the integration step requires. Every output is evaluated against
-explicit acceptance criteria — partial passes are rejections. If an agent's output is
-rejected, the failure category is diagnosed (wrong scope, depth, format, domain, or
-capability gap), the configuration is updated, and the agent is re-run differently. The
+explicit acceptance criteria. Minor format defects can be repaired locally; material
+failures are diagnosed (wrong scope, depth, format, domain, or capability gap), the
+configuration is updated, and only the incorrect portion is re-run. The
 orchestrating agent does not write the final report until every subagent's output has been
 accepted and the integrated result satisfies the original goal's done-criteria.
 
@@ -296,7 +300,7 @@ accepted and the integrated result satisfies the original goal's done-criteria.
 | Irreversible actions (deletes, deploys, force-pushes) | Inspect-target-first rule and explicit confirmation gates |
 | Work spanning many turns or sessions | STATE.md survives context loss |
 | Vague or underspecified goals | Assumption ledger + checkable done-criteria before code |
-| Smaller/faster models doing agentic work | The discipline compensates for weaker default process — this is where gains are largest |
+| Common models doing agentic work | Process failures, not raw intelligence, often explain the quality gap between model tiers |
 
 **Skip it (or let the LIGHT tier no-op) when:**
 
@@ -314,14 +318,14 @@ production incident, the full protocol pays for itself.
 
 ## What's in the skill
 
-The skill is plain markdown — a core protocol plus nine focused modules. Agents with native
+The skill is plain markdown — a core protocol plus ten focused modules. Agents with native
 skill support (Claude Code, OpenClaw, Hermes Agent) get the folder as-is and load modules on demand; agents
 with a single rules file get everything merged into one document in their native format.
 
 | Module | What it enforces |
 |---|---|
 | [`SKILL.md`](skill/SKILL.md) | The Fable Loop: understand → explore → plan → act → verify → iterate → review, plus the two-axis calibration gate (Tier × Domain) and non-negotiable rules |
-| [`COMPACT.md`](skill/COMPACT.md) | The whole discipline distilled to roughly 2k tokens — what single-file rules targets install by default |
+| [`COMPACT.md`](skill/COMPACT.md) | Standalone compact edition for single-file rules targets (see `npx fable-skill sizes`) |
 | [`reasoning.md`](skill/references/reasoning.md) | Hypothesis trees, decision rubrics, self-consistency checks, assumption ledgers, argument mapping, confidence calibration, altitude control |
 | [`planning.md`](skill/references/planning.md) | Checkable done-criteria, domain-specific plan templates (CODE, RESEARCH, ANALYSIS, REPORT, SCIENCE, ORCHESTRATION), decomposition heuristics, replanning rules |
 | [`execution.md`](skill/references/execution.md) | Parallel tool batching, wide-fan exploration, subagent delegation, minimal-diff editing discipline |
@@ -371,7 +375,8 @@ upload it under **Settings → Capabilities → Skills**.
 **Using it in Codex:** after `npx github:almutaz9000/fable-skill codex --global`, invoke it
 explicitly with `$fable-skill` (or browse `/skills`), or just start a complex task — Codex
 auto-selects skills whose description matches the prompt. Codex skills use progressive
-disclosure, so the skill costs almost nothing until it triggers.
+disclosure, so unused reference modules stay unloaded until a matching need appears.
+Discovery metadata and activated content still count toward billed usage.
 
 **Any agent not listed:** copy [`skill/`](skill/) into wherever your agent reads instructions,
 or paste the merged output of `SKILL.md` + `references/*.md` into its system prompt / rules file.
@@ -394,7 +399,20 @@ multi-step automation.
 
 For Hermes Agent specifically, prefer Hermes-native workflows when available: use the todo tool instead of inventing a plan file for medium tasks, use `delegate_task` for parallel sub-workstreams, and rely on Hermes skill folders and session persistence instead of stuffing everything into always-on rules text.
 
-Across models, this skill is designed to help most of the common coding and agentic models that can follow structured instructions and use tools reliably. It improves process rather than raw intelligence, so stronger models will still reason better, but smaller and cheaper models often benefit the most from the explicit workflow discipline.
+Across models, this skill is designed to help common coding and agentic models that can
+follow structured instructions and use tools. It improves process rather than raw
+intelligence, so stronger models will still reason better. Whether a given model or host
+becomes cheaper or more accurate with Fable is **unmeasured** in this repository: installer
+tests check file creation, not task outcomes. See [`evals/README.md`](evals/README.md).
+Do not treat install-tested paths as activation-tested or behavior-evaluated.
+
+Compatibility labels used here:
+
+| Label | What it means |
+|---|---|
+| install-tested | The installer wrote the expected files in a fixture |
+| activation-tested | A named host/version discovered and loaded the skill (not claimed here) |
+| behavior-evaluated | Representative tasks were scored against a baseline (not claimed here) |
 
 ## Repo layout
 
@@ -402,7 +420,7 @@ Across models, this skill is designed to help most of the common coding and agen
 fable-skill/
 ├── skill/                 # the skill itself (canonical source, plain markdown)
 │   ├── SKILL.md           # the Fable Loop + two-axis calibration gate
-│   ├── COMPACT.md         # ~2k-token compact edition for single-file rules targets
+│   ├── COMPACT.md         # standalone compact edition for single-file rules targets
 │   └── references/
 │       ├── reasoning.md      # hypothesis trees, argument mapping, confidence calibration
 │       ├── planning.md       # plan templates for all 7 domains

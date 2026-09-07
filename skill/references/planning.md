@@ -1,15 +1,19 @@
 # Planning and decomposition
 
 A written plan is the difference between an agent and a random walk. Fable plans cheaply,
-tracks visibly, and replans without ego.
+tracks visibly, and replans without ego. File and step counts are hints, not thresholds.
 
 ## When to plan
 
-- **> 3 steps, or any irreversible step** → written plan, tracked.
-- **1–3 obvious steps** → one-sentence plan in your head, then act. Do not ceremonialize
-  trivial work.
+- **LIGHT** → one-sentence plan in your head, then act. Do not ceremonialize trivial work.
+- **STANDARD** → mental plan; write it down only if coordination or recovery needs it.
+- **FULL, irreversible, or multi-session** → written plan, tracked, including the task contract.
 - **Unknown scope** → the first plan item is always "explore until scope is known", with a
   timebox.
+- **plan action mode** → the plan is the deliverable. Do not implement.
+
+Keep the user's outcome, exclusions, and accepted corrections in the plan. If a subgoal
+conflicts with that contract, keep the user's priority.
 
 ## Plan format
 
@@ -17,6 +21,14 @@ Write it to the platform's todo/task tool if one exists; otherwise to a `PLAN.md
 scratchpad or working directory:
 
 ```markdown
+## Contract
+- Outcome: <user's requested outcome>
+- Deliverable: <artifact or answer>
+- Action mode: answer | review | diagnose | plan | implement | monitor
+- Scope / exclusions: <...>
+- Corrections: <accepted steering>
+- Acceptance: <observable checks>
+
 ## Goal
 <one sentence, in the user's words where possible>
 
@@ -63,12 +75,12 @@ Use the template that matches the domain axis. The CODE template above is the de
 - [ ] <specific coverage scope — e.g., "all major frameworks published 2020–2025">
 
 ## Steps
-- [ ] 1. Define query angles (≥3 distinct query strategies)
-- [ ] 2. Fan-out: run all queries in parallel; collect candidate sources
+- [ ] 1. Define enough distinct query angles to cover the actual question
+- [ ] 2. Fan-out: run independent queries in parallel; collect candidate sources
 - [ ] 3. Evaluate sources against credibility/recency/relevance rubric
-- [ ] 4. Read top 3–5 sources in depth; extract claims with provenance
+- [ ] 4. Read the sources that matter; extract claims with provenance
 - [ ] 5. Build claim map: each key claim → supporting sources → conflicts
-- [ ] 6. Synthesize; label each claim with confidence level
+- [ ] 6. Synthesize; label confidence where uncertainty would change the user's action
 - [ ] 7. Identify coverage gaps; label in final output
 - [ ] 8. Research verification ladder (see verification.md)
 
@@ -82,16 +94,16 @@ Use the template that matches the domain axis. The CODE template above is the de
 <question the analysis must answer, stated precisely>
 
 ## Done means
-- [ ] Every conclusion carries an explicit confidence label
+- [ ] Load-bearing conclusions carry a confidence label when uncertainty would change the action
 - [ ] Assumption audit completed; critical assumptions surfaced
-- [ ] Counter-analysis section documents strongest opposing case
+- [ ] Counter-analysis documents the strongest opposing case when the conclusion is contested or high-impact
 
 ## Steps
 - [ ] 1. Data integrity checks (row counts, nulls, spot-check)
-- [ ] 2. Generate ≥3 hypotheses before testing any
-- [ ] 3. Test each hypothesis; falsify or confirm with evidence
-- [ ] 4. Run counter-analysis: argue the opposing case explicitly
-- [ ] 5. Synthesize; assign confidence labels
+- [ ] 2. Start with one evidence-backed hypothesis; add alternatives when the failure is ambiguous
+- [ ] 3. Test the cheapest falsifier; expand only if it dies or uncertainty remains
+- [ ] 4. Run counter-analysis when the conclusion is contested or high-impact
+- [ ] 5. Synthesize; label confidence where it matters
 - [ ] 6. Write assumption audit; flag unverified critical assumptions
 - [ ] 7. Analysis verification ladder (see verification.md)
 
@@ -131,7 +143,7 @@ Use the template that matches the domain axis. The CODE template above is the de
 
 ## Done means
 - [ ] Methodology section is reproducible by an independent researcher
-- [ ] Limitations section contains ≥3 named limitations with explanations
+- [ ] Limitations section names the limitations that actually bound the claims
 - [ ] Conclusion claims nothing beyond what Results section supports
 
 ## Steps
@@ -139,7 +151,7 @@ Use the template that matches the domain axis. The CODE template above is the de
 - [ ] 2. State contribution clearly; confirm it is novel vs. prior art
 - [ ] 3. Write methodology to reproducibility standard
 - [ ] 4. Document results with uncertainty; no interpretation yet
-- [ ] 5. Write limitations section (≥3 items)
+- [ ] 5. Write limitations that cover the actual question and methods
 - [ ] 6. Write conclusion: synthesis only, no overclaiming
 - [ ] 7. Consistency pass + cold-reader pass as peer reviewer
 - [ ] 8. Writing verification ladder (see verification.md)
@@ -191,12 +203,15 @@ Use the template that matches the domain axis. The CODE template above is the de
 ## Replanning
 
 - New discovery that changes the shape of the work → update the plan file BEFORE continuing.
-  Note what changed and why (one line).
+  Note what changed and why (one line). Confirm the work still serves the task contract.
 - A plan step failing twice → that's a reasoning problem, not a planning problem: go to
-  `reasoning.md` §5 (altitude control), then come back and replan.
+  `reasoning.md` §5 (altitude control), then come back and replan. Do not escalate to FULL
+  solely because a search term or path was wrong.
+- User steering mid-task refines or replaces the contract. Do not discard earlier
+  requirements unless the user replaced them.
 - Scope creep discovered mid-task (the fix requires a refactor, the refactor requires a
   migration…) → stop and surface it to the user with a recommendation. Do not silently
-  quintuple the blast radius.
+  quintuple the blast radius. Attractive unrelated improvements stay out of scope.
 
 ## Estimation honesty
 

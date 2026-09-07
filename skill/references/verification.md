@@ -45,8 +45,9 @@ the symptom.
    errors lose the identifying detail.
 2. **Reproduce it deliberately.** If you can't make it fail on demand, you can't know you
    fixed it. Shrink the reproduction until the failure is nearly readable by eye.
-3. **Build the hypothesis tree** (see `reasoning.md` §1): ≥3 candidate causes, ranked,
-   cheapest falsifying test for each.
+3. **Build the hypothesis tree** (see `reasoning.md` §1): start with one evidence-backed
+   cause; add alternatives when the failure is ambiguous or the first dies. Rank by cheapest
+   falsifying test.
 4. **Bisect the pipeline.** Find the last point where the data/state is correct and the
    first point where it's wrong; the bug lives between them. Log/inspect at the midpoint,
    repeat. This beats staring at code in ~every case.
@@ -71,8 +72,9 @@ Apply the ladder that matches the domain of the deliverable.
    statement in the cited source — not inferred from a general reading.
 3. **Cross-check**: each critical claim is independently corroborated by at least two
    sources, OR explicitly labeled as single-source.
-4. **Conflicts surfaced**: any inter-source disagreement is named, quoted on both sides,
-   and either resolved with evidence or reported as open.
+4. **Conflicts surfaced**: any inter-source disagreement is named and either quoted within
+   source-use limits, summarized with pointers, or reported as open. Do not invent extra
+   quotations that blow a citation budget.
 5. **Coverage labeled**: what was searched, what was not searched, and the confidence in
    completeness are stated in the final answer.
 
@@ -98,10 +100,11 @@ Apply the ladder that matches the domain of the deliverable.
    labeled and surfaced in the caveats — none are silent and load-bearing simultaneously.
 3. **Counter-analysis**: the strongest opposing case has been explicitly argued and
    answered; the response is included in the final output.
-4. **Confidence labels**: every conclusion carries a label (high / medium / speculative)
-   that accurately reflects the evidence behind it — no speculative claim presented as high.
-5. **Original question answered**: re-read the original question after completing the
-   analysis; confirm the conclusion addresses it, not a nearby easier one.
+4. **Confidence labels**: load-bearing conclusions carry a label (high / medium / speculative)
+   when uncertainty would change the user's action. Trivial observed facts need no ceremony.
+5. **Original question answered**: re-read the task contract after completing the
+   analysis; confirm the conclusion addresses it, not a nearby easier one. Plan-only and
+   diagnose-only modes must not have produced implementation edits.
 
 ## The hostile self-review (final gate)
 
@@ -109,8 +112,9 @@ Before the final message, review your own diff/answer as a skeptical senior revi
 wants to find a problem:
 - Diff review: `git diff` (or equivalent) read line by line — leftover debug code, unrelated
   changes, edge cases (empty, null, unicode, concurrent, huge), error paths, off-by-ones.
-- Answer review: does this answer the question ASKED? Is anything stated more confidently
-  than the evidence supports? Is anything the user needs buried mid-transcript instead of in
-  the final message?
+- Answer review: does this answer the question ASKED, including action mode, exclusions,
+  and accepted corrections? Is anything stated more confidently than the evidence supports?
+  Is anything the user needs buried mid-transcript instead of in the final message? A
+  polished nearby answer is still a failure.
 Fix findings silently, then deliver. The review is real only if it sometimes finds things;
 if yours never does, you're reviewing too gently.
