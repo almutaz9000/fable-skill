@@ -23,6 +23,16 @@ function resolveHome() {
   return os.homedir();
 }
 
+function resolveHermesHome() {
+  if (process.env.HERMES_HOME) return process.env.HERMES_HOME;
+  if (process.platform === "win32") {
+    const localAppData = process.env.LOCALAPPDATA;
+    if (localAppData) return path.join(localAppData, "hermes");
+    return path.join(os.homedir(), "AppData", "Local", "hermes");
+  }
+  return path.join(os.homedir(), ".hermes");
+}
+
 // ---------------------------------------------------------------------------
 // Content builders
 // ---------------------------------------------------------------------------
@@ -208,11 +218,11 @@ const TARGETS = {
     project: (cwd) => path.join(cwd, "skills", "fable-skill"),
   },
   hermes: {
-    label: "Hermes Agent",
-    kind: "folder",
-    global: () => path.join(resolveHome(), ".hermes", "skills", "fable-skill"),
-    project: (cwd) => path.join(cwd, ".hermes", "skills", "fable-skill"),
-  },
+      label: "Hermes Agent",
+      kind: "folder",
+      global: () => path.join(resolveHermesHome(), "skills", "fable-skill"),
+      project: (cwd) => path.join(cwd, ".hermes", "skills", "fable-skill"),
+    },
   aider: {
     label: "Aider",
     kind: "managed",
@@ -372,10 +382,15 @@ function parseArgs(argv) {
       continue;
     }
     if (arg === "--full") {
-      full = true;
-      continue;
-    }
-    if (arg === "--help") {
+          full = true;
+          continue;
+        }
+        if (arg === "--stdout") {
+          // handled in main, just pass through
+          names.push(arg);
+          continue;
+        }
+        if (arg === "--help") {
       names.push("help");
       continue;
     }
@@ -394,8 +409,9 @@ function parseArgs(argv) {
 
 function main() {
   let parsed;
+  let argv = process.argv.slice(2);
   try {
-    parsed = parseArgs(process.argv.slice(2));
+    parsed = parseArgs(argv);
   } catch (e) {
     console.error(e.message);
     process.exitCode = 1;
@@ -411,15 +427,15 @@ function main() {
   }
 
   // Universal escape hatch: emit the skill as a plain system prompt for ANY
-  // model without a supported harness — Gemma, Qwen, Kimi, GLM/Z.ai, Llama,
-  // DeepSeek via Ollama/LM Studio/OpenWebUI/Jan, or Grok/ChatGPT/Gemini
-  // custom instructions. --stdout prints for piping (e.g. into a Modelfile).
-  if (names[0] === "prompt") {
-    const body = opts.full ? mergedMarkdown() : compactMarkdown();
-    if (args.includes("--stdout")) {
-      process.stdout.write(body + "\n");
-      return;
-    }
+    // model without a supported harness — Gemma, Qwen, Kimi, GLM/Z.ai, Llama,
+    // DeepSeek via Ollama/LM Studio/OpenWebUI/Jan, or Grok/ChatGPT/Gemini
+    // custom instructions. --stdout prints for piping (e.g. into a Modelfile).
+    if (names[0] === "prompt") {
+      const body = opts.full ? mergedMarkdown() : compactMarkdown();
+      if (argv.includes("--stdout")) {
+        process.stdout.write(body + "\n");
+        return;
+      }
     const dest = path.join(cwd, "FABLE-SKILL-PROMPT.md");
     fs.writeFileSync(dest, body + "\n");
     console.log(`
@@ -472,4 +488,5 @@ module.exports = {
   parseArgs,
   requireSkillFile,
   requireReferencesDir,
+  resolveHermesHome,
 };

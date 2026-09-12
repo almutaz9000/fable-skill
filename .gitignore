@@ -1,3 +1,5 @@
 node_modules/
 *.tgz
 .claude/
+FABLE-SKILL-PROMPT.md
+

@@ -7,12 +7,12 @@ const path = require("path");
 const os = require("os");
 const { spawnSync } = require("child_process");
 
-const ROOT = path.join(__dirname, "..");
-const CLI = path.join(ROOT, "bin", "cli.js");
+const ROOT = path.resolve(__dirname, "..");
+const CLI = path.resolve(ROOT, "bin", "cli.js");
 const SKILL_MD = path.join(ROOT, "skill", "SKILL.md");
 const COMPACT_MD = path.join(ROOT, "skill", "COMPACT.md");
 const README_MD = path.join(ROOT, "README.md");
-const { TARGETS, compactMarkdown, mergedMarkdown } = require(CLI);
+const { TARGETS, compactMarkdown, mergedMarkdown, resolveHermesHome } = require(CLI);
 
 let failures = 0;
 function check(name, cond, detail) {
@@ -119,15 +119,15 @@ const countBlocks = (file) =>
 // --- 7. prompt command: universal system-prompt export ---------------------
 {
   const dir = freshDir();
-  run(dir, "prompt");
+  runOk(dir, ["prompt"]);
   const dest = path.join(dir, "FABLE-SKILL-PROMPT.md");
   check("prompt writes FABLE-SKILL-PROMPT.md", fs.existsSync(dest));
   check("prompt file has no managed markers", !fs.readFileSync(dest, "utf8").includes("BEGIN fable-skill"));
-  const out = run(dir, "prompt", "--stdout");
-  check("prompt --stdout prints the compact skill", out.includes("Route by deliverable"));
-  const full = run(dir, "prompt", "--stdout", "--full");
-  check("prompt --stdout --full includes reference modules", full.includes("<!-- workflows.md -->"));
-}
+  const out = runOk(dir, ["prompt", "--stdout"]);
+    check("prompt --stdout prints the compact skill", out.includes("Route by deliverable"));
+    const full = runOk(dir, ["prompt", "--stdout", "--full"]);
+    check("prompt --stdout --full includes reference modules", full.includes("<!-- workflows.md -->"));
+  }
 
 // --- 8. usage/list CLI contract -------------------------------------------
 
@@ -204,9 +204,22 @@ const countBlocks = (file) =>
   check("README includes grounded install commands for key agents", /fable-skill claude --global/i.test(readme) && /fable-skill hermes --global/i.test(readme) && /fable-skill codex --global/i.test(readme) && /fable-skill cursor/i.test(readme) && /fable-skill gemini/i.test(readme) && /fable-skill openclaw --global/i.test(readme), "README missing practical install commands");
 
   check("SKILL.md mentions Hermes-native workflows", /Hermes/i.test(skill), "SKILL.md missing Hermes references");
-  check("SKILL.md mentions Hermes todo tool or delegate_task", /todo tool|delegate_task|Hermes todo/i.test(skill), "SKILL.md missing Hermes-native workflow guidance");
-  check("COMPACT.md mentions Hermes-native workflows", /Hermes|delegate_task|todo tool/i.test(compact), "COMPACT.md missing Hermes-native workflow guidance");
-}
+    check("SKILL.md mentions Hermes todo tool or delegate_task", /todo tool|delegate_task|Hermes todo/i.test(skill), "SKILL.md missing Hermes-native workflow guidance");
+    check("COMPACT.md mentions Hermes-native workflows", /Hermes|delegate_task|todo tool/i.test(compact), "COMPACT.md missing Hermes-native workflow guidance");
+
+    const fm = skill.match(/^---[\s\S]*?---/)[0];
+    const descMatch = fm.match(/description:\s*"([^"]+)"/);
+    check("SKILL.md description exists", !!descMatch, "missing quoted description");
+    if (descMatch) {
+      check("SKILL.md description ≤60 chars (Hermes index budget)", descMatch[1].length <= 60, `${descMatch[1].length} chars: ${descMatch[1]}`);
+    }
+
+    if (TARGETS.hermes) {
+      const dest = TARGETS.hermes.global();
+      check("Hermes global dest uses Hermes home, not ~/.hermes nested", !dest.includes(path.join(".hermes", "skills")), dest);
+      check("Hermes global dest ends with skills/fable-skill", dest.endsWith(path.join("skills", "fable-skill")), dest);
+    }
+  }
 
 console.log(failures ? `\n${failures} test(s) FAILED` : "\nAll tests passed");
 process.exit(failures ? 1 : 0);

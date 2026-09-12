@@ -1,6 +1,6 @@
 {
   "name": "fable-skill",
-  "version": "2.0.0",
+  "version": "2.1.0",
 
   "scripts": {
     "test": "node test/run.js"
@@ -30,7 +30,8 @@
     "gemini",
     "windsurf",
     "cline",
-    "agents-md",
+    "hermes",
+    "hermes-agent",
     "ollama",
     "local-llm",
     "system-prompt",

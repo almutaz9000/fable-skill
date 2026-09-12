@@ -127,7 +127,7 @@ Use the check that matches your agent after running the installer.
 | Agent | What to verify | Expected result |
 |---|---|---|
 | Claude Code | `~/.claude/skills/fable-skill/` or `.claude/skills/fable-skill/` exists | `SKILL.md` and `references/` are present |
-| Hermes Agent | `~/.hermes/skills/fable-skill/` or `./.hermes/skills/fable-skill/` exists | `SKILL.md` and `references/` are present |
+| Hermes Agent | `$HERMES_HOME/skills/fable-skill/` (Windows: `%LOCALAPPDATA%/hermes/skills/fable-skill/`) | `SKILL.md` and `references/` are present |
 | OpenAI Codex | `~/.agents/skills/fable-skill/` or `.agents/skills/fable-skill/` exists | `SKILL.md` and `references/` are present |
 | OpenClaw / ClawBot | `~/.openclaw/skills/fable-skill/` or `./skills/fable-skill/` exists | `SKILL.md` and `references/` are present |
 | Cursor | `.cursor/rules/fable-skill.mdc` exists | rules file contains fable-skill content |
@@ -450,7 +450,7 @@ capability, which is exactly where the model-tier quality gap lives.
 | Gemini CLI / Antigravity | `gemini --global` / `gemini` | `~/.gemini/GEMINI.md` or `./GEMINI.md` (managed block) |
 | Amp | `amp` | `./AGENTS.md` (managed block) |
 | OpenClaw / ClawBot | `openclaw --global` / `openclaw` | `~/.openclaw/skills/fable-skill/` or `./skills/fable-skill/` |
-| Hermes Agent | `hermes --global` / `hermes` | `~/.hermes/skills/fable-skill/` or `./.hermes/skills/fable-skill/` |
+| Hermes Agent | `hermes --global` / `hermes` | `$HERMES_HOME/skills/fable-skill/` (Windows: `%LOCALAPPDATA%/hermes/skills/fable-skill/`) |
 | Aider | `aider` | `./CONVENTIONS.md` (managed block; load with `--read CONVENTIONS.md`) |
 | Continue.dev | `continue --global` / `continue` | `~/.continue/rules/` or `.continue/rules/` |
 | Zed | `zed` | `./.rules` (managed block) |
