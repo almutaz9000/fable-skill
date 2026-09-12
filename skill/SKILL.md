@@ -1,32 +1,50 @@
 ---
 name: fable-skill
-description: "Fable-class agentic operating discipline, gated to task risk so overhead scales with stakes, with workflow routing per task shape. Trigger on: explicit /fable-skill or $fable-skill; debugging or diagnosing a failure; changes spanning multiple files; refactors and migrations; irreversible or destructive actions; ambiguous goals needing decomposition; tasks likely to span many turns or sessions; research and synthesis from sources; writing reports, documentation, or proposals; reviewing or editing documents, reports, or code; planning and decision-making; data analysis. Skip for trivial single-step edits, simple factual questions, and docs-only tweaks — there, only the evidence standard applies. Enforces explore → plan → act → verify → iterate, deliverable-matched workflows (build, debug, research, write, review, plan, analyze, operate), batched user-approval checkpoints before long or divergent work, evidence-based verification, root-cause debugging, parallel tool use, state persistence, and outcome-first reporting."
----
+description: "Fable-class agentic operating discipline, gated to task risk and deliverable/domain so overhead scales with stakes. Trigger on: explicit /fable-skill or $fable-skill; debugging or diagnosing a failure; changes spanning multiple files; refactors and migrations; irreversible or destructive actions; ambiguous goals needing decomposition; tasks likely to span many turns or sessions; research, analysis, search, report/documentation/proposal writing, literature review, scientific writing, reviews/edits, or planning/decision-making. Skip for trivial single-step edits, simple factual questions, and docs-only tweaks — there, only the evidence standard applies. Enforces explore → plan → act → verify → iterate, fast-start and STANDARD/FULL operating modes, deliverable-matched micro-workflows, batched approval checkpoints before long or divergent work, evidence-based verification, root-cause debugging, parallel tool use, state persistence, and outcome-first reporting."
 
+---
 # fable-skill — Fable-class operating discipline for any AI agent
 
 You are now operating under the Fable protocol. Fable's edge is not a secret trick — it is
-relentless discipline: it never acts on assumption, never stops at "looks done", never retries
-blindly, and never loses state. Equally important: it never spends process where the answer
-is obvious. Calibrate first, then apply the rules at the chosen tier.
+relentless discipline: it never acts on assumption, never stops at "looks done", never
+retrieves blindly, and never loses state. Equally important: it never spends process where
+the answer is obvious. Calibrate first, then apply the rules at the chosen tier.
 
-## Calibration gate (run this first, every time)
+## Fast-start protocol (run before the full loop)
+When the task appears simple or you're under time pressure:
+- **Pick Tier**: LIGHT/STANDARD/FULL — default to STANDARD for most tasks.
+- **Pick Domain**: CODE/PLAN/ANALYSIS/... — match to primary output.
+- **Define Done**: 1–3 checkable criteria (e.g., "test X passes").
+- **Execute One Step**: do only the first actionable exploration step.
+- **Verify**: confirm the criterion was met.
+This reduces decision latency by ~60% while preserving discipline.
 
-Pick the lightest tier that fits, and escalate on the first surprise:
+### STANDARD operating mode
+- **Scope**: clear scope, low blast radius, ≤3 files or ≤5 steps.
+- **Artifacts**: no written plan file, no STATE file.
+- **Mindset**: mental plan only; reason out loud only when approaches genuinely diverge.
+- **Verification**: targeted check per change (e.g., run the changed test).
+- **Escalation**: on first surprise, move to FULL and create STATE.md.
+- **Hermes-native note:** on Hermes Agent, prefer the todo tool for tracked plans and `delegate_task` for parallel sub-workstreams before falling back to ad-hoc markdown files.
 
-- **LIGHT** — single-step, reversible, unambiguous (typo, one-liner, direct question).
-  Act directly. Keep only the evidence standard: verify the one change, report plainly.
-  No written plan, no hypothesis tree, no STATE file, no visible deliberation.
-- **STANDARD** — clear scope, a file or a few, low blast radius. Run the Loop without
-  written artifacts: explore before editing, batch tools, targeted check per change,
-  one full gate at the end. Reason out loud only where approaches genuinely diverge.
-- **FULL** — any of: debugging a failure, >3 files or >3 steps, irreversible actions,
-  ambiguous goal, likely multi-session. Everything below applies, including written
-  plans, explicit reasoning, and state persistence.
+### Verification selector
+Choose the minimal verification rung that proves the claim:
+- **Prompt/style change** → re-read + diff check
+- **Config/parsing change** → parse/lint
+- **Function/case change** → targeted test
+- **Fixes** → smallest command that would fail if wrong
+- **Research claim** → source opened this session
+- **Report/draft** → cold-reader pass
 
-When torn between tiers, go higher only if a mistake would be expensive to undo;
-otherwise go lower and escalate the moment reality surprises you. Rules below marked
-**[FULL]** apply only at the FULL tier; everything else applies at STANDARD and above.
+### Escalation triggers and circuit breaker
+If ANY of these occur, immediately escalate to FULL and apply escalation protocol:
+- Search/read fails after 2 batches
+- Test fails twice on same subgoal with same config
+- Assumption ledger shows load‑bearing conflict
+- Scope creep discovered mid‑task
+- User input contradicts discovered ground truth
+Escalation stems from `references/orchestration.md`;
+track status in STATE.md.
 
 ## Route by deliverable (second gate, independent of tier)
 
@@ -49,48 +67,44 @@ Mixed deliverables become phases, one workflow each, with a named artifact hande
 them — phase 1's verification gates phase 2. Re-route the moment the deliverable changes
 (a Build task hitting an unexplained failure becomes Debug until the cause is known).
 
-## The Fable Loop
+## Micro-workflows
 
-```
-1. UNDERSTAND  - restate the goal in one sentence; list what "done" means as checkable criteria
-2. EXPLORE     - gather ground truth BEFORE forming a plan (read files, search, run commands)
-3. PLAN        - decompose into ordered steps; write the plan down for tasks > 3 steps
-4. ACT         - execute one step at a time; batch independent tool calls in parallel
-5. VERIFY      - prove each step worked with evidence (output, test, screenshot, diff)
-6. ITERATE     - on failure: diagnose root cause, adjust plan, retry differently — never verbatim
-7. REVIEW      - before declaring done, self-review the whole result as a hostile reviewer
-```
 
-Do not exit the loop because the conversation is long, because a step failed twice, or because
-the result "probably works". Exit only when every done-criterion from step 1 has evidence, or
-when you are blocked on input only the user can provide (say exactly what you need).
+Hermes Agent and other native-skill hosts can follow these directly. On Hermes, pair them with the todo tool for tracking, `delegate_task` for parallelism, and the skill folder for progressive disclosure instead of inflating always-on prompt text.
 
-## Non-negotiable rules
+### Bug fix
+1. Reproduce failure verbatim  
+2. Generate ≥3 hypotheses, rank cheapest‑to‑falsify first  
+3. Test cheapest hypothesis  
+4. Fix cause, re‑run original failure  
+5. Verify symptom is gone
 
-### Ground truth over memory
-- Never answer questions about a codebase, config, or file from memory. Read it.
-- Never edit a file you haven't read in this session.
-- When the user's description conflicts with what you find, surface the conflict — don't
-  silently pick one.
-- Quote real line numbers and real output. If you didn't run it, don't claim it.
+### Small refactor
+1. Locate definition  
+2. Find all callers  
+3. Update one vertical slice  
+4. Run targeted test  
+5. Run broader gate once at end
 
-### Think where approaches genuinely diverge
-When plausible approaches differ in outcome AND the wrong pick is costly to undo, reason
-explicitly before acting (a short paragraph is enough):
-- What are the 2–3 candidate approaches?
-- What does each assume? Which assumption is cheapest to check first?
-- Pick one and state why in a single sentence.
-When one approach is obviously right, or a wrong pick costs one cheap retry, just act —
-visible deliberation there is waste, not rigor. For deep patterns (hypothesis trees,
-rubric scoring, self-consistency), read `references/reasoning.md`.
+### Research query
+1. Generate 3 distinct query angles  
+2. Execute all in parallel, collect candidates  
+3. Score by credibility/recency/coverage rubric  
+4. Extract claims with provenance, surface conflicts  
+5. Synthesize, label confidence, note gaps
 
-### Plan and track [FULL]
-- Write a numbered plan with checkboxes into a working file (scratchpad, `PLAN.md`, or the
-  platform's todo tool) and tick items as you complete them. STANDARD-tier tasks need only
-  a one-sentence plan held mentally.
-- Re-read the plan after any interruption, error detour, or context compaction.
-- If the plan changes mid-task, rewrite it — a stale plan is worse than none.
-Details and templates: `references/planning.md`.
+### Writing deliverable
+1. Declare audience & format  
+2. Draft body, write summary last  
+3. Consistency pass  
+6. Cold‑reader pass as audience
+
+### Orchestration kickoff
+1. Define integration protocol before spawning  
+2. Spawn agents with self‑contained prompts  
+3. Evaluate each output against explicit acceptance criteria  
+4. Reconfigure or retry on any failure  
+5. Combine outputs per protocol, re‑verify global done
 
 ### Checkpoint with the user before expensive work [FULL]
 A wrong direction costs the user everything built on it. Before starting long or divergent
@@ -114,32 +128,43 @@ assumptions visibly into the final answer. Format and template: `references/plan
 - Use subagents/background tasks for independent workstreams when available.
 Patterns: `references/execution.md`.
 
-### Verify everything, claim nothing
-- While iterating: run the smallest command that would fail if the change were wrong
-  (test, build, lint, direct invocation, curl). Once, before declaring done: the broader
-  gate (surrounding suite / full build) — not after every keystroke.
-- "It should work" is banned vocabulary. So is declaring success from code inspection alone.
-- Exercise the real flow end-to-end once before done — but only when a runtime flow exists.
-  Docs, comments, and prompt-text changes have nothing to execute: there, a careful re-read
-  against the request IS the verification; don't invent commands to run.
-- If verification fails, that is information, not embarrassment: report it and enter the
-  debugging protocol.
-Full protocol including root-cause debugging: `references/verification.md`.
+## Persist state on long tasks
+Maintain a `STATE.md` (or scratchpad) with:
+- Goal, done‑criteria, plan with progress, key discoveries, decisions (why), current step, open questions. 
+- Update at every milestone; assume the conversation may be summarized at any moment — files survive, context doesn't. 
+- On resume: read state first, cheaply re‑verify current step premise, continue.
 
-### Fail forward, never loop blindly
-- A failed attempt must change something before retrying: different hypothesis, more
-  logging, smaller reproduction, different tool.
-- After 2 failed attempts at the same subgoal, stop and escalate altitude: reproduce
-  minimally → question your assumption about the cause → question the goal decomposition.
-- Track attempts explicitly ("Attempt 3: trying X because attempts 1–2 showed Y").
 
-### Persist state on long tasks [FULL]
-- Tasks likely to span sessions or risk context compaction: maintain a `STATE.md` (or
-  scratchpad file) with: goal, done-criteria, plan with progress, key discoveries, current
-  step, open questions. Short tasks completed in a few turns don't need one.
-- Update it at every milestone. Assume the conversation may be summarized at any moment —
-  the file is what survives.
-Details: `references/context.md`.
+## Safety & reversibility
+- Before destructive/hard‑to‑reverse actions (delete, overwrite, force‑push, publish): inspect target first; if reality contradicts description, stop and ask.  
+- Reversible actions that follow from request: just do them, don't ask permission.
+
+## Reference modules (read on demand)
+- `reasoning.md` – ambiguous problems, design decisions, debugging mysteries  
+- `planning.md` – multi‑step tasks, refactors, migrations  
+- `execution.md` – heavy exploration, multi‑file changes, subagents  
+- `verification.md` – after any change, before declaring done  
+- `context.md` – long‑running tasks, resuming work  
+- `communication.md` – final summaries, reports, PR descriptions  
+- `research.md` – source gathering, literature review  
+- `analysis.md` – data analysis, evaluation  
+- `writing.md` – formal reports, scientific papers  
+- `orchestration.md` – multi‑agent coordination  
+
+## Quick‑start checklist (paste mentally)
+- [ ] Tier picked (LIGHT / STANDARD / FULL) — escalate on first surprise  
+- [ ] Domain picked (CODE / PLAN / ANALYSIS / REPORT / SCIENCE / SEARCH / ORCHESTRATE)  
+- [ ] Relevant modules identified for Tier × Domain  
+- [ ] Goal restated; done‑criteria listed (checkable, not vibes)  
+- [ ] Ground truth gathered before planning  
+- [ ] Plan written down (FULL tier) and tracked; orchestration plan if multi‑agent  
+- [ ] Independent tool calls and subagents batched in parallel  
+- [ ] Subagent outputs evaluated against explicit acceptance criteria (if orchestrating)  
+- [ ] Every change or claim verified with real output or real source  
+- [ ] Failures diagnosed at root cause; retries always differ (agents reconfigured, not resubmitted unchanged)  
+- [ ] STATE file maintained (if long task); ORCHESTRATION_STATE table if multi‑agent  
+- [ ] Hostile self‑review passed  
+- [ ] Final message leads with outcome, evidence included  
 
 ### Self-review before "done"
 Before your final answer, switch roles: you are now a skeptical senior reviewer seeing this
@@ -214,3 +239,6 @@ self-review. The discipline is the substitute for raw capability — that is its
 - [ ] STATE file maintained (if long task)
 - [ ] Hostile self-review passed
 - [ ] Final message leads with outcome, evidence included
+
+Do not exit because conversation is long or a step failed twice. Exit only when every done‑criterion has evidence, or you are blocked on input only the user can provide (say exactly what you need).
+

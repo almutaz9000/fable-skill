@@ -18,7 +18,10 @@ const os = require("os");
 
 const ROOT = path.join(__dirname, "..");
 const SKILL_DIR = path.join(ROOT, "skill");
-const HOME = os.homedir();
+
+function resolveHome() {
+  return os.homedir();
+}
 
 // ---------------------------------------------------------------------------
 // Content builders
@@ -36,14 +39,30 @@ function memo(fn) {
   };
 }
 
-const readSkillMd = memo(() => fs.readFileSync(path.join(SKILL_DIR, "SKILL.md"), "utf8"));
+function requireSkillFile(name) {
+  const file = path.join(SKILL_DIR, name);
+  if (!fs.existsSync(file)) {
+    throw new Error(`fable-skill installation is incomplete: missing skill/${name}`);
+  }
+  return file;
+}
+
+function requireReferencesDir() {
+  const dir = path.join(SKILL_DIR, "references");
+  if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) {
+    throw new Error("fable-skill installation is incomplete: missing skill/references directory");
+  }
+  return dir;
+}
+
+const readSkillMd = memo(() => fs.readFileSync(requireSkillFile("SKILL.md"), "utf8"));
 
 function stripFrontmatter(md) {
   return md.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, "");
 }
 
 const referenceFiles = memo(() => {
-  const dir = path.join(SKILL_DIR, "references");
+  const dir = requireReferencesDir();
   return fs
     .readdirSync(dir)
     .filter((f) => f.endsWith(".md"))
@@ -73,13 +92,14 @@ const mergedMarkdown = memo(() => {
 const compactMarkdown = memo(() => {
   const compact = path.join(SKILL_DIR, "COMPACT.md");
   if (!fs.existsSync(compact)) return mergedMarkdown();
-  return fs.readFileSync(compact, "utf8").trim() + FOOTER;
+  return fs.readFileSync(requireSkillFile("COMPACT.md"), "utf8").trim() + FOOTER;
 });
 
 /** Copy the skill folder verbatim (SKILL.md + references/) into destDir. */
 function copySkillFolder(destDir) {
+  requireReferencesDir();
   fs.mkdirSync(path.join(destDir, "references"), { recursive: true });
-  fs.copyFileSync(path.join(SKILL_DIR, "SKILL.md"), path.join(destDir, "SKILL.md"));
+  fs.copyFileSync(requireSkillFile("SKILL.md"), path.join(destDir, "SKILL.md"));
   for (const ref of referenceFiles()) {
     fs.writeFileSync(path.join(destDir, "references", ref.name), ref.content);
   }
@@ -125,7 +145,7 @@ const TARGETS = {
   claude: {
     label: "Claude Code (also claude.ai via zip)",
     kind: "folder",
-    global: () => path.join(HOME, ".claude", "skills", "fable-skill"),
+    global: () => path.join(resolveHome(), ".claude", "skills", "fable-skill"),
     project: (cwd) => path.join(cwd, ".claude", "skills", "fable-skill"),
   },
   cursor: {
@@ -150,7 +170,7 @@ const TARGETS = {
   cline: {
     label: "Cline",
     kind: "file",
-    global: () => path.join(HOME, "Documents", "Cline", "Rules", "fable-skill.md"),
+    global: () => path.join(resolveHome(), "Documents", "Cline", "Rules", "fable-skill.md"),
     project: (cwd) => path.join(cwd, ".clinerules", "fable-skill.md"),
   },
   roo: {
@@ -161,19 +181,19 @@ const TARGETS = {
   codex: {
     label: "OpenAI Codex (native skill)",
     kind: "folder",
-    global: () => path.join(HOME, ".agents", "skills", "fable-skill"),
+    global: () => path.join(resolveHome(), ".agents", "skills", "fable-skill"),
     project: (cwd) => path.join(cwd, ".agents", "skills", "fable-skill"),
   },
   "codex-agents": {
     label: "OpenAI Codex (AGENTS.md, older CLIs)",
     kind: "managed",
-    global: () => path.join(HOME, ".codex", "AGENTS.md"),
+    global: () => path.join(resolveHome(), ".codex", "AGENTS.md"),
     project: (cwd) => path.join(cwd, "AGENTS.md"),
   },
   gemini: {
     label: "Gemini CLI / Antigravity",
     kind: "managed",
-    global: () => path.join(HOME, ".gemini", "GEMINI.md"),
+    global: () => path.join(resolveHome(), ".gemini", "GEMINI.md"),
     project: (cwd) => path.join(cwd, "GEMINI.md"),
   },
   amp: {
@@ -184,8 +204,14 @@ const TARGETS = {
   openclaw: {
     label: "OpenClaw / ClawBot",
     kind: "folder",
-    global: () => path.join(HOME, ".openclaw", "skills", "fable-skill"),
+    global: () => path.join(resolveHome(), ".openclaw", "skills", "fable-skill"),
     project: (cwd) => path.join(cwd, "skills", "fable-skill"),
+  },
+  hermes: {
+    label: "Hermes Agent",
+    kind: "folder",
+    global: () => path.join(resolveHome(), ".hermes", "skills", "fable-skill"),
+    project: (cwd) => path.join(cwd, ".hermes", "skills", "fable-skill"),
   },
   aider: {
     label: "Aider",
@@ -195,7 +221,7 @@ const TARGETS = {
   continue: {
     label: "Continue.dev",
     kind: "file",
-    global: () => path.join(HOME, ".continue", "rules", "fable-skill.md"),
+    global: () => path.join(resolveHome(), ".continue", "rules", "fable-skill.md"),
     project: (cwd) => path.join(cwd, ".continue", "rules", "fable-skill.md"),
   },
   zed: {
@@ -221,13 +247,13 @@ const TARGETS = {
   qwen: {
     label: "Qwen Code",
     kind: "managed",
-    global: () => path.join(HOME, ".qwen", "QWEN.md"),
+    global: () => path.join(resolveHome(), ".qwen", "QWEN.md"),
     project: (cwd) => path.join(cwd, "QWEN.md"),
   },
   opencode: {
     label: "OpenCode",
     kind: "managed",
-    global: () => path.join(HOME, ".config", "opencode", "AGENTS.md"),
+    global: () => path.join(resolveHome(), ".config", "opencode", "AGENTS.md"),
     project: (cwd) => path.join(cwd, "AGENTS.md"),
   },
   goose: {
@@ -294,7 +320,7 @@ function installTarget(name, scope, cwd, opts = {}) {
   console.log(`  ✔ ${t.label.padEnd(28)} → ${dest}`);
 }
 
-function usage() {
+function printUsage() {
   console.log(`
 fable-skill — Fable-class operating discipline for any coding agent
 
@@ -320,20 +346,69 @@ Depth (single-file targets only; skill-folder targets always get the full skill)
 
 Examples:
   npx fable-skill claude --global     # Claude Code, all projects
+  npx fable-skill hermes --global     # Hermes Agent skill folder
   npx fable-skill cursor              # Cursor rules in this repo
   npx fable-skill agents              # AGENTS.md block (Codex, Amp, Jules, ...)
   npx fable-skill all                 # every project-level target at once
 `);
 }
 
+function parseArgs(argv) {
+  const args = [...argv];
+  const names = [];
+  let scope = "project";
+  let full = false;
+  let scopeCount = 0;
+
+  for (const arg of args) {
+    if (arg === "--project") {
+      scope = "project";
+      scopeCount += 1;
+      continue;
+    }
+    if (arg === "--global") {
+      scope = "global";
+      scopeCount += 1;
+      continue;
+    }
+    if (arg === "--full") {
+      full = true;
+      continue;
+    }
+    if (arg === "--help") {
+      names.push("help");
+      continue;
+    }
+    if (arg.startsWith("--")) {
+      throw new Error(`Unknown option: ${arg}`);
+    }
+    names.push(arg);
+  }
+
+  if (scopeCount > 1) {
+    throw new Error("Choose exactly one of --project or --global.");
+  }
+
+  return { names, scope, opts: { full } };
+}
+
 function main() {
-  const args = process.argv.slice(2);
-  const scope = args.includes("--global") ? "global" : "project";
-  const opts = { full: args.includes("--full") };
-  const names = args.filter((a) => !a.startsWith("--"));
+  let parsed;
+  try {
+    parsed = parseArgs(process.argv.slice(2));
+  } catch (e) {
+    console.error(e.message);
+    process.exitCode = 1;
+    return;
+  }
+
+  const { names, scope, opts } = parsed;
   const cwd = process.cwd();
 
-  if (names.length === 0 || names[0] === "help") return usage();
+  if (names.length === 0 || names[0] === "help") {
+    printUsage();
+    return;
+  }
 
   // Universal escape hatch: emit the skill as a plain system prompt for ANY
   // model without a supported harness — Gemma, Qwen, Kimi, GLM/Z.ai, Llama,
@@ -389,4 +464,12 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { TARGETS, installTarget, mergedMarkdown, compactMarkdown };
+module.exports = {
+  TARGETS,
+  installTarget,
+  mergedMarkdown,
+  compactMarkdown,
+  parseArgs,
+  requireSkillFile,
+  requireReferencesDir,
+};

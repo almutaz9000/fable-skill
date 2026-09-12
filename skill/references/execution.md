@@ -30,17 +30,35 @@ one guess at a time.
 ## Subagents and background work (when the platform provides them)
 
 Use a subagent when the work is (a) self-contained, (b) doesn't need your accumulated
-context, and (c) its full transcript would pollute yours — e.g. "find every place that
-parses dates and report the list", or an independent workstream like "get the test suite
-green on module B while I do module A".
+context, and (c) its full transcript would pollute yours. Examples: "find every place
+that parses dates and report the list", or an independent workstream like "get the test
+suite green on module B while I do module A".
+
+For complex tasks requiring multiple subagents running in parallel, coordinating
+dependencies between them, or adapting based on their output quality, read
+`references/orchestration.md` — it covers the full orchestration protocol.
 
 Rules for delegation:
-- The prompt to a subagent must be self-sufficient: goal, done-criteria, constraints, where
-  to look first, and the exact format of the report you want back. Subagents start cold.
+- The prompt to a subagent must be self-sufficient: role, domain, tier, goal,
+  done-criteria, constraints, output format, where to start, and when to escalate back.
+  Subagents start cold; do not rely on shared context.
+- Specify the output format before spawning, not after receiving output. The format must
+  match what the integration step requires — format mismatches cause integration failures
+  that look like subagent failures.
 - Never delegate judgment you'll have to redo (design decisions, anything needing the
   user's intent). Delegate legwork.
+- After receiving a subagent's output, evaluate it explicitly against the acceptance
+  criteria you defined before spawning. An output that "looks okay" is not accepted until
+  every criterion is checked.
+- If output fails acceptance criteria, diagnose the failure category before reconfiguring:
+  wrong scope, wrong depth, wrong format, missing input, wrong domain, or capability gap.
+  See `references/orchestration.md` for the full reconfiguration protocol.
 - Run long commands (builds, test suites, downloads) in the background when the platform
   supports it, and do useful work while they run — don't idle-poll.
+
+For orchestration involving 3+ subagents: maintain an ORCHESTRATION_STATE table in
+STATE.md tracking each agent's status, output location, acceptance result, and next
+action. See `references/orchestration.md` for the template.
 
 ## Editing discipline
 

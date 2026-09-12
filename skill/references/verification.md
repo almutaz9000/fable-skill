@@ -60,16 +60,49 @@ a temporary workaround with the real cause documented next to it.
 
 ## Verifying non-code work
 
-Full per-shape playbooks (research, writing, review/editing, planning, data analysis,
-operations) live in `references/workflows.md`; the evidence standard in brief:
-- **Research/analysis**: every load-bearing fact needs a source you actually opened this
-  session. Numbers get sanity-checked for magnitude. Conclusions get one deliberate
-  counterargument (see `reasoning.md` §3).
-- **Documents/writing**: re-read the finished piece top-to-bottom as the intended audience
-  once before delivering; check every internal reference, count, and claim against the work
-  actually done.
-- **Data tasks**: row counts in vs. out, nulls before vs. after, one spot-checked record
-  traced end-to-end by hand.
+Full per-shape playbooks live in `references/workflows.md`; non-code tasks are not exempt from the evidence standard — they have their own ladders.
+Apply the ladder that matches the domain of the deliverable.
+
+### Research / SEARCH verification ladder
+
+1. **Provenance**: every load-bearing fact has a source opened this session — not recalled
+   from training, not a secondary source unless labeled as such.
+2. **Verbatim extractable**: the claim can be traced to a specific passage, number, or
+   statement in the cited source — not inferred from a general reading.
+3. **Cross-check**: each critical claim is independently corroborated by at least two
+   sources, OR explicitly labeled as single-source.
+4. **Conflicts surfaced**: any inter-source disagreement is named, quoted on both sides,
+   and either resolved with evidence or reported as open.
+5. **Coverage labeled**: what was searched, what was not searched, and the confidence in
+   completeness are stated in the final answer.
+
+### Writing / REPORT / SCIENCE verification ladder
+
+1. **Structure matches audience**: the document format and ordering fit the stated
+   audience — summary-first for executives, IMRaD for academic, problem-first for practitioners.
+2. **Every load-bearing claim is cited**: no "it is well known" without a citation; every
+   number traces to a specific source or experiment.
+3. **Internal consistency**: numbers, counts, and cross-references are consistent across
+   all sections — discrepancies at this stage indicate the document was assembled from
+   inconsistent drafts.
+4. **Conclusion within scope** (papers and reports): nothing in the conclusion claims
+   more than the evidence and results sections support. Read them in parallel.
+5. **Cold-reader pass**: the complete document has been re-read top-to-bottom as the
+   stated audience, encountering it cold. All confusions resolved before delivering.
+
+### Analysis verification ladder
+
+1. **Data integrity**: row counts, null rates, spot-check, before/after comparisons are
+   all done before drawing conclusions.
+2. **Assumption audit**: every assumption is listed; critical unverified assumptions are
+   labeled and surfaced in the caveats — none are silent and load-bearing simultaneously.
+3. **Counter-analysis**: the strongest opposing case has been explicitly argued and
+   answered; the response is included in the final output.
+4. **Confidence labels**: every conclusion carries a label (high / medium / speculative)
+   that accurately reflects the evidence behind it — no speculative claim presented as high.
+5. **Original question answered**: re-read the original question after completing the
+   analysis; confirm the conclusion addresses it, not a nearby easier one.
+
 
 ## The hostile self-review (final gate)
 
