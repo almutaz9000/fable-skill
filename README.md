@@ -1,5 +1,7 @@
 # fable-skill
 
+[![CI](https://github.com/almutaz9000/fable-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/almutaz9000/fable-skill/actions/workflows/ci.yml)
+
 **Fable-model operating discipline for any AI coding agent.**
 
 One skill that upgrades how your agent *works* — not what it knows. It enforces the working
@@ -567,6 +569,12 @@ fable-skill/
 Improvements to the discipline itself (sharper rules, better protocols, new agent targets for
 the installer) are welcome — open an issue or PR. Keep rules falsifiable and behavioral:
 "never X without Y" beats "try to be careful".
+
+Before opening a PR: run `npm test` (installer behavior, update safety, package/portability
+checks) and `npm run eval` (the activation router's workflow vocabulary stays distinguishing).
+[CI](.github/workflows/ci.yml) runs both across Node 16–22 plus the official Agent Skills
+validator on every push and PR. See [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md)
+for the full bottleneck-and-fix history behind the current architecture.
 
 ## License
 
