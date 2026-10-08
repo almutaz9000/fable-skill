@@ -20,7 +20,7 @@ Install it once with `npx`, natively, into whichever agent you use:
 | | | | |
 |---|---|---|---|
 | Claude Code | Cursor | GitHub Copilot | OpenAI Codex |
-| Gemini CLI / Antigravity | Windsurf | Cline | Roo Code |
+| Gemini CLI | Google Antigravity | Windsurf | Cline |
 | Amp | OpenClaw / ClawBot | Hermes Agent | Aider |
 | Continue.dev | Zed | JetBrains Junie | Kiro (AWS) |
 | Trae | Qwen Code | OpenCode | Goose |
@@ -59,9 +59,11 @@ npx github:almutaz9000/fable-skill prompt
 npx github:almutaz9000/fable-skill list
 ```
 
-No dependencies, no build step, Node ≥ 16. The installer is idempotent — re-run it any time
-to update; shared files like `AGENTS.md` are edited only between managed markers, so your own
-content is never touched.
+No dependencies, no build step, Node ≥ 16. Re-running the installer is convergent. Native
+skill-folder updates track package-owned files in a manifest, preserve user-added files, and
+refuse to overwrite locally modified managed files. The first update from a pre-2.2 install
+keeps a complete sibling backup. Shared files such as `AGENTS.md` are changed only between
+balanced managed markers.
 
 ## 3-minute install
 
@@ -83,8 +85,14 @@ npx github:almutaz9000/fable-skill codex --global
 # Cursor: always-on rules file for the current repo
 npx github:almutaz9000/fable-skill cursor
 
-# Gemini CLI / Antigravity: managed GEMINI.md block
+# Gemini CLI: native skill for every project
 npx github:almutaz9000/fable-skill gemini --global
+
+# Google Antigravity 2.0 / IDE: native skill for every project
+npx github:almutaz9000/fable-skill antigravity --global
+
+# Google Antigravity CLI uses a distinct global directory
+npx github:almutaz9000/fable-skill antigravity-cli --global
 
 # OpenClaw / ClawBot: native skill for every project
 npx github:almutaz9000/fable-skill openclaw --global
@@ -101,20 +109,22 @@ npx github:almutaz9000/fable-skill list
 | Agent | Best install command | Why this is the default |
 |---|---|---|
 | Claude Code | `npx github:almutaz9000/fable-skill claude --global` | Native skill folder, loads references on demand |
-| Hermes Agent | `npx github:almutaz9000/fable-skill hermes --global` | Native skill folder, best for todo/delegate_task workflows |
+| Hermes Agent | `npx github:almutaz9000/fable-skill hermes --global` | Native skill folder with progressive disclosure |
 | OpenAI Codex | `npx github:almutaz9000/fable-skill codex --global` | Native skill folder, progressive disclosure |
+| Gemini CLI | `npx github:almutaz9000/fable-skill gemini --global` | Native skill folder at `~/.gemini/skills` |
+| Google Antigravity 2.0 / IDE | `npx github:almutaz9000/fable-skill antigravity --global` | Native skill folder at `~/.gemini/config/skills` |
+| Google Antigravity CLI | `npx github:almutaz9000/fable-skill antigravity-cli --global` | Native skill folder at `~/.gemini/antigravity-cli/skills` |
 | Cursor | `npx github:almutaz9000/fable-skill cursor` | Repo-local always-on rules file |
-| Gemini CLI / Antigravity | `npx github:almutaz9000/fable-skill gemini --global` | Managed `GEMINI.md` block for broad CLI coverage |
 | OpenClaw / ClawBot | `npx github:almutaz9000/fable-skill openclaw --global` | Native skill folder, low token overhead |
 
 ### Token cost: compact by default
 
-Single-file rules targets (Cursor, Copilot, `AGENTS.md`, `GEMINI.md`, and the like) inject
-their content into **every** request, so they get the **compact edition** (roughly 2k
-tokens) — the full discipline distilled into one document. Agents with native skill folders
-(Claude Code, Codex, OpenClaw, Hermes Agent) load reference modules on demand, so they get
-the complete skill at no per-request cost. If you want the full version (roughly 7k tokens)
-in a rules file anyway, opt in with `--full`:
+Single-file rules targets (Cursor, Copilot, `AGENTS.md`, legacy `GEMINI.md`, and the like) inject
+their content into **every** request, so they get the **compact edition** (about 1.2k
+tokens by the repository's four-characters-per-token estimate). Agents with native skill folders
+(Claude Code, Codex, Gemini CLI, Antigravity, OpenClaw, Hermes Agent) load references on demand,
+so they get the complete skill at no per-request cost. The optional full single-file export is
+about 18k tokens by the same estimate. Opt in only when the target has enough context:
 
 ```bash
 npx github:almutaz9000/fable-skill agents --full
@@ -131,7 +141,9 @@ Use the check that matches your agent after running the installer.
 | OpenAI Codex | `~/.agents/skills/fable-skill/` or `.agents/skills/fable-skill/` exists | `SKILL.md` and `references/` are present |
 | OpenClaw / ClawBot | `~/.openclaw/skills/fable-skill/` or `./skills/fable-skill/` exists | `SKILL.md` and `references/` are present |
 | Cursor | `.cursor/rules/fable-skill.mdc` exists | rules file contains fable-skill content |
-| Gemini CLI / Antigravity | `~/.gemini/GEMINI.md` or `./GEMINI.md` exists | managed fable-skill block is present |
+| Gemini CLI | `~/.gemini/skills/fable-skill/` or `.gemini/skills/fable-skill/` exists | `SKILL.md` and `references/` are present; `/skills list` shows it |
+| Google Antigravity 2.0 / IDE | `~/.gemini/config/skills/fable-skill/` or `.agents/skills/fable-skill/` exists | native skill appears in Customizations or as `/fable-skill` |
+| Google Antigravity CLI | `~/.gemini/antigravity-cli/skills/fable-skill/` or `.agents/skills/fable-skill/` exists | `/fable-skill` is available |
 
 If the file or folder is missing, re-run the same install command. The installer is safe to
 run repeatedly.
@@ -141,10 +153,11 @@ run repeatedly.
 | Agent | How to use it after install | What to expect |
 |---|---|---|
 | Claude Code | Invoke `/fable-skill` or let it auto-load on matching tasks | Native skill loads references only when needed |
-| Hermes Agent | Let it auto-match, or explicitly ask to use fable-skill; pair with `todo` and `delegate_task` on larger jobs | Native skill plus Hermes tools gives the best workflow fit |
+| Hermes Agent | Invoke `/fable-skill`, preload with `--skills fable-skill`, or let it auto-match | Native skill loads references only when needed |
 | OpenAI Codex | Invoke `$fable-skill` or browse `/skills` | Native skill auto-selects on matching prompts |
+| Gemini CLI | Let it activate from a matching prompt; verify or reload with `/skills` | Activation asks for consent before loading the skill |
+| Google Antigravity | Invoke `/fable-skill` or let it activate from a matching prompt | Native skill uses progressive disclosure |
 | Cursor | Nothing extra — it is always on in that repo | Rules file shapes every request in the repo |
-| Gemini CLI / Antigravity | Nothing extra after install; the managed `GEMINI.md` block stays active | Good for broad CLI usage without native skill folders |
 | OpenClaw / ClawBot | Use the native skill if the host exposes skill selection, or just start a matching task | Native skill folder keeps token cost low |
 
 ## Example usage
@@ -167,7 +180,7 @@ These are practical first prompts you can paste right after installation.
 - `Use the fable-skill workflow to debug the API timeout. Read the code first, form multiple hypotheses, then verify the final fix.`
 - `Refactor this module with fable-skill discipline: small diffs, real tests, and no unverifiable claims.`
 
-### Gemini CLI / Antigravity
+### Gemini CLI and Google Antigravity
 - `Analyze this repo with fable-skill discipline and produce a concrete migration plan with checkable milestones.`
 - `Use fable-skill to research current RAG approaches, compare them with citations, and surface disagreements between sources.`
 
@@ -184,15 +197,15 @@ Once installed, the skill activates two ways:
 - **Automatically** — skill-native agents match your prompt against the skill description
   and load it when the task fits: debugging, multi-file changes, refactors, research,
   analysis, writing, scientific work, search, and long-running or multi-agent tasks.
-- **Always on** — rules-file agents such as Cursor and managed-document hosts such as
-  Gemini CLI / Antigravity apply the installed text without an extra invocation step.
+- **Always on** — rules-file agents such as Cursor and explicit legacy context targets such as
+  `gemini-context` apply the installed compact text without an invocation step.
 
 You do not need special prompt phrasing. The practical examples above are just the fastest way
 to confirm the install worked and the workflow feels right.
 
 ### Two-axis calibration
 
-Every task is calibrated on two axes before any work begins:
+Every task is calibrated on two axes before work begins:
 
 **Tier** (how much process overhead):
 
@@ -202,19 +215,20 @@ Every task is calibrated on two axes before any work begins:
 | **STANDARD** | Clear scope, low blast radius | The loop without written artifacts; targeted verification at the end |
 | **FULL** | Complex, irreversible, ambiguous, long, multi-agent | Written plan, explicit reasoning, state persistence, full verification |
 
-**Domain** (which protocol to apply):
+**Workflow** (the deliverable the user will consume):
 
-| Domain | Trigger | Core discipline |
+| Workflow | Deliverable | Core discipline |
 |---|---|---|
-| **CODE** | implement, fix, debug, refactor | Explore → plan → act → verify with real output |
-| **PLAN** | plan, roadmap, strategy | Checkable done-criteria, riskiest-assumption-first decomposition |
-| **ANALYSIS** | analyze, compare, evaluate | Analytical loop, confidence labels, counter-analysis |
-| **REPORT** | report, write, document | Audience-first structure, citation standard, cold-reader pass |
-| **SCIENCE** | paper, experiment, literature | Full paper protocol, reproducibility standard, mandatory limitations |
-| **SEARCH** | find, search, survey | Source evaluation rubric, provenance rule, conflict surfacing |
-| **ORCHESTRATE** | parallel agents, delegate, coordinate | Subagent configuration, acceptance criteria, adaptive reconfiguration |
+| **Build** | Working code or changed behavior | Explore the existing idiom; verify by executing |
+| **Debug** | A causal explanation, optionally followed by a fix | Reproduce; rank hypotheses; fix the cause |
+| **Research** | An answer grounded in sources | Trace claims to opened sources; run one disconfirmation pass |
+| **Write** | A report, document, proposal, or paper | Outline per-section points; separate accuracy, structure, and reader passes |
+| **Review** | A verdict on an existing artifact | Read all of it; cite exact locations; separate defects from preferences |
+| **Plan** | An executable plan or decision | Compare real options; front-load the riskiest assumption |
+| **Analyze** | Insight from data | Profile data first; audit assumptions; run counter-analysis |
+| **Operate** | A changed external state | Dry-run; checkpoint; make the smallest irreversible step last |
 
-The tier and domain are independent. A FULL × SCIENCE task uses the full paper protocol with explicit written plans. A LIGHT × SEARCH task is a quick lookup with a citation.
+Tier and workflow are independent. Science is a stricter Write modifier; orchestration is an execution modifier that can coordinate any workflow. A FULL Write task with the science modifier uses the reproducibility protocol. A LIGHT Research task is one sourced lookup.
 
 ### Example: debugging a failure
 
@@ -294,7 +308,7 @@ so small tasks stay fast.
 > Survey the current state of retrieval-augmented generation — what approaches exist,
 > how do they compare, and what are the open problems?
 
-Domain: SEARCH, Tier: FULL. The agent generates at least three distinct query angles in
+Workflow: Research, Tier: FULL. The agent generates at least three distinct query angles in
 one batch (not one query at a time), evaluates each source against a credibility/recency
 rubric, builds a claim map tracing each key finding to its source, surfaces any conflicts
 between sources with both sides quoted, and labels confidence levels throughout. Every
@@ -305,7 +319,7 @@ recall is not a citation.
 
 > Our checkout funnel conversion dropped 12% last week. Find out why.
 
-Domain: ANALYSIS, Tier: FULL. The agent runs data integrity checks first (row counts, null
+Workflow: Analyze, Tier: FULL. The agent runs data integrity checks first (row counts, null
 rates, before/after comparison using the same measurement definition), generates at least
 three hypotheses before testing any, builds an assumption audit marking which are verified
 and which are carried, runs the counter-analysis (argues the strongest case against the
@@ -317,7 +331,7 @@ possible explanation" for speculation.
 
 > Write an executive briefing on whether we should migrate our auth service to OAuth 2.1.
 
-Domain: REPORT, Tier: FULL. The agent declares the audience (executive, non-technical)
+Workflow: Write, Tier: FULL. The agent declares the audience (executive, non-technical)
 and the key question before writing a single word, drafts the supporting body first, writes
 the executive summary last (answer upfront, conclusion stated directly), runs a full
 consistency pass (numbers match across all sections), then re-reads the complete document
@@ -328,7 +342,7 @@ deliverable is a document artifact, not prose in the chat window.
 
 > Write the methodology and results sections for our LLM evaluation paper.
 
-Domain: SCIENCE, Tier: FULL. The agent writes the methodology to the reproducibility
+Workflow: Write with the science modifier, Tier: FULL. The agent writes the methodology to the reproducibility
 standard (enough detail for an independent researcher to replicate), reports results with
 uncertainty ranges and distinguishes results from interpretations, writes a limitations
 section with at least three named limitations, and ensures the conclusion section claims
@@ -341,14 +355,14 @@ dataset. "Future work" is not a substitute for a limitation.
 > performance literature, implement a prototype of the two best candidates, run load
 > tests, and produce a recommendation report.
 
-Domain: ORCHESTRATE, Tier: FULL. The agent writes an integration protocol before spawning
-any subagents (exactly how outputs will combine), then fans out in parallel: a SEARCH
-agent surveys performance literature, a CODE agent implements both candidates once the
-survey is done, and an ANALYSIS agent interprets load test results. Each subagent receives
-a self-sufficient prompt with role, domain, tier, done-criteria, input, constraints, and
+Workflows: Research + Build + Analyze + Write, with the orchestration modifier; Tier: FULL. The agent writes an integration protocol before spawning
+any subagents (exactly how outputs will combine), then fans out in parallel: a Research
+agent surveys performance literature, a Build agent implements both candidates once the
+survey is done, and an Analyze agent interprets load test results. Each subagent receives
+a self-sufficient prompt with role, workflow, tier, done-criteria, input, constraints, and
 the exact output format the integration step requires. Every output is evaluated against
 explicit acceptance criteria — partial passes are rejections. If an agent's output is
-rejected, the failure category is diagnosed (wrong scope, depth, format, domain, or
+rejected, the failure category is diagnosed (wrong scope, depth, format, workflow, or
 capability gap), the configuration is updated, and the agent is re-run differently. The
 orchestrating agent does not write the final report until every subagent's output has been
 accepted and the integrated result satisfies the original goal's done-criteria.
@@ -387,27 +401,23 @@ production incident, the full protocol pays for itself.
 
 ## What's in the skill
 
-The skill is plain markdown — a core protocol plus eleven focused modules. Agents with native
-skill support (Claude Code, OpenClaw, Hermes Agent) get the folder as-is and load modules on demand; agents
-
-with a single rules file get everything merged into one document in their native format.
+The skill is plain markdown: one portable core plus eight focused modules. Native skill-folder
+targets (Claude Code, Codex, Gemini CLI, Antigravity, OpenClaw, and Hermes Agent) load modules
+on demand. Single-file rules targets receive the compact edition by default.
 
 | Module | What it enforces |
 |---|---|
-| [`SKILL.md`](skill/SKILL.md) | The Fable Loop: understand → explore → plan → act → verify → iterate → review, plus the two-axis calibration gate (Tier × Domain) and non-negotiable rules |
-| [`COMPACT.md`](skill/COMPACT.md) | The whole discipline distilled to roughly 2k tokens — what single-file rules targets install by default |
-| [`workflows.md`](skill/references/workflows.md) | Deliverable-based routing: build, debug, research, write, review/edit, plan, analyze, operate — each with its own explore/verify shape and banned failure modes |
-| [`reasoning.md`](skill/references/reasoning.md) | Hypothesis trees, decision rubrics, self-consistency checks, assumption ledgers, argument mapping, confidence calibration, altitude control |
-| [`planning.md`](skill/references/planning.md) | Checkable done-criteria, domain-specific plan templates (CODE, RESEARCH, ANALYSIS, REPORT, SCIENCE, ORCHESTRATION), the batched approval checkpoint (plan + all questions in one reply, recommendation marked), decomposition heuristics, replanning rules |
+| [`SKILL.md`](fable-skill/SKILL.md) | The Fable Loop plus the two-axis calibration gate (Tier × Workflow) and non-negotiable rules |
+| [`COMPACT.md`](fable-skill/COMPACT.md) | The whole discipline distilled to about 1.2k estimated tokens for single-file rules targets |
+| [`workflows.md`](fable-skill/references/workflows.md) | Deliverable-based routing: build, debug, research, write, review/edit, plan, analyze, operate — each with its own explore/verify shape, source/data-integrity/tone sub-protocols, and banned failure modes |
+| [`reasoning.md`](fable-skill/references/reasoning.md) | Hypothesis trees, decision rubrics, self-consistency checks, assumption ledgers, argument mapping, confidence calibration, altitude control |
+| [`planning.md`](fable-skill/references/planning.md) | Checkable done-criteria, workflow-specific plan templates, the batched approval checkpoint, decomposition heuristics, and replanning rules |
 
-| [`execution.md`](skill/references/execution.md) | Parallel tool batching, wide-fan exploration, subagent delegation, minimal-diff editing discipline |
-| [`verification.md`](skill/references/verification.md) | The evidence standard ("it should work" is banned), a five-rung code verification ladder, full verification ladders for RESEARCH, WRITING, and ANALYSIS |
-| [`context.md`](skill/references/context.md) | STATE.md pattern so long tasks survive context compaction and session breaks |
-| [`communication.md`](skill/references/communication.md) | Outcome-first reporting, output format by domain, honesty rules, readability over compression |
-| [`research.md`](skill/references/research.md) | Source evaluation rubric, multi-source synthesis, query strategy, provenance rule, conflict surfacing |
-| [`analysis.md`](skill/references/analysis.md) | Analytical loop, uncertainty accounting with confidence labels, assumption audit, data integrity checks, counter-analysis |
-| [`writing.md`](skill/references/writing.md) | Report and scientific paper protocols, citation standard, tone calibration, consistency pass, writing verification ladder |
-| [`orchestration.md`](skill/references/orchestration.md) | Multi-agent spawning, delegation templates, output acceptance criteria, adaptive reconfiguration protocol, orchestration patterns (fan-out, pipeline, tournament) |
+| [`execution.md`](fable-skill/references/execution.md) | Parallel tool batching, wide-fan exploration, subagent delegation, minimal-diff editing discipline |
+| [`verification.md`](fable-skill/references/verification.md) | Evidence standards and verification ladders for Build, Debug, Research, Write, and Analyze workflows |
+| [`context.md`](fable-skill/references/context.md) | STATE.md pattern so long tasks survive context compaction and session breaks |
+| [`communication.md`](fable-skill/references/communication.md) | Outcome-first reporting, output format by workflow, honesty rules, readability over compression |
+| [`orchestration.md`](fable-skill/references/orchestration.md) | Multi-agent spawning, delegation templates, output acceptance criteria, adaptive reconfiguration protocol, orchestration patterns (fan-out, pipeline, tournament) |
 
 ## Any model — including free and local ones
 
@@ -447,9 +457,12 @@ capability, which is exactly where the model-tier quality gap lives.
 | Roo Code | `roo` | `.roo/rules/fable-skill.md` |
 | OpenAI Codex ≥ 0.50 | `codex --global` / `codex` | `~/.agents/skills/fable-skill/` or `.agents/skills/fable-skill/` (native skill, loads on demand) |
 | OpenAI Codex (older) | `codex-agents --global` / `codex-agents` | `~/.codex/AGENTS.md` or `./AGENTS.md` (managed block) |
-| Gemini CLI / Antigravity | `gemini --global` / `gemini` | `~/.gemini/GEMINI.md` or `./GEMINI.md` (managed block) |
+| Gemini CLI | `gemini --global` / `gemini` | `~/.gemini/skills/fable-skill/` or `.gemini/skills/fable-skill/` |
+| Gemini CLI legacy context | `gemini-context --global` / `gemini-context` | `~/.gemini/GEMINI.md` or `./GEMINI.md` (managed block) |
+| Google Antigravity 2.0 / IDE | `antigravity --global` / `antigravity` | `~/.gemini/config/skills/fable-skill/` or `.agents/skills/fable-skill/` |
+| Google Antigravity CLI | `antigravity-cli --global` / `antigravity-cli` | `~/.gemini/antigravity-cli/skills/fable-skill/` or `.agents/skills/fable-skill/` |
 | Amp | `amp` | `./AGENTS.md` (managed block) |
-| OpenClaw / ClawBot | `openclaw --global` / `openclaw` | `~/.openclaw/skills/fable-skill/` or `./skills/fable-skill/` |
+| OpenClaw / ClawBot | `openclaw --global` / `openclaw` | `$OPENCLAW_STATE_DIR/skills/fable-skill/` (default `~/.openclaw/skills/fable-skill/`) or a configured workspace's `skills/fable-skill/` |
 | Hermes Agent | `hermes --global` / `hermes` | `$HERMES_HOME/skills/fable-skill/` (Windows: `%LOCALAPPDATA%/hermes/skills/fable-skill/`) |
 | Aider | `aider` | `./CONVENTIONS.md` (managed block; load with `--read CONVENTIONS.md`) |
 | Continue.dev | `continue --global` / `continue` | `~/.continue/rules/` or `.continue/rules/` |
@@ -469,7 +482,7 @@ capability, which is exactly where the model-tier quality gap lives.
 | AGENTS.md standard | `agents` | `./AGENTS.md` (managed block; Codex, Amp, Jules, Zed, Factory Droid, Kimi CLI, Grok CLI, ...) |
 | **Any model** (Ollama, LM Studio, OpenWebUI, Grok, ChatGPT, ...) | `prompt` | `./FABLE-SKILL-PROMPT.md` — paste as system prompt / custom instructions |
 
-**claude.ai:** zip the [`skill/`](skill/) folder (it must contain `SKILL.md` at its root) and
+**claude.ai:** zip the [`fable-skill/`](fable-skill/) folder (it must contain `SKILL.md` at its root) and
 upload it under **Settings → Capabilities → Skills**.
 
 **Using it in Codex:** after `npx github:almutaz9000/fable-skill codex --global`, invoke it
@@ -477,8 +490,8 @@ explicitly with `$fable-skill` (or browse `/skills`), or just start a complex ta
 auto-selects skills whose description matches the prompt. Codex skills use progressive
 disclosure, so the skill costs almost nothing until it triggers.
 
-**Any agent not listed:** copy [`skill/`](skill/) into wherever your agent reads instructions,
-or paste the merged output of `SKILL.md` + `references/*.md` into its system prompt / rules file.
+**Any agent not listed:** copy [`fable-skill/`](fable-skill/) into a directory named `fable-skill`
+under the host's Agent Skills root, or use the merged system-prompt output.
 
 ## What it does (and honestly, what it doesn't)
 
@@ -513,7 +526,7 @@ Setting expectations honestly, because a skill that overpromises gets uninstalle
   unverified". The model says "unverified because X" instead of bluffing — that's the
   floor, and it's deliberate.
 - **It can't force obedience on very small models.** Sub-~7B models follow long rule sets
-  unreliably. The compact edition (~2k tokens) helps, and the built-in fallbacks keep the
+  unreliably. The compact edition (about 1.2k estimated tokens) helps, and the built-in fallbacks keep the
   rules followable on bare harnesses, but the skill's floor is the model's
   instruction-following ability, not zero.
 
@@ -532,20 +545,17 @@ Across models, this skill is designed to help most of the common coding and agen
 
 ```
 fable-skill/
-├── skill/                 # the skill itself (canonical source, plain markdown)
+├── fable-skill/           # canonical Agent Skills bundle; folder name matches frontmatter
 │   ├── SKILL.md           # the Fable Loop + two-axis calibration gate
-│   ├── COMPACT.md         # ~2k-token compact edition for single-file rules targets
+│   ├── COMPACT.md         # ~1.2k-token estimated edition for single-file targets
 │   └── references/
 │       ├── workflows.md
 │       ├── reasoning.md      # hypothesis trees, argument mapping, confidence calibration
-│       ├── planning.md       # plan templates for all 7 domains
+│       ├── planning.md       # plan templates for all 8 workflows
 │       ├── execution.md      # parallel tool use, subagent delegation
-│       ├── verification.md   # evidence standard + verification ladders for all domains
+│       ├── verification.md   # evidence standards + workflow-specific ladders
 │       ├── context.md        # STATE.md pattern for long tasks
-│       ├── communication.md  # outcome-first reporting, output format by domain
-│       ├── research.md       # source evaluation, provenance rule, synthesis protocol
-│       ├── analysis.md       # analytical loop, confidence labels, counter-analysis
-│       ├── writing.md        # report + science paper protocols, consistency pass
+│       ├── communication.md  # outcome-first reporting by workflow
 │       └── orchestration.md  # multi-agent spawning, acceptance criteria, adaptive reconfiguration
 
 ├── bin/cli.js             # zero-dependency npx installer

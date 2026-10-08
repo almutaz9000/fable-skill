@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: test (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [16, 18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: node --check bin/cli.js
+      - run: node --check test/run.js
+      - run: npm test
+      - run: npm run eval
+
+  package:
+    name: package contents and packed smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm pack --dry-run --json
+      - name: pack and install from tarball
+        run: |
+          npm pack
+          mkdir -p /tmp/fable-skill-smoke
+          tar -xzf fable-skill-*.tgz -C /tmp/fable-skill-smoke
+          node /tmp/fable-skill-smoke/package/bin/cli.js list
+
+  validate-skill:
+    name: official Agent Skills validator
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uvx --from skills-ref agentskills validate fable-skill
+
+  host-smoke:
+    name: vendor CLI smoke (non-blocking, informational)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/host-smoke.js

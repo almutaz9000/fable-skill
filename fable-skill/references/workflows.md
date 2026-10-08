@@ -61,11 +61,32 @@ first-bad → fix the cause → re-run the original reproduction unmodified.
    numbers sanity-checked for magnitude; volatile facts date-checked. Then one deliberate
    **disconfirmation pass**: search for evidence *against* your emerging conclusion. Finding
    none is evidence; not looking is negligence.
-6. **REVIEW/REPORT** — findings first, each labeled by confidence (established / probable /
+6. **REPORT** — findings first, each labeled by confidence (established / probable /
    single-source / contested). Where sources disagree, surface the disagreement — never
    average it away. Report what changes the reader's decision, not everything you found.
 - Banned: citing from memory; treating one source as ground truth; burying a contested claim
   as if settled.
+
+### Research source evaluation rubric
+
+Score each source before relying on it:
+
+| Dimension | Strong | Weak |
+|---|---|---|
+| Credibility | Peer-reviewed, official spec, primary data | Blog, social media, anonymous |
+| Recency | Appropriate for field pace (weeks for fast-moving, years for stable) | Outdated for the claim |
+| Relevance | Directly addresses the specific claim | Tangentially related |
+| Consensus | Corroborated by independent sources | Single outlier, pre-print only |
+
+One "Weak" rating still usable if labeled. Two or more "Weak" ratings: use only to generate
+hypotheses, never cite as authoritative.
+
+### Conflicting sources
+
+When credible sources disagree: quote both sides verbatim rather than paraphrasing, and name
+the conflict type — methodological, definitional, temporal, or interpretive — because the
+category predicts how to resolve it. Report an unresolvable conflict as open; never average
+two disagreeing numbers into a synthetic middle value.
 
 ## Write (reports, documentation, proposals)
 
@@ -91,6 +112,33 @@ first-bad → fix the cause → re-run the original reproduction unmodified.
 6. Deliver with open questions and unverified figures labeled, not silently smoothed over.
 - Banned: drafting before inputs are gathered; burying the conclusion; sentence-polishing a
   broken structure; a number in the document with no checked source.
+
+### Tone calibration by audience
+
+Pick one at the start and hold it throughout the document — switching mid-document signals a
+confused audience model. If multiple audiences are required, write separate summaries rather
+than compromising both.
+
+| Audience | Tone | Vocabulary | Structure preference |
+|---|---|---|---|
+| Academic / peer review | Formal, precise, hedged where uncertain | Field-standard jargon acceptable | IMRaD or field convention |
+| Technical practitioner | Direct, actionable, some jargon | Technical but plain English | Problem → solution → evidence |
+| Executive / non-technical | Plain English, outcome-first | No jargon; spell out acronyms | Summary first, details optional |
+
+### Write with the science modifier (papers, reproducible reports)
+
+Required sections, non-negotiable:
+
+| Section | Standard |
+|---|---|
+| Contribution statement | One paragraph: what this work adds that did not exist before. |
+| Related work | Position relative to prior work: what it builds on, what it departs from. |
+| Methodology | Reproducibility standard — enough detail for an independent researcher to replicate. |
+| Results | Report with uncertainty ranges; keep results distinct from interpretation. |
+| Limitations | Mandatory, ≥3 named. "Future work" is not a substitute for a limitation. |
+| Conclusion | Synthesis only — no claim beyond what Results supports. |
+
+Every number traces to a specific experiment, dataset, or source cited in the paper.
 
 ## Review & edit (documents, reports, code review)
 
@@ -144,7 +192,11 @@ The deliverable is something **someone will execute or commit to**.
    known reference point; one record traced end-to-end by hand; key results re-checked under
    a reasonable alternative choice (different window, different aggregation) — a conclusion
    that flips is a fragile conclusion. **A surprising result is a pipeline bug until you've
-   hunted for the bug and failed to find it.**
+   hunted for the bug and failed to find it.** Data integrity checklist before trusting any
+   conclusion: row counts in vs. out explained for every transform/join; null-rate deltas
+   checked before and after; outliers inspected and named with a reason, never silently
+   dropped ("excluded values >3σ, confirmed data-entry errors in field X", not "I excluded
+   outliers"); before/after comparisons use the same measurement definition on both sides.
 5. **REPORT** — finding first with effect size, not a tour of the method; observation
    separated from interpretation ("churn rose 12%" vs. "likely driven by the price change");
    exclusions and their impact stated. Charts come after the numbers are verified, never before.

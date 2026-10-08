@@ -15,9 +15,12 @@
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
+const crypto = require("crypto");
 
 const ROOT = path.join(__dirname, "..");
-const SKILL_DIR = path.join(ROOT, "skill");
+const SKILL_DIR = path.join(ROOT, "fable-skill");
+const PACKAGE_VERSION = require(path.join(ROOT, "package.json")).version;
+const INSTALL_MANIFEST = ".fable-skill-manifest.json";
 
 function resolveHome() {
   return os.homedir();
@@ -31,6 +34,10 @@ function resolveHermesHome() {
     return path.join(os.homedir(), "AppData", "Local", "hermes");
   }
   return path.join(os.homedir(), ".hermes");
+}
+
+function resolveOpenClawStateDir() {
+  return process.env.OPENCLAW_STATE_DIR || path.join(resolveHome(), ".openclaw");
 }
 
 // ---------------------------------------------------------------------------
@@ -52,7 +59,7 @@ function memo(fn) {
 function requireSkillFile(name) {
   const file = path.join(SKILL_DIR, name);
   if (!fs.existsSync(file)) {
-    throw new Error(`fable-skill installation is incomplete: missing skill/${name}`);
+    throw new Error(`fable-skill installation is incomplete: missing fable-skill/${name}`);
   }
   return file;
 }
@@ -60,7 +67,7 @@ function requireSkillFile(name) {
 function requireReferencesDir() {
   const dir = path.join(SKILL_DIR, "references");
   if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) {
-    throw new Error("fable-skill installation is incomplete: missing skill/references directory");
+    throw new Error("fable-skill installation is incomplete: missing fable-skill/references directory");
   }
   return dir;
 }
@@ -83,7 +90,7 @@ const referenceFiles = memo(() => {
 const FOOTER =
   "\n\n---\n\n*Installed by [fable-skill](https://github.com/almutaz9000/fable-skill). Re-run `npx fable-skill` to update.*\n";
 
-/** Full merge: SKILL.md + every reference module (roughly 7k tokens). */
+/** Full merge: SKILL.md + every reference module (roughly 18k estimated tokens). */
 const mergedMarkdown = memo(() => {
   const parts = [stripFrontmatter(readSkillMd()).trim()];
   for (const ref of referenceFiles()) {
@@ -105,21 +112,179 @@ const compactMarkdown = memo(() => {
   return fs.readFileSync(requireSkillFile("COMPACT.md"), "utf8").trim() + FOOTER;
 });
 
-/** Copy the skill folder verbatim (SKILL.md + references/) into destDir. */
+/** Write a file through a sibling temporary path, then atomically replace it. */
+function atomicWriteFileSync(destFile, content) {
+  fs.mkdirSync(path.dirname(destFile), { recursive: true });
+  const temp = path.join(
+    path.dirname(destFile),
+    `.${path.basename(destFile)}.tmp-${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}`
+  );
+  try {
+    fs.writeFileSync(temp, content);
+    if (fs.existsSync(destFile)) {
+      fs.chmodSync(temp, fs.statSync(destFile).mode);
+    }
+    fs.renameSync(temp, destFile);
+  } finally {
+    fs.rmSync(temp, { force: true });
+  }
+}
+
+function sha256File(file) {
+  return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+}
+
+function manifestPathKey(relativePath) {
+  return relativePath.split(path.sep).join("/");
+}
+
+function validateManifestPath(relativePath) {
+  if (
+    typeof relativePath !== "string" ||
+    !relativePath ||
+    path.isAbsolute(relativePath) ||
+    relativePath.split(/[\\/]/).includes("..")
+  ) {
+    throw new Error(`invalid path in ${INSTALL_MANIFEST}: ${relativePath}`);
+  }
+}
+
+function readInstallManifest(destDir) {
+  const file = path.join(destDir, INSTALL_MANIFEST);
+  if (!fs.existsSync(file)) return null;
+  let manifest;
+  try {
+    manifest = JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch (error) {
+    throw new Error(`cannot update ${destDir}: invalid ${INSTALL_MANIFEST}: ${error.message}`);
+  }
+  if (!manifest || manifest.format !== 1 || !manifest.files || typeof manifest.files !== "object") {
+    throw new Error(`cannot update ${destDir}: unsupported ${INSTALL_MANIFEST}`);
+  }
+  for (const [relativePath, hash] of Object.entries(manifest.files)) {
+    validateManifestPath(relativePath);
+    if (!/^[a-f0-9]{64}$/.test(hash)) {
+      throw new Error(`cannot update ${destDir}: invalid hash for ${relativePath}`);
+    }
+  }
+  return manifest;
+}
+
+function walkInstalledFiles(root, visit, relativeDir = "") {
+  const dir = path.join(root, relativeDir);
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const relativePath = path.join(relativeDir, entry.name);
+    const source = path.join(root, relativePath);
+    const stat = fs.lstatSync(source);
+    if (stat.isSymbolicLink()) {
+      throw new Error(`cannot safely update ${root}: symbolic link found at ${relativePath}`);
+    }
+    if (stat.isDirectory()) walkInstalledFiles(root, visit, relativePath);
+    else if (stat.isFile()) visit(relativePath, source);
+    else throw new Error(`cannot safely update ${root}: unsupported entry at ${relativePath}`);
+  }
+}
+
+function writeStagedSkill(staged) {
+  const managed = {};
+  fs.mkdirSync(path.join(staged, "references"), { recursive: true });
+  fs.copyFileSync(requireSkillFile("SKILL.md"), path.join(staged, "SKILL.md"));
+  managed["SKILL.md"] = sha256File(path.join(staged, "SKILL.md"));
+  for (const ref of referenceFiles()) {
+    const relativePath = path.join("references", ref.name);
+    const dest = path.join(staged, relativePath);
+    fs.writeFileSync(dest, ref.content);
+    managed[manifestPathKey(relativePath)] = sha256File(dest);
+  }
+  fs.writeFileSync(
+    path.join(staged, INSTALL_MANIFEST),
+    JSON.stringify({ format: 1, package: "fable-skill", version: PACKAGE_VERSION, files: managed }, null, 2) + "\n"
+  );
+  return managed;
+}
+
+/** Replace managed files atomically while preserving user-added files. */
 function copySkillFolder(destDir) {
   requireReferencesDir();
-  fs.mkdirSync(path.join(destDir, "references"), { recursive: true });
-  fs.copyFileSync(requireSkillFile("SKILL.md"), path.join(destDir, "SKILL.md"));
-  for (const ref of referenceFiles()) {
-    fs.writeFileSync(path.join(destDir, "references", ref.name), ref.content);
+  const parent = path.dirname(destDir);
+  fs.mkdirSync(parent, { recursive: true });
+  const nonce = `${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const staged = path.join(parent, `.${path.basename(destDir)}.tmp-${nonce}`);
+  const backup = path.join(parent, `.${path.basename(destDir)}.bak-${nonce}`);
+  let keepLegacyBackup = false;
+
+  try {
+    const currentManaged = writeStagedSkill(staged);
+    const oldManifest = fs.existsSync(destDir) ? readInstallManifest(destDir) : null;
+
+    if (fs.existsSync(destDir)) {
+      if (oldManifest) {
+        for (const [relativePath, expectedHash] of Object.entries(oldManifest.files)) {
+          const existingFile = path.join(destDir, ...relativePath.split("/"));
+          if (!fs.existsSync(existingFile)) continue;
+          if (!fs.statSync(existingFile).isFile() || sha256File(existingFile) !== expectedHash) {
+            throw new Error(
+              `cannot update ${destDir}: locally modified managed file ${relativePath}; ` +
+              "move or revert it before reinstalling"
+            );
+          }
+        }
+      } else {
+        // Pre-manifest installs may contain edited managed files. Keep a complete
+        // sibling backup so the one-time migration is reversible.
+        keepLegacyBackup = true;
+      }
+
+      walkInstalledFiles(destDir, (relativePath, source) => {
+        const key = manifestPathKey(relativePath);
+        if (key === INSTALL_MANIFEST) return;
+        if (oldManifest && Object.prototype.hasOwnProperty.call(oldManifest.files, key)) return;
+        if (Object.prototype.hasOwnProperty.call(currentManaged, key)) {
+          if (!oldManifest) return;
+          throw new Error(
+            `cannot update ${destDir}: user file ${relativePath} conflicts with a newly managed file`
+          );
+        }
+        const target = path.join(staged, relativePath);
+        if (fs.existsSync(target) && fs.statSync(target).isDirectory()) {
+          throw new Error(`cannot preserve ${relativePath}: path conflicts with a managed directory`);
+        }
+        fs.mkdirSync(path.dirname(target), { recursive: true });
+        fs.copyFileSync(source, target);
+      });
+    }
+
+    if (!fs.existsSync(destDir)) {
+      fs.renameSync(staged, destDir);
+      return { legacyBackup: null };
+    }
+
+    fs.renameSync(destDir, backup);
+    try {
+      fs.renameSync(staged, destDir);
+    } catch (error) {
+      fs.renameSync(backup, destDir);
+      throw error;
+    }
+
+    if (keepLegacyBackup) {
+      return { legacyBackup: backup };
+    }
+    try {
+      fs.rmSync(backup, { recursive: true, force: true });
+    } catch (error) {
+      console.warn(`  ! installed successfully; old backup remains at ${backup}: ${error.message}`);
+    }
+    return { legacyBackup: null };
+  } finally {
+    fs.rmSync(staged, { recursive: true, force: true });
   }
 }
 
 function writeMerged(destFile, opts = {}) {
-  fs.mkdirSync(path.dirname(destFile), { recursive: true });
   let body = opts.full ? mergedMarkdown() : compactMarkdown();
   if (opts.header) body = opts.header + "\n" + body;
-  fs.writeFileSync(destFile, body);
+  atomicWriteFileSync(destFile, body);
 }
 
 function escapeRegExp(s) {
@@ -135,13 +300,43 @@ function upsertManagedBlock(destFile, title, opts = {}) {
   fs.mkdirSync(path.dirname(destFile), { recursive: true });
   let existing = "";
   if (fs.existsSync(destFile)) existing = fs.readFileSync(destFile, "utf8");
-  if (existing.includes(BEGIN)) {
+  const beginCount = existing.split(BEGIN).length - 1;
+  const endCount = existing.split(END).length - 1;
+  if (beginCount !== endCount || beginCount > 1) {
+    throw new Error(
+      `cannot safely update ${destFile}: expected zero or one balanced fable-skill marker pair`
+    );
+  }
+  if (beginCount === 1) {
     const re = new RegExp(`${escapeRegExp(BEGIN)}[\\s\\S]*?${escapeRegExp(END)}\\n?`);
+    if (!re.test(existing)) {
+      throw new Error(`cannot safely update ${destFile}: malformed fable-skill managed block`);
+    }
     existing = existing.replace(re, block);
   } else {
     existing = existing ? existing.replace(/\s*$/, "\n\n") + block : block;
   }
-  fs.writeFileSync(destFile, existing);
+  atomicWriteFileSync(destFile, existing);
+}
+
+function removeManagedBlock(destFile) {
+  if (!fs.existsSync(destFile)) return;
+  const BEGIN = "<!-- BEGIN fable-skill (managed - do not edit inside) -->";
+  const END = "<!-- END fable-skill -->";
+  const existing = fs.readFileSync(destFile, "utf8");
+  const beginCount = existing.split(BEGIN).length - 1;
+  const endCount = existing.split(END).length - 1;
+  if (beginCount === 0 && endCount === 0) return;
+  if (beginCount !== 1 || endCount !== 1) {
+    throw new Error(
+      `cannot safely migrate ${destFile}: expected one balanced fable-skill marker pair`
+    );
+  }
+  const re = new RegExp(`${escapeRegExp(BEGIN)}[\\s\\S]*?${escapeRegExp(END)}\\n?`);
+  if (!re.test(existing)) {
+    throw new Error(`cannot safely migrate ${destFile}: malformed fable-skill managed block`);
+  }
+  atomicWriteFileSync(destFile, existing.replace(re, "").replace(/\s*$/, "\n"));
 }
 
 // ---------------------------------------------------------------------------
@@ -201,10 +396,29 @@ const TARGETS = {
     project: (cwd) => path.join(cwd, "AGENTS.md"),
   },
   gemini: {
-    label: "Gemini CLI / Antigravity",
+    label: "Gemini CLI (native skill)",
+    kind: "folder",
+    global: () => path.join(resolveHome(), ".gemini", "skills", "fable-skill"),
+    project: (cwd) => path.join(cwd, ".gemini", "skills", "fable-skill"),
+  },
+  "gemini-context": {
+    label: "Gemini CLI legacy always-on context",
     kind: "managed",
+    includeInAll: false,
     global: () => path.join(resolveHome(), ".gemini", "GEMINI.md"),
     project: (cwd) => path.join(cwd, "GEMINI.md"),
+  },
+  antigravity: {
+    label: "Google Antigravity 2.0 / IDE (native skill)",
+    kind: "folder",
+    global: () => path.join(resolveHome(), ".gemini", "config", "skills", "fable-skill"),
+    project: (cwd) => path.join(cwd, ".agents", "skills", "fable-skill"),
+  },
+  "antigravity-cli": {
+    label: "Google Antigravity CLI (native skill)",
+    kind: "folder",
+    global: () => path.join(resolveHome(), ".gemini", "antigravity-cli", "skills", "fable-skill"),
+    project: (cwd) => path.join(cwd, ".agents", "skills", "fable-skill"),
   },
   amp: {
     label: "Amp (Sourcegraph)",
@@ -214,7 +428,7 @@ const TARGETS = {
   openclaw: {
     label: "OpenClaw / ClawBot",
     kind: "folder",
-    global: () => path.join(resolveHome(), ".openclaw", "skills", "fable-skill"),
+    global: () => path.join(resolveOpenClawStateDir(), "skills", "fable-skill"),
     project: (cwd) => path.join(cwd, "skills", "fable-skill"),
   },
   hermes: {
@@ -322,12 +536,28 @@ function installTarget(name, scope, cwd, opts = {}) {
     throw new Error(`${name} does not support --${scope}. Use ${has}.`);
   }
   const dest = resolver(cwd);
+  let folderResult = null;
 
-  if (t.kind === "folder") copySkillFolder(dest);
+  if (t.kind === "folder") folderResult = copySkillFolder(dest);
   else if (t.kind === "file") writeMerged(dest, { header: t.header, full: opts.full });
   else upsertManagedBlock(dest, "fable-skill — agentic operating discipline", opts);
 
+  // v2.1 installed Gemini as an always-on GEMINI.md block. The native skill
+  // is installed first, so failed staging cannot erase the working legacy copy.
+  if (name === "gemini") {
+    const legacy = TARGETS["gemini-context"];
+    const legacyResolver = scope === "global" ? legacy.global : legacy.project;
+    try {
+      removeManagedBlock(legacyResolver(cwd));
+    } catch (error) {
+      console.warn(`  ! native Gemini skill installed, but legacy context cleanup failed: ${error.message}`);
+    }
+  }
+
   console.log(`  ✔ ${t.label.padEnd(28)} → ${dest}`);
+  if (folderResult && folderResult.legacyBackup) {
+    console.warn(`  ! pre-manifest install backed up at ${folderResult.legacyBackup}`);
+  }
 }
 
 function printUsage() {
@@ -352,7 +582,7 @@ Scope:
 
 Depth (single-file targets only; skill-folder targets always get the full skill):
   (default)   compact edition, roughly 2k tokens — safe for always-on rules files
-  --full      full skill with all reference modules, roughly 7k tokens per request
+  --full      full skill with all reference modules, roughly 18k tokens per request
 
 Examples:
   npx fable-skill claude --global     # Claude Code, all projects
@@ -364,80 +594,108 @@ Examples:
 }
 
 function parseArgs(argv) {
-  const args = [...argv];
-  const names = [];
+  const positionals = [];
   let scope = "project";
+  let scopeFlag = null;
   let full = false;
-  let scopeCount = 0;
+  let stdout = false;
+  let help = false;
 
-  for (const arg of args) {
-    if (arg === "--project") {
-      scope = "project";
-      scopeCount += 1;
-      continue;
-    }
-    if (arg === "--global") {
-      scope = "global";
-      scopeCount += 1;
+  for (const arg of argv) {
+    if (arg === "--project" || arg === "--global") {
+      if (scopeFlag) {
+        throw new Error("Choose exactly one of --project or --global.");
+      }
+      scopeFlag = arg;
+      scope = arg.slice(2);
       continue;
     }
     if (arg === "--full") {
-          full = true;
-          continue;
-        }
-        if (arg === "--stdout") {
-          // handled in main, just pass through
-          names.push(arg);
-          continue;
-        }
-        if (arg === "--help") {
-      names.push("help");
+      full = true;
+      continue;
+    }
+    if (arg === "--stdout") {
+      stdout = true;
+      continue;
+    }
+    if (arg === "--help") {
+      help = true;
       continue;
     }
     if (arg.startsWith("--")) {
       throw new Error(`Unknown option: ${arg}`);
     }
-    names.push(arg);
+    positionals.push(arg);
   }
 
-  if (scopeCount > 1) {
-    throw new Error("Choose exactly one of --project or --global.");
+  if (help) {
+    if (scopeFlag || full || stdout || positionals.length > 0) {
+      throw new Error("--help does not accept commands or other options.");
+    }
+    return { command: "help", scope, opts: { full: false, stdout: false } };
+  }
+  if (positionals.length > 1) {
+    throw new Error(`Expected one command, received: ${positionals.join(", ")}`);
   }
 
-  return { names, scope, opts: { full } };
+  const command = positionals[0] || null;
+  if (!command) {
+    if (scopeFlag || full || stdout) throw new Error("Options require a command.");
+    return { command: null, scope, opts: { full, stdout } };
+  }
+
+  if (command === "help") {
+    if (scopeFlag || full || stdout) throw new Error("help does not accept options.");
+  } else if (command === "list") {
+    if (scopeFlag || full || stdout) throw new Error("list does not accept scope, --full, or --stdout.");
+  } else if (command === "prompt") {
+    if (scopeFlag) throw new Error("prompt does not accept --project or --global.");
+  } else if (command === "all") {
+    if (stdout) throw new Error("--stdout is only valid with prompt.");
+  } else {
+    const target = TARGETS[command];
+    if (!target) throw new Error(`Unknown agent "${command}". Run: npx fable-skill list`);
+    if (stdout) throw new Error("--stdout is only valid with prompt.");
+    if (full && target.kind === "folder") {
+      throw new Error(`${command} is a native skill-folder target and does not accept --full.`);
+    }
+    const resolver = scope === "global" ? target.global : target.project;
+    if (!resolver) {
+      const supported = target.global ? "--global" : "--project";
+      throw new Error(`${command} does not support --${scope}. Use ${supported}.`);
+    }
+  }
+
+  return { command, scope, opts: { full, stdout } };
 }
 
 function main() {
   let parsed;
-  let argv = process.argv.slice(2);
   try {
-    parsed = parseArgs(argv);
+    parsed = parseArgs(process.argv.slice(2));
   } catch (e) {
     console.error(e.message);
     process.exitCode = 1;
     return;
   }
 
-  const { names, scope, opts } = parsed;
+  const { command, scope, opts } = parsed;
   const cwd = process.cwd();
 
-  if (names.length === 0 || names[0] === "help") {
+  if (!command || command === "help") {
     printUsage();
     return;
   }
 
-  // Universal escape hatch: emit the skill as a plain system prompt for ANY
-    // model without a supported harness — Gemma, Qwen, Kimi, GLM/Z.ai, Llama,
-    // DeepSeek via Ollama/LM Studio/OpenWebUI/Jan, or Grok/ChatGPT/Gemini
-    // custom instructions. --stdout prints for piping (e.g. into a Modelfile).
-    if (names[0] === "prompt") {
-      const body = opts.full ? mergedMarkdown() : compactMarkdown();
-      if (argv.includes("--stdout")) {
-        process.stdout.write(body + "\n");
-        return;
-      }
+  // Universal escape hatch for models without a supported native harness.
+  if (command === "prompt") {
+    const body = opts.full ? mergedMarkdown() : compactMarkdown();
+    if (opts.stdout) {
+      process.stdout.write(body + "\n");
+      return;
+    }
     const dest = path.join(cwd, "FABLE-SKILL-PROMPT.md");
-    fs.writeFileSync(dest, body + "\n");
+    atomicWriteFileSync(dest, body + "\n");
     console.log(`
   ✔ system prompt written → ${dest}
 
@@ -450,19 +708,22 @@ function main() {
     return;
   }
 
-  if (names[0] === "list") {
+  if (command === "list") {
     console.log("\nSupported agents:\n");
     for (const [key, t] of Object.entries(TARGETS)) {
       const scopes = [t.project && "project", t.global && "global"].filter(Boolean).join(", ");
-      console.log(`  ${key.padEnd(10)} ${t.label.padEnd(55)} [${scopes}]`);
+      console.log(`  ${key.padEnd(18)} ${t.label.padEnd(55)} [${scopes}]`);
     }
     console.log("");
     return;
   }
 
-  const list = names[0] === "all"
-    ? Object.keys(TARGETS).filter((k) => (scope === "global" ? TARGETS[k].global : TARGETS[k].project))
-    : names;
+  const list = command === "all"
+    ? Object.keys(TARGETS).filter((key) =>
+        TARGETS[key].includeInAll !== false &&
+        (scope === "global" ? TARGETS[key].global : TARGETS[key].project)
+      )
+    : [command];
 
   console.log(`\nInstalling fable-skill (${scope} scope${opts.full ? ", full depth" : ""}):\n`);
   let failed = 0;
@@ -489,4 +750,5 @@ module.exports = {
   requireSkillFile,
   requireReferencesDir,
   resolveHermesHome,
+  resolveOpenClawStateDir,
 };

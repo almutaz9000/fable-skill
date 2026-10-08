@@ -1,0 +1,18 @@
+[
+  { "prompt": "Add pagination to the users list endpoint and make sure it still returns the right results.", "workflow": "build" },
+  { "prompt": "Implement a retry wrapper around the payment client.", "workflow": "build" },
+  { "prompt": "Users report the login endpoint started returning 500 after yesterday's deploy. Find the root cause.", "workflow": "debug" },
+  { "prompt": "The nightly export job failed last night and nobody knows why.", "workflow": "debug" },
+  { "prompt": "Survey the current state of retrieval-augmented generation and compare approaches with citations.", "workflow": "research" },
+  { "prompt": "Find out what the official documentation says about this API's rate limits.", "workflow": "research" },
+  { "prompt": "Write an executive briefing on whether we should migrate our auth service to OAuth 2.1.", "workflow": "write" },
+  { "prompt": "Draft the methodology and results sections for our evaluation paper.", "workflow": "write" },
+  { "prompt": "Review this pull request and tell me if the error handling is correct.", "workflow": "review" },
+  { "prompt": "Give me a verdict on whether this design doc is ready to ship.", "workflow": "review" },
+  { "prompt": "Should we use Postgres or DynamoDB for this new service? Give me a recommendation.", "workflow": "plan" },
+  { "prompt": "Put together a project plan for migrating config loading to environment variables.", "workflow": "plan" },
+  { "prompt": "Our checkout funnel conversion dropped 12% last week. Find out why from the data.", "workflow": "analyze" },
+  { "prompt": "Profile this dataset and tell me what's driving the churn increase.", "workflow": "analyze" },
+  { "prompt": "Deploy the new release to production and roll back if health checks fail.", "workflow": "operate" },
+  { "prompt": "Run the bulk data migration against the live database tonight.", "workflow": "operate" }
+]

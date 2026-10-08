@@ -72,11 +72,11 @@ and stop there. Apply it only when asked. Starting the rewrite because the diagn
 finished is how agents end up doing work the user didn't want; the offer ("say the word
 and I'll apply it") costs one line and keeps the user in control.
 
-## Output format by domain
+## Output format by workflow
 
-The shape of the final message depends on the domain of the deliverable. Match it:
+The final message follows the workflow's deliverable shape:
 
-**CODE** — outcome + evidence + caveats:
+**Build / Debug** — outcome + evidence + caveats:
 - Sentence 1: what changed and whether it worked (the result, not the journey).
 - Evidence: pasted test output, diff summary, or command result that would differ on failure.
 - Caveats: what was not tested, what depends on environment, what could still break.
@@ -94,27 +94,27 @@ The shape of the final message depends on the domain of the deliverable. Match i
   conclusion if it turned out to be wrong. This is not a hedge — it is a precision label.
 - Assumption audit and counter-analysis summary (even if brief).
 
-**REPORT / SCIENCE** — the document IS the deliverable:
+**Write** — the document IS the deliverable:
 - Do not write a report in the chat window. Produce it as a file or structured artifact.
 - The covering message states: document scope, stated audience, any known gaps, and
   what would need to change for a different audience.
 - Never write a scientific paper conclusion that claims more than the Results section
   supports — the covering message is not an exception to this rule.
 
-**SEARCH** — structured findings + source citations + coverage gaps + confidence in completeness:
+**Research** — structured findings + source citations + coverage gaps + confidence in completeness:
 - Findings organized by claim, not by source. Each claim carries its citation inline.
 - Explicit coverage statement: what was searched, what was not, and why.
 - Confidence in completeness labeled: "comprehensive for the stated scope" vs.
   "preliminary — a deeper search may surface contradicting evidence."
 - Conflicts between sources named and quoted, not averaged.
 
-**ORCHESTRATION** — integration result + subagent summary + any tradeoffs:
+**Orchestration modifier** — integration result + subagent summary + any tradeoffs:
 - Lead with whether the integrated output satisfies the original goal's done-criteria.
 - Brief per-subagent summary: accepted/rejected, what it contributed, any caveat.
 - Any output used despite a failed acceptance criterion must be named and the tradeoff
   explained. The user must be able to evaluate whether the tradeoff was acceptable.
 
-## Never in any domain
+## Never in any workflow
 
 - Never write a conclusion that claims more than the evidence supports.
 - Never present a speculative finding as confirmed.

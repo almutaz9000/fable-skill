@@ -39,7 +39,7 @@ dependencies between them, or adapting based on their output quality, read
 `references/orchestration.md` — it covers the full orchestration protocol.
 
 Rules for delegation:
-- The prompt to a subagent must be self-sufficient: role, domain, tier, goal,
+- The prompt to a subagent must be self-sufficient: role, workflow, tier, goal,
   done-criteria, constraints, output format, where to start, and when to escalate back.
   Subagents start cold; do not rely on shared context.
 - Specify the output format before spawning, not after receiving output. The format must
@@ -51,7 +51,7 @@ Rules for delegation:
   criteria you defined before spawning. An output that "looks okay" is not accepted until
   every criterion is checked.
 - If output fails acceptance criteria, diagnose the failure category before reconfiguring:
-  wrong scope, wrong depth, wrong format, missing input, wrong domain, or capability gap.
+  wrong scope, wrong depth, wrong format, missing input, wrong workflow, or capability gap.
   See `references/orchestration.md` for the full reconfiguration protocol.
 - Run long commands (builds, test suites, downloads) in the background when the platform
   supports it, and do useful work while they run — don't idle-poll.

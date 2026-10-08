@@ -48,11 +48,11 @@ Rules:
 - Annotate completed steps with the one-line result — the plan doubles as your state file.
 - Explore steps come first and are real steps, not throat-clearing.
 
-## Domain-specific plan templates
+## Workflow-specific plan templates
 
-Use the template that matches the domain axis. The CODE template above is the default.
+Use the template that matches the selected workflow. The Build template above is the default.
 
-### RESEARCH plan
+### Research plan
 
 ```markdown
 ## Goal
@@ -75,7 +75,7 @@ Use the template that matches the domain axis. The CODE template above is the de
 ## Discovered along the way / gaps
 ```
 
-### ANALYSIS plan
+### Analyze plan
 
 ```markdown
 ## Goal
@@ -98,7 +98,7 @@ Use the template that matches the domain axis. The CODE template above is the de
 ## Assumptions
 ```
 
-### REPORT plan
+### Write plan
 
 ```markdown
 ## Goal
@@ -113,7 +113,7 @@ Use the template that matches the domain axis. The CODE template above is the de
 
 ## Steps
 - [ ] 1. Declare audience and format; write the key question
-- [ ] 2. Gather evidence (run SEARCH or ANALYSIS subplan as needed)
+- [ ] 2. Gather evidence (run a Research or Analyze subplan as needed)
 - [ ] 3. Draft body sections (supporting structure + evidence)
 - [ ] 4. Write executive summary last (answer upfront)
 - [ ] 5. Consistency pass: cross-check all numbers and references
@@ -123,7 +123,7 @@ Use the template that matches the domain axis. The CODE template above is the de
 ## Gaps / caveats to address
 ```
 
-### SCIENCE plan
+### Write plan with the science modifier
 
 ```markdown
 ## Goal
@@ -147,7 +147,7 @@ Use the template that matches the domain axis. The CODE template above is the de
 ## Related work / gaps
 ```
 
-### ORCHESTRATION plan
+### Plan with the orchestration modifier
 
 ```markdown
 ## Goal
@@ -165,7 +165,7 @@ Use the template that matches the domain axis. The CODE template above is the de
 <concrete procedure for combining subagent outputs — defined BEFORE spawning>
 
 ## Subagents
-| ID | Domain | Tier | Goal | Output format | Acceptance criteria | Status |
+| ID | Workflow | Tier | Goal | Output format | Acceptance criteria | Status |
 |---|---|---|---|---|---|---|
 | agent-1 | | | | | | PENDING |
 

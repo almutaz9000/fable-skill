@@ -61,9 +61,9 @@ a temporary workaround with the real cause documented next to it.
 ## Verifying non-code work
 
 Full per-shape playbooks live in `references/workflows.md`; non-code tasks are not exempt from the evidence standard — they have their own ladders.
-Apply the ladder that matches the domain of the deliverable.
+Apply the ladder that matches the workflow of the deliverable.
 
-### Research / SEARCH verification ladder
+### Research verification ladder
 
 1. **Provenance**: every load-bearing fact has a source opened this session — not recalled
    from training, not a secondary source unless labeled as such.
@@ -76,7 +76,7 @@ Apply the ladder that matches the domain of the deliverable.
 5. **Coverage labeled**: what was searched, what was not searched, and the confidence in
    completeness are stated in the final answer.
 
-### Writing / REPORT / SCIENCE verification ladder
+### Write verification ladder
 
 1. **Structure matches audience**: the document format and ordering fit the stated
    audience — summary-first for executives, IMRaD for academic, problem-first for practitioners.

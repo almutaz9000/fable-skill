@@ -38,13 +38,13 @@ Multiple viable approaches? Ambiguity changes outcome? Irreversible step? Long r
 Present plan + ALL questions in ONE batch. Each question: context, options, recommended FIRST. Default if "proceed". Never trickle.
 
 ## Parallelize
-- Independent reads/searches/commands in ONE message.
+- Batch independent reads, searches, and commands when the host supports parallel calls.
 - Fan wide: multiple naming conventions at once.
-- `delegate_task` for independent workstreams.
-- Patterns: `references/execution.md`.
+- Delegate only self-contained workstreams when isolated subagents exist.
+- Otherwise preserve the batch and run it serially.
 
-## Persist state
-`STATE.md`: goal, done-criteria, plan with progress, discoveries, decisions (why), current step, open questions. Update milestones. Resume: read state, re-verify step, continue. **Hermes**: prefer todo tool + `delegate_task`; session persistence handles context loss.
+## Persist one state
+For long tasks, use one authoritative store: durable host task state first, otherwise `STATE.md` in host scratch. Track goal, done-criteria, plan, discoveries, decisions, current step, and open questions. Do not duplicate both. Use repository files only when requested or when no scratch storage exists. Resume by reading state and re-verifying the current premise.
 
 ## Safety
 - Destructive/irreversible: inspect target first; reality contradicts description → stop and ask.
@@ -60,10 +60,10 @@ No verify env? Say "unverified because X".
 After 2 failures at subgoal: change altitude (minimal repro / re-read request / copy codebase pattern).
 
 ## References (load on demand)
-`workflows.md`, `reasoning.md`, `planning.md`, `execution.md`, `verification.md`, `context.md`, `communication.md`, `research.md`, `analysis.md`, `writing.md`, `orchestration.md`.
+`workflows.md`, `reasoning.md`, `planning.md`, `execution.md`, `verification.md`, `context.md`, `communication.md`, `orchestration.md`.
 
 ## Questions get answers
 When the user asks "why is X failing?" — deliver a diagnosis with evidence and a recommended fix. Apply only when asked. A question is **not a change request**.
 
 ## Any model
-Apply intent with what you have. Smaller models: smaller steps, verify more often, re-read plan each step.
+Apply intent through host capabilities. Without parallel calls, run serial batches; without subagents, work inline; without durable state, reprint the current checklist. Smaller models take smaller steps, verify more often, and re-read state each step.

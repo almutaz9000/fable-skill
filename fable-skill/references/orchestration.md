@@ -1,7 +1,7 @@
 # Orchestration — parallel multi-agent delegation and adaptive improvement
 
 Complex tasks decompose into workstreams that can run concurrently, each with its own
-domain, depth, and tool requirements. Fable's orchestration discipline makes the
+workflow, depth, and tool requirements. Fable's orchestration discipline makes the
 orchestrating model a coordinator, not a bottleneck: it fans work out to specialized
 subagents, evaluates their outputs against explicit acceptance criteria, and improves
 each agent's configuration in response to what it learns — not just retrying, but
@@ -13,8 +13,8 @@ Spawn subagents when a subtask meets all three conditions:
 
 - **Self-contained**: it has a clear input and a clear expected output format.
 - **Independent**: it does not need your accumulated conversation context to start.
-- **Substantial or domain-specific**: it is either time-consuming enough to run in
-  parallel, or it requires a different domain or tool set than the current workstream.
+- **Substantial or specialized**: it is either time-consuming enough to run in
+  parallel, or it requires a different workflow or tool set than the current workstream.
 
 Do NOT delegate:
 - Judgment calls that require the user's intent or the full conversation context.
@@ -33,8 +33,9 @@ template; omit sections only if genuinely not applicable:
 ROLE:        <one sentence describing the subagent's persona and expertise>
              Example: "You are a specialist in distributed systems literature search."
 
-DOMAIN:      <CODE | PLAN | ANALYSIS | REPORT | SCIENCE | SEARCH>
+WORKFLOW:    <Build | Debug | Research | Write | Review | Plan | Analyze | Operate>
 TIER:        <LIGHT | STANDARD | FULL>
+MODIFIERS:   <science | orchestration | none>
 
 GOAL:        <one sentence — what must be produced>
 
@@ -69,9 +70,9 @@ later. All tasks receive their prompts in one batch.
 
 ```
 Orchestrator
-  ├── Subagent A: domain SEARCH — gather prior art on X
-  ├── Subagent B: domain CODE — implement module Y
-  └── Subagent C: domain ANALYSIS — benchmark alternative Z
+  ├── Subagent A: Research — gather prior art on X
+  ├── Subagent B: Build — implement module Y
+  └── Subagent C: Analyze — benchmark alternative Z
          ↓ (all run in parallel)
 Orchestrator: integrate A + B + C into final output
 ```
@@ -88,11 +89,11 @@ Rules:
 Use when: each stage's output is a required input to the next stage.
 
 ```
-Subagent A: SEARCH — returns structured findings
+Subagent A: Research — returns structured findings
      ↓ (orchestrator validates A's output before proceeding)
-Subagent B: ANALYSIS — receives A's findings as input
+Subagent B: Analyze — receives A's findings as input
      ↓ (orchestrator validates B's output)
-Subagent C: REPORT — synthesizes A + B into document
+Subagent C: Write — synthesizes A + B into document
 ```
 
 Rules:
@@ -156,13 +157,13 @@ When a subagent's output is rejected, diagnose the failure category before recon
 | **Wrong depth** | Output is too shallow (skips evidence) or too deep (buries the point) | Adjust TIER; add depth instruction ("cite primary sources") or scope constraint ("summarize in 300 words") |
 | **Wrong format** | Output structure doesn't match what integration requires | Rewrite OUTPUT FORMAT section with an explicit schema or example |
 | **Missing input** | Subagent made assumptions about data that was absent | Add the missing data to INPUT; or make the assumption explicit in CONSTRAINTS |
-| **Wrong domain** | Subagent applied coding reasoning to a research task, or vice versa | Change DOMAIN and ROLE; add domain-specific instructions from the relevant reference module |
+| **Wrong workflow** | Subagent applied Build reasoning to a Research task, or vice versa | Change WORKFLOW and ROLE; add workflow-specific instructions from the relevant reference module |
 | **Capability gap** | The subagent correctly executed the instructions but the instructions were impossible for any subagent to fulfill | Decompose further; the task is not atomic — split it before re-delegating |
 
 After diagnosing, update the configuration. Log the diagnosis:
 
 ```
-Attempt 1 — REJECTED: output was too shallow (SEARCH tier instead of FULL)
+Attempt 1 — REJECTED: output was too shallow (Research tier instead of FULL)
   Root cause: TIER was set to STANDARD but task required literature synthesis across
               12+ sources — that is a FULL-tier research task.
   Change: TIER → FULL; added "cite each claim with source and page number" to CONSTRAINTS;
@@ -185,12 +186,12 @@ a ORCHESTRATION_STATE section in STATE.md (or the platform's scratchpad):
 Pattern: fan-out / pipeline / tournament / adaptive-retry
 Integration protocol: <how outputs will be combined>
 
-| Agent ID | Domain | Tier | Status | Output location | Acceptance | Notes |
+| Agent ID | Workflow | Tier | Status | Output location | Acceptance | Notes |
 |---|---|---|---|---|---|---|
-| search-1 | SEARCH | FULL | ACCEPTED | §3 of scratch | All criteria pass | |
-| code-1   | CODE   | STANDARD | REJECTED (attempt 1) | — | Format wrong | Reconfiguring |
-| code-1   | CODE   | STANDARD | IN FLIGHT (attempt 2) | — | — | Added schema |
-| analysis-1 | ANALYSIS | FULL | PENDING | — | — | Waiting on search-1 |
+| search-1 | Research | FULL | ACCEPTED | §3 of scratch | All criteria pass | |
+| code-1   | Build | STANDARD | REJECTED (attempt 1) | — | Format wrong | Reconfiguring |
+| code-1   | Build | STANDARD | IN FLIGHT (attempt 2) | — | — | Added schema |
+| analysis-1 | Analyze | FULL | PENDING | — | — | Waiting on search-1 |
 
 Next action: <what the orchestrator does next>
 ```

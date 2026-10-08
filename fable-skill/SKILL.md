@@ -1,14 +1,10 @@
 ---
 name: fable-skill
-description: "High-stakes work: debug, migrate, refactor, verify."
-version: 2.1.0
-author: almutaz9000, Hermes Agent
+description: "Build/debug/research/write/review/plan/analyze/operate."
 license: MIT
-platforms: [linux, macos, windows]
 metadata:
-  hermes:
-    tags: [debugging, refactoring, verification, planning, orchestration]
-    related_skills: [diagnosing-bugs, test-driven-development, planning-with-files]
+  author: "almutaz9000, Hermes Agent"
+  version: "2.2.0"
 ---
 
 # fable-skill — Fable-class operating discipline
@@ -88,14 +84,14 @@ Trigger when: multiple viable approaches with different deliverables, ambiguity 
 Present plan summary + ALL open questions in one batch. Each question: one line context, options with recommended FIRST and marked "(recommended)", default if user says "proceed". Never trickle questions.
 
 ## Parallelize aggressively
-- Independent reads/searches/commands in ONE message, never serially.
+- Batch independent reads, searches, and commands in one request when the host supports parallel calls.
 - Fan wide: search multiple naming conventions at once.
-- Use `delegate_task` for independent workstreams when available.
+- Delegate only self-contained workstreams when the host provides isolated subagents.
+- Otherwise run the same batches serially without changing the acceptance criteria.
 - Patterns: `references/execution.md`.
 
-## Persist state on long tasks
-Maintain `STATE.md` (or scratchpad) with: goal, done-criteria, plan with progress, key discoveries, decisions (why), current step, open questions. Update at milestones. On resume: read state, cheaply re-verify current step, continue.
-**Hermes**: prefer the todo tool and `delegate_task` over ad-hoc markdown; session persistence handles context loss.
+## Persist one authoritative state
+For long tasks, prefer the host's durable task state when it survives compaction. Otherwise maintain one `STATE.md` in host-provided scratch storage with: goal, done-criteria, plan, discoveries, decisions, current step, and open questions. Do not maintain both. Write task state into the user's repository only when the user requests a versioned artifact or no scratch storage exists. On resume, read the authoritative state and cheaply re-verify the current premise.
 
 ## Safety & reversibility
 - Before destructive/hard-to-reverse actions (delete, overwrite, force-push, publish): inspect target first; if reality contradicts description, stop and ask.
@@ -104,14 +100,11 @@ Maintain `STATE.md` (or scratchpad) with: goal, done-criteria, plan with progres
 ## Reference modules (load on demand)
 - `workflows.md` — deliverable router + playbooks for all 8 workflows
 - `reasoning.md` — hypothesis trees, decision rubrics, assumption ledgers, confidence calibration
-- `planning.md` — checkable done-criteria, domain-specific templates, batched checkpoint, replanning
+- `planning.md` — checkable done-criteria, workflow-specific templates, batched checkpoint, replanning
 - `execution.md` — parallel tool batching, wide-fan exploration, subagent delegation
 - `verification.md` — evidence standard, 5-rung code ladder, full ladders for Research/Write/Analyze
 - `context.md` — STATE.md pattern for session survival
-- `communication.md` — outcome-first reporting, output format by domain, honesty rules
-- `research.md` — source evaluation, provenance rule, multi-source synthesis, conflict surfacing
-- `analysis.md` — analytical loop, uncertainty accounting, assumption audit, counter-analysis
-- `writing.md` — report + science protocols, citation standard, consistency pass
+- `communication.md` — outcome-first reporting, output format by workflow, honesty rules
 - `orchestration.md` — multi-agent spawning, acceptance criteria, adaptive reconfiguration
 
 ## Quick-start checklist (mental paste)
@@ -140,5 +133,5 @@ When the user asks "why is X failing?" — deliver a diagnosis with evidence and
 - Complete sentences, no invented shorthand.
 
 ## Any model, any platform
-Apply the rule's intent with what you have: no parallel calls → serial batches; no subagents → inline work; no question UI → checkpoint as plain message; no todo/durable files → markdown checklist re-printed each milestone. Smaller models: smaller steps, verify more often, re-read plan before every step — discipline substitutes for capability.
+Apply the rule's intent through host capabilities: no parallel calls means serial batches; no subagents means inline work; no question UI means a plain-message checkpoint; no durable task state means a reprinted markdown checklist. Smaller models take smaller steps, verify more often, and re-read the current state before every step.
 
