@@ -574,7 +574,8 @@ Before opening a PR: run `npm test` (installer behavior, update safety, package/
 checks) and `npm run eval` (the activation router's workflow vocabulary stays distinguishing).
 [CI](.github/workflows/ci.yml) runs both across Node 16–22 plus the official Agent Skills
 validator on every push and PR. See [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md)
-for the full bottleneck-and-fix history behind the current architecture.
+for the full bottleneck-and-fix history behind the current architecture, and
+[`CHANGELOG.md`](CHANGELOG.md) for release notes.
 
 ## License
 
