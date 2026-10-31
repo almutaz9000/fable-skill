@@ -11,6 +11,11 @@ reference, not from original release notes (none were kept before this file exis
 ### Added
 - CI regression guard that keeps the full merged skill prompt at or below 20k estimated
   tokens (using the repository's documented four-characters-per-token heuristic).
+- Package smoke that checks README-relative links against the packed tarball and performs
+  Claude and Hermes installer smoke tests; the tarball now includes the linked docs/changelog.
+- Optional Hermes host discovery smoke and opt-in live behavior/token-usage evaluation using
+  synthetic prompts, a temporary local skill copy, no tool access, and provider-reported usage.
+  Live calls require `--live` and are excluded from default CI.
 
 ## [2.2.0] - 2026-10-08
 

@@ -65,7 +65,7 @@ The skill now selects one authoritative state store based on host capabilities a
 
 The documented full export was originally roughly 7k tokens, but measured output was 86,524 characters, approximately 21.6k tokens using the repository's own four-characters-per-token estimate. The documentation was corrected to about 22k, then the three most duplicative reference modules (`research.md`, `analysis.md`, `writing.md`) were merged into `workflows.md` with their unique rules preserved and their restated ladders/done-criteria (already canonical in `verification.md` and `planning.md`) dropped. The merged full export is now measured at about 18k tokens (`bin/cli.js:93`, `README.md:127`).
 
-Remaining follow-up: add model-specific tokenizer measurements in CI (the 4-chars-per-token estimate is a heuristic, not a real tokenizer count). The current CI now enforces a 20k estimated-token ceiling using that same heuristic, so unexpected full-export growth fails the test suite (`test/run.js`).
+The static 20k CI guard still uses the repository's four-characters-per-token heuristic. The opt-in Hermes live eval now also records provider-reported input/output usage and compares the same probe with and without the Fable skill, giving a model-specific runtime measurement without guessing a tokenizer mapping. This does not provide an offline exact count for every host/model; see `scripts/live-eval.js` and `README.md`.
 
 ### 8. Installer and documentation target duplication: P2, fixed
 
@@ -73,13 +73,13 @@ Target paths were hand-maintained in `bin/cli.js` and repeated in README tables 
 
 ### 9. Behavioral skill evaluation: P2, partially addressed
 
-Structural tests prove installation, metadata, update safety, and package contents; they did not prove the router's vocabulary actually discriminates between workflows for a representative prompt set. `test/activation-eval.js` now runs a deterministic, offline keyword classifier (vocabulary drawn from `workflows.md`'s router table, not tuned to the fixtures) against 16 fixtures — two per workflow — and fails CI below 75% accuracy (`test/activation-eval.json`, `npm run eval`).
+Structural tests plus `test/activation-eval.js` provide deterministic install and vocabulary regression gates (16 fixtures, 75% threshold). The optional `scripts/live-eval.js` now sends synthetic prompts through Hermes with the repository's skill temporarily preloaded, uses an empty toolset, checks workflow/tier/evidence against a small rubric, and captures provider-reported usage. It requires an explicit `--live` flag and does not run in default CI.
 
-This is a vocabulary-separation regression gate, not a behavioral model eval: it does not launch a real LLM inside a real harness and check whether the skill actually activates and is followed. Running the same fixtures against a frontier, a mid-tier, and a local model inside their native harnesses remains open follow-up work requiring credentials and is intentionally kept out of the default `npm test` gate.
+The live eval is a smoke test, not a calibrated quality benchmark. It has been exercised with two Hermes/OpenAI-Codex models (`gpt-6-luna` and `gpt-5.6-luna`) over a small synthetic fixture set; validation across other providers and native hosts remains an opt-in follow-up. Rubric scores should be expanded only with representative, reviewed fixtures rather than tuned to a single model response.
 
 ### 10. No CI, no vendor-host presence signal: P2, fixed
 
-Verification previously ran only on a developer machine. `.github/workflows/ci.yml` now runs the source test suite and the activation eval across Node 16/18/20/22, packs and installs the tarball and runs the CLI from it, runs the official `skills-ref` validator against the shipped `fable-skill/` directory, and runs a non-blocking vendor-CLI presence smoke check (`scripts/host-smoke.js`, `npm run smoke:hosts`) that reports whether Claude Code, Codex, and Gemini CLI are installed and respond offline — without claiming that implies in-harness skill discovery, which needs authenticated credentials this environment does not have.
+Verification previously ran only on a developer machine. `.github/workflows/ci.yml` now runs the source test suite and activation eval across Node 16/18/20/22, checks every local README link is present in the packed tarball, installs the tarball into temporary Claude and Hermes layouts, runs the official `skills-ref` validator against the shipped `fable-skill/` directory, and runs non-blocking host checks. `scripts/host-smoke.js` reports vendor CLI presence; `scripts/hermes-host-smoke.js` verifies Hermes actually lists the installed skill when a Hermes CLI is available. Real provider behavior evaluation remains opt-in because it requires credentials and consumes provider usage.
 
 ## Verification completed (this revision, 2.2.0 final)
 
@@ -88,10 +88,13 @@ Verification previously ran only on a developer machine. `.github/workflows/ci.y
 - `npx --yes -p node@16 node test/run.js`: passed, confirming the Node 16 floor still holds after consolidation.
 - `uvx --from skills-ref agentskills.exe validate fable-skill`: `Valid skill: fable-skill`.
 - `node scripts/host-smoke.js`: Claude Code, Codex, and Gemini CLI binaries detected and responded to `--version` in this environment (informational only, not a harness-level skill-discovery proof).
-- `node --check bin/cli.js`, `node --check test/run.js`, `node --check test/activation-eval.js`: passed.
-- `npm pack --dry-run --json`: package contains the correctly named bundle plus the new `scripts/` and `.github/` dev-only files excluded from the published tarball via `package.json#files`.
-- Packed-tarball smoke test: installed CLI executed `fable-skill list` successfully.
-- `git diff --check`: passed, aside from a Git line-ending normalization warning on pre-existing Markdown files.
+- `npm test` passed; its pretest hook syntax-checks `bin/cli.js`, `test/run.js`, and all three smoke/eval scripts.
+- `npm pack --dry-run --json`: package includes the correctly named skill bundle and linked docs while excluding dev-only smoke/eval scripts and fixtures.
+- `npm run smoke:package`: npm installed the packed tarball into a temporary consumer workspace; the packed CLI and Claude/Hermes installer paths passed with all 8 references.
+- `FABLE_HERMES_BIN=/opt/hermes/.venv/bin/hermes node scripts/live-eval.js --live --provider openai-codex --model gpt-6-luna --limit 3`: 3/3 original smoke fixtures passed; after clarifying the code-edit fixture, that case passed again (1/1), zero tool calls, provider-reported skill input delta +1,871.
+- `FABLE_HERMES_BIN=/opt/hermes/.venv/bin/hermes node scripts/live-eval.js --live --provider openai-codex --model gpt-5.6-luna --limit 3`: 3/3 clarified smoke fixtures passed, zero tool calls, provider-reported skill input delta +1,866. These are model-specific smoke checks, not a quality certification.
+- `FABLE_HERMES_BIN=/opt/hermes/.venv/bin/hermes npm run smoke:hermes`: Hermes v0.22.5 listed the installed skill as enabled with 8 references.
+- `git diff --check`: passed.
 
 ## Evidence sources
 

@@ -1,0 +1,33 @@
+[
+  {
+    "id": "light-typo",
+    "prompt": "In the app's UI component, the rendered heading says 'Helo World'. Change the component so it displays 'Hello World' and explain how you would verify the code change.",
+    "expectedWorkflow": "Build",
+    "expectedTier": "LIGHT",
+    "requiredTerms": [["correct", "change", "edit"], ["check", "verify", "read back", "re-read", "confirm", "test", "inspect"]]
+  },
+  {
+    "id": "debug-intermittent-failure",
+    "prompt": "The login endpoint began returning intermittent 500s after yesterday's deployment. Find the root cause before changing code. State the first investigation step, list at least three candidate hypotheses in ranked order, and explain verification.",
+    "expectedWorkflow": "Debug",
+    "expectedTier": "FULL",
+    "acceptableTiers": ["STANDARD", "FULL"],
+    "minHypotheses": 3,
+    "requiredTerms": [["reproduce", "reproduction"], ["rerun", "re-run", "retest", "test", "verify", "confirm"]]
+  },
+  {
+    "id": "research-source-check",
+    "prompt": "Survey current retrieval-augmented generation approaches, compare at least three primary sources, identify conflicts and open questions, and outline how you would produce a source-grounded summary.",
+    "expectedWorkflow": "Research",
+    "expectedTier": "FULL",
+    "acceptableTiers": ["STANDARD", "FULL"],
+    "requiredTerms": [["source", "documentation"], ["conflict", "disagreement"], ["verify", "check", "cross-check", "corroborate", "confirm", "traceable"]]
+  },
+  {
+    "id": "operate-production-release",
+    "prompt": "Deploy the new release to production and roll back if health checks fail. Outline the safe sequence without performing it.",
+    "expectedWorkflow": "Operate",
+    "expectedTier": "FULL",
+    "requiredTerms": [["dry-run", "dry run", "preflight"], ["rollback", "roll back"], ["health check", "health-check"]]
+  }
+]

@@ -574,10 +574,27 @@ the installer) are welcome — open an issue or PR. Keep rules falsifiable and b
 
 Before opening a PR: run `npm test` (installer behavior, update safety, package/portability
 checks) and `npm run eval` (the activation router's workflow vocabulary stays distinguishing).
-[CI](.github/workflows/ci.yml) runs both across Node 16–22 plus the official Agent Skills
+[CI](https://github.com/almutaz9000/fable-skill/actions/workflows/ci.yml) runs both across Node 16–22 plus the official Agent Skills
 validator on every push and PR. See [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md)
 for the full bottleneck-and-fix history behind the current architecture, and
 [`CHANGELOG.md`](CHANGELOG.md) for release notes.
+
+### Optional Hermes checks
+
+These checks are not part of the default CI gate; run them from the source checkout.
+
+- `npm run smoke:package` verifies README links in the packed artifact, then installs the
+  tarball into temporary Claude and Hermes layouts and checks that every reference file ships.
+- `FABLE_HERMES_BIN=/path/to/hermes npm run smoke:hermes` installs to a temporary `HERMES_HOME`
+  and verifies `hermes skills list` discovers the enabled skill. It makes no model calls.
+- `FABLE_HERMES_BIN=/path/to/hermes npm run eval:live -- --live --provider openai-codex --model gpt-6-luna --limit 3`
+  runs a small synthetic behavior smoke against a real model. To use the active Hermes gateway/profile,
+  it briefly installs a uniquely named `fbl-*` skill in the configured `HERMES_HOME/skills` directory;
+  it does not modify config or credentials. It requests no tools and records synthetic sessions with
+  `source=tool`. The temporary skill is cleaned on normal exit and SIGINT/SIGTERM; a force kill or host
+  crash can leave an `fbl-*` directory that may be removed manually. It reports rubric evidence plus
+  provider-reported input/output usage and the paired skill-off/on input-token delta. Live calls consume
+  the selected provider's allowance; this is a smoke eval, not a quality certification.
 
 ## License
 
