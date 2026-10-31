@@ -65,7 +65,7 @@ The skill now selects one authoritative state store based on host capabilities a
 
 The documented full export was originally roughly 7k tokens, but measured output was 86,524 characters, approximately 21.6k tokens using the repository's own four-characters-per-token estimate. The documentation was corrected to about 22k, then the three most duplicative reference modules (`research.md`, `analysis.md`, `writing.md`) were merged into `workflows.md` with their unique rules preserved and their restated ladders/done-criteria (already canonical in `verification.md` and `planning.md`) dropped. The merged full export is now measured at about 18k tokens (`bin/cli.js:93`, `README.md:127`).
 
-Remaining follow-up: add model-specific tokenizer measurements in CI (the 4-chars-per-token estimate is a heuristic, not a real tokenizer count) and set an explicit CI size ceiling that fails if the full export grows past a stated budget.
+Remaining follow-up: add model-specific tokenizer measurements in CI (the 4-chars-per-token estimate is a heuristic, not a real tokenizer count). The current CI now enforces a 20k estimated-token ceiling using that same heuristic, so unexpected full-export growth fails the test suite (`test/run.js`).
 
 ### 8. Installer and documentation target duplication: P2, fixed
 

@@ -126,7 +126,9 @@ their content into **every** request, so they get the **compact edition** (about
 tokens by the repository's four-characters-per-token estimate). Agents with native skill folders
 (Claude Code, Codex, Gemini CLI, Antigravity, OpenClaw, Hermes Agent) load references on demand,
 so they get the complete skill at no per-request cost. The optional full single-file export is
-about 18k tokens by the same estimate. Opt in only when the target has enough context:
+about 18k tokens by the same estimate. CI enforces a 20k estimated-token ceiling on that full
+export using the same four-characters-per-token heuristic; this is a regression budget, not a
+model-specific tokenizer measurement. Opt in only when the target has enough context:
 
 ```bash
 npx github:almutaz9000/fable-skill agents --full

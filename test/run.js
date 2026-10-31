@@ -328,5 +328,23 @@ const countBlocks = (file) =>
     check(`README documents target command: ${key}`, pattern.test(readme), `no \`${key}\` command found in README.md`);
   }
 }
+// --- 15. full prompt size stays within the documented CI budget -------------
+{
+  const fullPrompt = mergedMarkdown();
+  const maxEstimatedTokens = 20_000; // repository estimate: 4 characters per token
+  const estimatedTokens = Math.ceil(fullPrompt.length / 4);
+  const withinEstimatedBudget = (text, budget) => Math.ceil(text.length / 4) <= budget;
+  const syntheticOverflow = "x".repeat((maxEstimatedTokens + 1) * 4);
+  check(
+    "full merged prompt stays below 20k estimated tokens",
+    withinEstimatedBudget(fullPrompt, maxEstimatedTokens),
+    `${fullPrompt.length} chars ≈ ${estimatedTokens} tokens; maximum ${maxEstimatedTokens}`
+  );
+  check(
+    "prompt budget gate rejects a synthetic over-budget input",
+    !withinEstimatedBudget(syntheticOverflow, maxEstimatedTokens)
+  );
+}
+
 console.log(failures ? `\n${failures} test(s) FAILED` : "\nAll tests passed");
 process.exit(failures ? 1 : 0);
