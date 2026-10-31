@@ -5,8 +5,11 @@
   "scripts": {
     "test": "node test/run.js",
     "eval": "node test/activation-eval.js",
-    "pretest": "node --check bin/cli.js && node --check test/run.js",
-    "smoke:hosts": "node scripts/host-smoke.js"
+    "pretest": "node --check bin/cli.js && node --check test/run.js && node --check scripts/package-smoke.js && node --check scripts/hermes-host-smoke.js && node --check scripts/live-eval.js",
+    "smoke:hosts": "node scripts/host-smoke.js",
+    "smoke:hermes": "node scripts/hermes-host-smoke.js",
+    "smoke:package": "node scripts/package-smoke.js",
+    "eval:live": "node scripts/live-eval.js"
   },
   "description": "Portable Agent Skills workflow discipline with native installers for Claude, Codex, Gemini, Antigravity, OpenClaw, Hermes, and rules-based coding agents.",
   "bin": {
@@ -16,6 +19,8 @@
     "bin/",
     "fable-skill/",
     "README.md",
+    "CHANGELOG.md",
+    "docs/",
     "LICENSE"
   ],
   "engines": {

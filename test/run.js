@@ -14,6 +14,8 @@ const SKILL_MD = path.join(ROOT, "fable-skill", "SKILL.md");
 const COMPACT_MD = path.join(ROOT, "fable-skill", "COMPACT.md");
 const README_MD = path.join(ROOT, "README.md");
 const { TARGETS, compactMarkdown, mergedMarkdown, resolveHermesHome } = require(CLI);
+const { findMissingReadmeLinks, parsePackFiles, npmInvocation } = require(path.join(ROOT, "scripts", "package-smoke.js"));
+const { extractSessionId, gradeBehavior, parseModelResponse, tokenUsageDelta, parseCliArgs, usageRecord, buildChatArgs, cleanupTemporaryResources, noToolsInvoked } = require(path.join(ROOT, "scripts", "live-eval.js"));
 
 let failures = 0;
 function check(name, cond, detail) {
@@ -344,6 +346,61 @@ const countBlocks = (file) =>
     "prompt budget gate rejects a synthetic over-budget input",
     !withinEstimatedBudget(syntheticOverflow, maxEstimatedTokens)
   );
+}
+
+// --- 15. package-link and live-eval contracts ------------------------------
+{
+  const parsedFiles = parsePackFiles({ "fable-skill": { files: [{ path: "README.md" }, { path: "LICENSE" }] } });
+  check("package audit accepts npm pack object output", parsedFiles.has("README.md") && parsedFiles.has("LICENSE"));
+  const listFiles = parsePackFiles([{ files: [{ path: "README.md" }] }]);
+  check("package audit accepts npm pack array output", listFiles.has("README.md"));
+  const [nodeBin, npmCliArgs] = npmInvocation(["pack", "--json"], { npm_execpath: "C:/node/npm-cli.js" }, "win32", "C:/node.exe");
+  check("package smoke launches npm through Node on Windows", nodeBin === "C:/node.exe" && npmCliArgs[0] === "C:/node/npm-cli.js" && npmCliArgs[1] === "pack");
+  let windowsNpmFallbackRefused = false;
+  try { npmInvocation(["pack"], {}, "win32", "C:/node.exe"); } catch (error) { windowsNpmFallbackRefused = /npm run smoke:package/.test(error.message); }
+  check("package smoke gives Windows users the npm-run invocation when npm_execpath is absent", windowsNpmFallbackRefused);
+  const sampleReadme = "[Architecture](docs/ARCHITECTURE_REVIEW.md) [Changelog](CHANGELOG.md) [CI](https://example.test/ci)";
+  const missing = findMissingReadmeLinks(sampleReadme, new Set(["README.md", "LICENSE"]));
+  check("package link audit detects README targets omitted from tarball", missing.includes("docs/ARCHITECTURE_REVIEW.md") && missing.includes("CHANGELOG.md"), missing.join(", "));
+  const included = findMissingReadmeLinks(sampleReadme, new Set(["README.md", "LICENSE", "docs/ARCHITECTURE_REVIEW.md", "CHANGELOG.md"]));
+  check("package link audit passes when local targets are packaged", included.length === 0, included.join(", "));
+
+  const fixture = { expectedWorkflow: "debug", expectedTier: "FULL", requiredTerms: ["reproduce", ["hypothesis", "hypotheses"]] };
+  const output = parseModelResponse('```json\\n{"workflow":"Debug","tier":"full","first_step":"Reproduce the failure and rank hypotheses","verification":"Rerun the original failing case"}\\n```');
+  check("live-eval parses a fenced JSON response", !!output && output.workflow === "Debug");
+  const grade = gradeBehavior(fixture, output);
+  check("live-eval rubric accepts expected workflow/tier/evidence", grade.passed, (grade.errors || []).join(", "));
+  const badGrade = gradeBehavior(fixture, { workflow: "Build", tier: "LIGHT", first_step: "Edit it", verification: "Done" });
+  check("live-eval rubric rejects wrong route and missing verification markers", !badGrade.passed && badGrade.errors.length >= 2);
+  const flexibleTier = gradeBehavior({ expectedWorkflow: "debug", expectedTier: "FULL", acceptableTiers: ["STANDARD", "FULL"] }, { workflow: "Debug", tier: "STANDARD", first_step: "Reproduce, rank hypotheses", verification: "Rerun and verify" });
+  check("live-eval accepts explicitly calibrated alternative tiers", flexibleTier.passed);
+  const hypothesisGrade = gradeBehavior({ expectedWorkflow: "debug", expectedTier: "FULL", minHypotheses: 3 }, { workflow: "Debug", tier: "FULL", hypotheses: ["A", "B", "C"] });
+  check("live-eval can enforce a minimum hypothesis count", hypothesisGrade.passed);
+  check("provider usage delta reports skill prompt overhead", tokenUsageDelta({ total_input_tokens: 120 }, { total_input_tokens: 177 }) === 57);
+  check("provider usage delta includes cached input tokens", tokenUsageDelta({ total_input_tokens: 120 }, { total_input_tokens: 150 }) === 30);
+  check("provider usage delta stays unknown when usage is absent", tokenUsageDelta({}, { total_input_tokens: null }) === null);
+  const usage = usageRecord({ input_tokens: 20, cache_read_tokens: 100, cache_write_tokens: 10, output_tokens: 5, tool_call_count: 0 }, "fbl-test");
+  check("live eval aggregates provider uncached/read/write input tokens", usage.total_input_tokens === 130 && usage.input_tokens === 130);
+  check("no-tool check passes only when provider reports zero calls", noToolsInvoked({ tool_call_count: 0 }) === true && noToolsInvoked({ tool_call_count: 2 }) === false);
+  check("no-tool check preserves missing telemetry as unknown", noToolsInvoked({ tool_call_count: null }) === null && noToolsInvoked({}) === null);
+  check("session id parser extracts Hermes one-shot id", extractSessionId(["answer", "session_id: local-a1b2c3", ""].join(String.fromCharCode(10))) === "local-a1b2c3");
+  const unconfirmed = parseCliArgs(["--provider", "openai-codex", "--model", "gpt-6-luna"]);
+  check("live model evaluation refuses to call without explicit confirmation", unconfirmed.live === false);
+  const discoveryOnly = parseCliArgs(["--check-only"]);
+  check("Hermes discovery smoke can run without live model requests", discoveryOnly.checkOnly === true && discoveryOnly.live === false);
+  const liveArgs = buildChatArgs({ provider: "p", model: "m", prompt: "synthetic", skillName: "fbl-test" });
+  check("live eval passes an explicit empty toolset", liveArgs.includes("--toolsets") && liveArgs[liveArgs.indexOf("--toolsets") + 1] === "");
+  const cleanupRoot = fs.mkdtempSync(path.join(os.tmpdir(), "fable-live-cleanup-test-"));
+  const temporarySkill = { skillDir: path.join(cleanupRoot, "skills", "fbl-test") };
+  const temporaryCwd = path.join(cleanupRoot, "cwd");
+  fs.mkdirSync(temporarySkill.skillDir, { recursive: true });
+  fs.mkdirSync(temporaryCwd, { recursive: true });
+  cleanupTemporaryResources(temporarySkill, temporaryCwd);
+  check("live eval cleanup removes its temporary skill and working directory",
+    !fs.existsSync(temporarySkill.skillDir) && !fs.existsSync(temporaryCwd));
+  fs.rmSync(cleanupRoot, { recursive: true, force: true });
+  const noLive = spawnSync(process.execPath, [path.join(ROOT, "scripts", "live-eval.js"), "--provider", "openai-codex", "--model", "gpt-6-luna"], { encoding: "utf8" });
+  check("live eval CLI exits before making requests without --live", noLive.status === 2 && /without --live/.test(noLive.stderr || ""));
 }
 
 console.log(failures ? `\n${failures} test(s) FAILED` : "\nAll tests passed");

@@ -32,13 +32,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm pack --dry-run --json
-      - name: pack and install from tarball
-        run: |
-          npm pack
-          mkdir -p /tmp/fable-skill-smoke
-          tar -xzf fable-skill-*.tgz -C /tmp/fable-skill-smoke
-          node /tmp/fable-skill-smoke/package/bin/cli.js list
+      - run: npm run smoke:package
 
   validate-skill:
     name: official Agent Skills validator
@@ -49,7 +43,7 @@ jobs:
       - run: uvx --from skills-ref agentskills validate fable-skill
 
   host-smoke:
-    name: vendor CLI smoke (non-blocking, informational)
+    name: vendor CLI and Hermes skill discovery (non-blocking, informational)
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
@@ -58,3 +52,4 @@ jobs:
         with:
           node-version: 20
       - run: node scripts/host-smoke.js
+      - run: node scripts/hermes-host-smoke.js
