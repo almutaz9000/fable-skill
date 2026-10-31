@@ -6,6 +6,12 @@ All notable changes to fable-skill are documented here. Format loosely follows
 This file starts at 2.2.0. Earlier versions are reconstructed from commit history for
 reference, not from original release notes (none were kept before this file existed).
 
+## [Unreleased]
+
+### Added
+- CI regression guard that keeps the full merged skill prompt at or below 20k estimated
+  tokens (using the repository's documented four-characters-per-token heuristic).
+
 ## [2.2.0] - 2026-10-08
 
 ### Added
