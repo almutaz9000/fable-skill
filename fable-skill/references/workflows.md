@@ -21,6 +21,7 @@ review verdict plus corrected figures — that's Review + Analyze.
 | A plan or a decision | **Plan** | 2–3 real options scored; riskiest assumption first |
 | Insight from data | **Analyze** | profile the data before trusting any result from it |
 | A state change in the world (deploy, migration, bulk edit, send) | **Operate** | dry-run and checkpoint; smallest irreversible step last |
+| A recurring check or ongoing watch (CI, a deploy, a queue, a schedule) | **Monitor** | match cadence to what's being waited for; define the stop condition before the first tick |
 
 Routing rules:
 - **Mixed deliverables → phases.** "Analyze the survey data and write up findings" is
@@ -28,6 +29,9 @@ Routing rules:
   artifact; phase 1's verification gates phase 2 — never draft prose around unverified numbers.
 - **Re-route on discovery.** A Build task that hits an unexplained failure becomes Debug
   until the cause is known, then returns to Build. Say so when it happens.
+- **A single state change is Operate; a repeated or open-ended one is Monitor.** "Deploy and
+  verify" is Operate. "Deploy and keep checking health for the next hour" is Operate then
+  Monitor — name the handoff the same way any other mixed-deliverable task does.
 - **Tier and shape are independent axes.** A LIGHT research question (one lookup) skips the
   ceremony but still cites its source; a FULL write-up gets the whole pipeline below.
 
@@ -216,3 +220,30 @@ The deliverable is a **changed world state**, often hard to reverse — safety d
 - Banned: batch-destructive operations without a verified sample; irreversible actions with
   no named rollback; declaring success from the absence of errors instead of the presence of
   the expected state.
+
+## Monitor (recurring checks, watches, scheduled runs)
+
+The deliverable is a **state change observed and acted on at the right moment**, not a single
+report — this is Operate stretched across many ticks instead of one action. "Watch this PR and
+fix CI as it fails," "check every 20 minutes whether the deploy finished," "poll until the job
+completes" are Monitor, not Operate: the work is unknown in advance how many times it repeats.
+
+- **Define the stop condition before the first tick**: goal met, a maximum number of ticks, a
+  deadline, or "the user says stop." An open-ended watch with no exit is a banned pattern —
+  it either runs forever or gets abandoned silently.
+- **Prefer the host's scheduler or trigger over a busy-wait.** If the platform can wake the
+  agent on a schedule or on an external event, use that instead of blocking inside one turn or
+  looping with sleeps. If no such mechanism exists, say so plainly and ask the user when to
+  check back rather than faking a wait.
+- **Match cadence to what's actually being awaited**, not a fixed guess: a build that takes
+  two minutes deserves a single two-minute check, not five thirty-second ones; an open-ended
+  watch (a PR that might get a comment anytime) deserves a long, infrequent heartbeat, not
+  rapid polling that produces nothing but noise.
+- **Classify every tick as noop or non-noop** before reporting it: noop means nothing changed
+  and gets at most one line; non-noop means something happened and gets reported properly (see
+  `communication.md`). Never fabricate a tick's result before it has actually run.
+- **Stop exactly when the stop condition is met**, and say so in the final report — what was
+  found, how many ticks it took, and what (if anything) changed between the first and last.
+- Banned: watching with no stop condition; busy-waiting when the host offers a real scheduler;
+  reporting a tick's outcome before running it; treating "nothing changed" as nothing to say
+  (it is still a checked claim — state what was checked).

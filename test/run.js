@@ -211,7 +211,7 @@ const countBlocks = (file) =>
 
   check("README names every primary host", ["Hermes", "Claude Code", "OpenAI Codex", "Gemini CLI", "Google Antigravity", "OpenClaw"].every((name) => readme.includes(name)));
   check("README documents distinct Antigravity surfaces", /antigravity --global/i.test(readme) && /antigravity-cli --global/i.test(readme));
-  check("README documents measured full prompt size", /about 18k tokens/i.test(readme));
+  check("README documents measured full prompt size", /about 19k tokens/i.test(readme));
   check("README has install, verification, and usage guidance", /## 3-minute install/i.test(readme) && /## Verify installation/i.test(readme) && /## Example usage/i.test(readme));
 
   const fm = skill.match(/^---[\s\S]*?---/)[0];

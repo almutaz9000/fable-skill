@@ -90,7 +90,7 @@ const referenceFiles = memo(() => {
 const FOOTER =
   "\n\n---\n\n*Installed by [fable-skill](https://github.com/almutaz9000/fable-skill). Re-run `npx fable-skill` to update.*\n";
 
-/** Full merge: SKILL.md + every reference module (roughly 18k estimated tokens). */
+/** Full merge: SKILL.md + every reference module (roughly 19k estimated tokens). */
 const mergedMarkdown = memo(() => {
   const parts = [stripFrontmatter(readSkillMd()).trim()];
   for (const ref of referenceFiles()) {
@@ -582,7 +582,7 @@ Scope:
 
 Depth (single-file targets only; skill-folder targets always get the full skill):
   (default)   compact edition, roughly 2k tokens — safe for always-on rules files
-  --full      full skill with all reference modules, roughly 18k tokens per request
+  --full      full skill with all reference modules, roughly 19k tokens per request
 
 Examples:
   npx fable-skill claude --global     # Claude Code, all projects

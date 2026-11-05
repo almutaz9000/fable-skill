@@ -175,6 +175,29 @@ Use the template that matches the selected workflow. The Build template above is
 ## Discovered / integration issues
 ```
 
+### Monitor plan
+
+```markdown
+## Goal
+<what is being watched, and what should happen when it changes>
+
+## Stop condition
+<goal met | max N ticks | deadline | user says stop — never "runs until I notice">
+
+## Cadence
+<how often to check, and why that interval matches what's being waited for>
+
+## Noop criterion
+<what "nothing changed" means for this watch, so ticks are classified consistently>
+
+## Ticks
+| # | Time | Result | Noop? | Action taken |
+|---|---|---|---|---|
+
+## Stopped because
+<which stop condition triggered, and the final state>
+```
+
 ## The approval checkpoint (plan + all questions in one batch)
 
 For work where a wrong direction is expensive — a long run, genuinely divergent options, an

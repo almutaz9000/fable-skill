@@ -30,6 +30,7 @@ const KEYWORDS = {
   review: ["review this", "verdict", "ready to ship", "pull request", "critique"],
   plan: ["should we use", "recommendation", "project plan", "plan for", "give me a recommendation"],
   build: ["implement", "add pagination", "add ", "retry wrapper", "endpoint", "feature"],
+  monitor: ["watch this", "babysit", "poll until", "check every", "keep checking", "recurring", "every 20 minutes", "let me know when it", "until it finishes"],
 };
 
 function classify(prompt) {

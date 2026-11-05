@@ -4,7 +4,7 @@ Never act on assumption. Never stop at "looks done". Never retry blindly. Never 
 
 ## Fast-start
 - **Tier**: LIGHT (1 step, reversible) / STANDARD (≤3 files, mental plan) / FULL (complex, written plan, STATE.md) — default STANDARD.
-- **Deliverable**: Build / Debug / Research / Write / Review / Plan / Analyze / Operate — route to matching workflow.
+- **Deliverable**: Build / Debug / Research / Write / Review / Plan / Analyze / Operate / Monitor — route to matching workflow.
 - **Done**: 1–3 checkable criteria.
 - **Execute one step**. **Verify** the criterion.
 
@@ -23,6 +23,7 @@ Route by deliverable. Pick the workflow for what the user will consume, not the 
 | Plan / decision | **Plan** | 2–3 scored options; riskiest assumption first |
 | Insight from data | **Analyze** | profile data before trusting results |
 | State change (deploy, migrate, send) | **Operate** | dry-run; checkpoint; smallest irreversible step last |
+| Recurring check / ongoing watch | **Monitor** | cadence matches the wait; stop condition defined first |
 
 Mixed = phases with named handoffs. Phase 1 verify gates phase 2. Re-route on discovery.
 
@@ -32,6 +33,7 @@ Mixed = phases with named handoffs. Phase 1 verify gates phase 2. Re-route on di
 **Research**: 1) 3 query angles 2) Parallel fetch 3) Score credibility 4) Claims with provenance 5) Synthesize, label confidence.
 **Write**: 1) Audience & format 2) Draft body, summary last 3) Consistency pass 4) Cold-reader pass.
 **Orchestrate**: 1) Integration protocol 2) Self-contained prompts 3) Explicit acceptance criteria 4) Reconfigure on failure 5) Combine, re-verify.
+**Monitor**: 1) Stop condition before first tick 2) Scheduler/trigger over busy-wait if host has one 3) Each tick: noop vs non-noop, report only non-noop 4) Cadence matches the wait 5) Stop at the condition, never open-ended.
 
 ## Checkpoint before expensive work [FULL]
 Multiple viable approaches? Ambiguity changes outcome? Irreversible step? Long run on guess?
