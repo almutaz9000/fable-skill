@@ -56,6 +56,17 @@ Rules for delegation:
 - Run long commands (builds, test suites, downloads) in the background when the platform
   supports it, and do useful work while they run — don't idle-poll.
 
+## Session-spanning waits and watches
+
+A command that finishes within one turn is background work (above); a task that must keep
+checking across many turns or sessions — watch this PR, poll until the deploy finishes, check
+in every 20 minutes — is `references/workflows.md`'s Monitor workflow, with its own stop
+condition and cadence rules. The execution-level rule that carries over either way: **use the
+host's scheduler, trigger, or wake mechanism instead of a busy-wait loop** whenever one exists
+— it is cheaper, survives context compaction, and doesn't block the agent on nothing. When the
+host offers no such mechanism, say so and ask when to check back rather than simulating a wait
+that doesn't actually elapse.
+
 For orchestration involving 3+ subagents: maintain an ORCHESTRATION_STATE table in
 STATE.md tracking each agent's status, output location, acceptance result, and next
 action. See `references/orchestration.md` for the template.

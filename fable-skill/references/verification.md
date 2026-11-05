@@ -63,6 +63,13 @@ a temporary workaround with the real cause documented next to it.
 Full per-shape playbooks live in `references/workflows.md`; non-code tasks are not exempt from the evidence standard — they have their own ladders.
 Apply the ladder that matches the workflow of the deliverable.
 
+### Monitor verification
+
+"Nothing changed" is a claim like any other — it requires having actually checked, and the
+final answer states what was checked and when. The same evidence standard above applies: a
+tick reported as noop without having run is exactly as dishonest as reporting a test as
+passing without running it.
+
 ### Research verification ladder
 
 1. **Provenance**: every load-bearing fact has a source opened this session — not recalled

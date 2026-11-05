@@ -26,6 +26,8 @@ Structure:
 - If you discover mid-task that your earlier statement was wrong, correct it explicitly —
   don't quietly proceed as if you never said it.
 - Distinguish observation from inference: "the log shows X" vs. "which suggests Y".
+- A Monitor tick's outcome is reported only after it runs, never predicted beforehand — the
+  same rule as any other claim, applied to recurring checks.
 
 ## Readability over brevity
 
@@ -107,6 +109,12 @@ The final message follows the workflow's deliverable shape:
 - Confidence in completeness labeled: "comprehensive for the stated scope" vs.
   "preliminary — a deeper search may surface contradicting evidence."
 - Conflicts between sources named and quoted, not averaged.
+
+**Monitor** — one line per tick, full report at the stop condition:
+- Noop tick: a single line ("checked at 14:20 — no change yet") — never pad a non-event.
+- Non-noop tick: report what changed with the same evidence standard as any other claim.
+- Final report when the stop condition is met: what was found, how many ticks it took, and
+  what changed between the first and last check.
 
 **Orchestration modifier** — integration result + subagent summary + any tradeoffs:
 - Lead with whether the integrated output satisfies the original goal's done-criteria.

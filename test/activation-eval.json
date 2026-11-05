@@ -14,5 +14,7 @@
   { "prompt": "Our checkout funnel conversion dropped 12% last week. Find out why from the data.", "workflow": "analyze" },
   { "prompt": "Profile this dataset and tell me what's driving the churn increase.", "workflow": "analyze" },
   { "prompt": "Deploy the new release to production and roll back if health checks fail.", "workflow": "operate" },
-  { "prompt": "Run the bulk data migration against the live database tonight.", "workflow": "operate" }
+  { "prompt": "Run the bulk data migration against the live database tonight.", "workflow": "operate" },
+  { "prompt": "Watch this PR and automatically fix any CI failures that come up.", "workflow": "monitor" },
+  { "prompt": "Check every 20 minutes whether the deploy finishes and let me know when it does.", "workflow": "monitor" }
 ]

@@ -12,6 +12,28 @@ reference, not from original release notes (none were kept before this file exis
 - CI regression guard that keeps the full merged skill prompt at or below 20k estimated
   tokens (using the repository's documented four-characters-per-token heuristic).
 
+## [2.3.0] - 2026-11-05
+
+### Added
+- **Monitor** — a 9th deliverable workflow for recurring checks and ongoing watches (CI
+  babysitting, polling a deploy, checking in on a schedule), distinct from the one-shot
+  Operate workflow. Covers: defining a stop condition before the first tick, preferring the
+  host's scheduler/trigger over a busy-wait, matching cadence to what's actually being
+  awaited, and classifying each tick as noop vs. non-noop so recurring runs stay legible
+  instead of spamming the user. Added to `SKILL.md`, `COMPACT.md`, `references/workflows.md`
+  (router row + full section), `references/planning.md` (plan template),
+  `references/communication.md` (reporting rule + output format), `references/verification.md`
+  (evidence rule — "nothing changed" is still a checked claim), and `references/execution.md`
+  (scheduler-over-busy-wait for session-spanning waits).
+- An explicit **Iterate** step in `SKILL.md`'s Fast-start, naming the loop-back to Plan/Act on
+  an unmet done-criterion — the cycle was already named "the Loop" in `workflows.md` but the
+  core Fast-start skipped straight from Verify to nothing.
+- Two Monitor fixtures in `test/activation-eval.json` / `test/activation-eval.js` (18/18 passing).
+
+### Changed
+- Full merged single-file export re-measured at ~19k estimated tokens (was ~18k) after the
+  Monitor additions; `README.md`, `bin/cli.js`, and `test/run.js`'s size check updated to match.
+
 ## [2.2.0] - 2026-10-08
 
 ### Added

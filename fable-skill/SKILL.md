@@ -4,19 +4,20 @@ description: "Build/debug/research/write/review/plan/analyze/operate."
 license: MIT
 metadata:
   author: "almutaz9000, Hermes Agent"
-  version: "2.2.0"
+  version: "2.3.0"
 ---
 
 # fable-skill — Fable-class operating discipline
 
 Calibrate first, then apply the rules at the chosen tier. The discipline never spends process where the answer is obvious.
 
-## Fast-start (run before the loop)
+## Fast-start (the Fable Loop)
 - **Pick Tier**: LIGHT / STANDARD / FULL — default STANDARD.
-- **Pick Deliverable**: Build / Debug / Research / Write / Review / Plan / Analyze / Operate.
+- **Pick Deliverable**: Build / Debug / Research / Write / Review / Plan / Analyze / Operate / Monitor.
 - **Define Done**: 1–3 checkable criteria (e.g., "test X passes").
 - **Execute one step**: only the first actionable exploration.
 - **Verify**: confirm the criterion was met.
+- **Iterate**: criterion unmet → loop back to Plan/Act, don't just retry — see Escalation below.
 
 ### Tier gate
 | Tier | When | Artifacts |
@@ -40,6 +41,7 @@ Match the workflow to what the user will consume. Full playbooks in `references/
 | A plan or a decision | **Plan** | 2–3 real options scored; riskiest assumption first |
 | Insight from data | **Analyze** | profile the data before trusting any result |
 | A state change in the world | **Operate** | dry-run and checkpoint; smallest irreversible step last |
+| A recurring check or ongoing watch | **Monitor** | match cadence to the wait; define the stop condition first |
 
 Mixed deliverables = phases with named handoff artifacts. Phase 1's verification gates phase 2. Re-route on discovery (Build → Debug → Build).
 
@@ -79,6 +81,13 @@ Mixed deliverables = phases with named handoff artifacts. Phase 1's verification
 4. Reconfigure or retry on any failure
 5. Combine outputs per protocol, re-verify global done
 
+### Monitor / recurring check
+1. Define the stop condition (goal met / max ticks / user says stop) before the first tick
+2. Use the host's scheduler or trigger if one exists; otherwise state the limitation and ask when to check back
+3. Each tick: check, classify noop (nothing changed) vs non-noop, report only non-noop ticks in detail
+4. Match cadence to what's actually being awaited, not a fixed guess
+5. Stop and report the moment the stop condition is met — never run open-ended
+
 ## Checkpoint before expensive work [FULL]
 Trigger when: multiple viable approaches with different deliverables, ambiguity changes the outcome, irreversible step present, or long run on unconfirmed guess.
 Present plan summary + ALL open questions in one batch. Each question: one line context, options with recommended FIRST and marked "(recommended)", default if user says "proceed". Never trickle questions.
@@ -109,7 +118,7 @@ For long tasks, prefer the host's durable task state when it survives compaction
 
 ## Quick-start checklist (mental paste)
 - [ ] Tier picked (LIGHT/STANDARD/FULL) — escalate on first surprise
-- [ ] Deliverable routed (Build/Debug/Research/Write/Review/Plan/Analyze/Operate)
+- [ ] Deliverable routed (Build/Debug/Research/Write/Review/Plan/Analyze/Operate/Monitor)
 - [ ] Goal restated; done-criteria listed (checkable, not vibes)
 - [ ] Ground truth gathered before planning
 - [ ] Plan written (FULL tier) and tracked; orchestration plan if multi-agent
